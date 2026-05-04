@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.0;
 
-import { IMapleTradingStrategyInitializer } from "../../contracts/interfaces/IMapleTradingStrategyInitializer.sol";
+import { IMapleSkyStrategyInitializer } from "../../contracts/interfaces/IMapleSkyStrategyInitializer.sol";
 
-import { MapleTradingStrategyHarness } from "../utils/Harnesses.sol";
-import { TestBase }                    from "../utils/TestBase.sol";
+import { MapleSkyStrategyHarness } from "../utils/Harnesses.sol";
+import { TestBase }                from "../utils/TestBase.sol";
 
 contract CreateInstanceTests is TestBase {
 
@@ -26,10 +26,10 @@ contract CreateInstanceTests is TestBase {
 
     function test_createInstance_success() external {
         vm.expectEmit();
-        emit IMapleTradingStrategyInitializer.Initialized(params);
+        emit IMapleSkyStrategyInitializer.Initialized(params);
 
         vm.prank(deployer);
-        strategy = MapleTradingStrategyHarness(factory.createInstance(abi.encode(params), ""));
+        strategy = MapleSkyStrategyHarness(factory.createInstance(abi.encode(params), ""));
 
         assertEq(strategy.manager(), address(manager));
     }

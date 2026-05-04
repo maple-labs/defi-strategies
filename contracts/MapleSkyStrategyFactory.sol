@@ -5,7 +5,7 @@ import { MapleProxyFactory } from "../modules/proxy-factory/contracts/MapleProxy
 
 import { IGlobalsLike } from "./interfaces/Interfaces.sol";
 
-contract MapleTradingStrategyFactory is MapleProxyFactory {
+contract MapleSkyStrategyFactory is MapleProxyFactory {
 
     constructor(address globals_) MapleProxyFactory(globals_) {}
 

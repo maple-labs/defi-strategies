@@ -3,13 +3,13 @@ pragma solidity ^0.8.0;
 
 import { Test } from "../../modules/forge-std/src/Test.sol";
 
-import { IMapleTradingStrategyInitializer } from "../../contracts/interfaces/IMapleTradingStrategyInitializer.sol";
+import { IMapleSkyStrategyInitializer } from "../../contracts/interfaces/IMapleSkyStrategyInitializer.sol";
 
-import { MapleTradingStrategyFactory } from "../../contracts/MapleTradingStrategyFactory.sol";
+import { MapleSkyStrategyFactory } from "../../contracts/MapleSkyStrategyFactory.sol";
 
 import {
-    MapleTradingStrategyHarness,
-    MapleTradingStrategyInitializerHarness
+    MapleSkyStrategyHarness,
+    MapleSkyStrategyInitializerHarness
 } from "./Harnesses.sol";
 
 import {
@@ -25,19 +25,19 @@ contract TestBase is Test {
     address governor      = makeAddr("governor");
     address securityAdmin = makeAddr("securityAdmin");
 
-    address implementation = address(new MapleTradingStrategyHarness());
-    address initializer    = address(new MapleTradingStrategyInitializerHarness());
+    address implementation = address(new MapleSkyStrategyHarness());
+    address initializer    = address(new MapleSkyStrategyInitializerHarness());
 
     uint32 startingTime;
 
-    IMapleTradingStrategyInitializer.Parameters params;
+    IMapleSkyStrategyInitializer.Parameters params;
 
     MockAsset   asset   = new MockAsset();
     MockGlobals globals = new MockGlobals();
     MockManager manager = new MockManager();
 
-    MapleTradingStrategyFactory factory;
-    MapleTradingStrategyHarness strategy;
+    MapleSkyStrategyFactory factory;
+    MapleSkyStrategyHarness strategy;
 
     function setUp() public virtual {
         startingTime = uint32(block.timestamp);
@@ -46,19 +46,19 @@ contract TestBase is Test {
         globals.__setGovernor(governor);
         globals.__setSecurityAdmin(securityAdmin);
 
-        factory = new MapleTradingStrategyFactory(address(globals));
+        factory = new MapleSkyStrategyFactory(address(globals));
 
         vm.startPrank(governor);
         factory.registerImplementation(100, implementation, initializer);
         factory.setDefaultVersion(100);
         vm.stopPrank();
 
-        params = IMapleTradingStrategyInitializer.Parameters({
+        params = IMapleSkyStrategyInitializer.Parameters({
             manager: address(manager)
         });
 
         vm.prank(deployer);
-        strategy = MapleTradingStrategyHarness(factory.createInstance(abi.encode(params), "DEFAULT"));
+        strategy = MapleSkyStrategyHarness(factory.createInstance(abi.encode(params), "DEFAULT"));
     }
 
 }

@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.0;
 
-import { MapleTradingStrategy }            from "../../contracts/MapleTradingStrategy.sol";
-import { MapleTradingStrategyInitializer } from "../../contracts/MapleTradingStrategyInitializer.sol";
+import { MapleSkyStrategy }            from "../../contracts/MapleSkyStrategy.sol";
+import { MapleSkyStrategyInitializer } from "../../contracts/MapleSkyStrategyInitializer.sol";
 
-contract MapleTradingStrategyHarness is MapleTradingStrategy {}
+contract MapleSkyStrategyHarness is MapleSkyStrategy {}
 
-contract MapleTradingStrategyInitializerHarness is MapleTradingStrategyInitializer {
+contract MapleSkyStrategyInitializerHarness is MapleSkyStrategyInitializer {
 
     function __initialize(Parameters memory params_) external {
         _initialize(params_);

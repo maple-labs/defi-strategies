@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.0;
 
-import { MapleTradingStrategy } from "../../contracts/MapleTradingStrategy.sol";
+import { MapleSkyStrategy } from "../../contracts/MapleSkyStrategy.sol";
 
 import { TestBase } from "../utils/TestBase.sol";
 
@@ -12,11 +12,11 @@ contract SetImplementationTests is TestBase {
     function setUp() public override {
         super.setUp();
 
-        newImplementation = address(new MapleTradingStrategy());
+        newImplementation = address(new MapleSkyStrategy());
     }
 
     function test_setImplementation_protocolPaused() external {
-        globals.__setIsFunctionPaused(MapleTradingStrategy.setImplementation.selector, true);
+        globals.__setIsFunctionPaused(MapleSkyStrategy.setImplementation.selector, true);
 
         vm.expectRevert("MTS:PAUSED");
         strategy.setImplementation(newImplementation);

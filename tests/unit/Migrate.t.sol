@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.0;
 
-import { MapleTradingStrategy } from "../../contracts/MapleTradingStrategy.sol";
+import { MapleSkyStrategy } from "../../contracts/MapleSkyStrategy.sol";
 
 import { MockMigrator } from "../utils/Mocks.sol";
 import { TestBase }     from "../utils/TestBase.sol";
@@ -13,7 +13,7 @@ contract MigrateTests is TestBase {
     bytes arguments = abi.encode(address(1337));
 
     function test_migrate_protocolPaused() external {
-        globals.__setIsFunctionPaused(MapleTradingStrategy.migrate.selector, true);
+        globals.__setIsFunctionPaused(MapleSkyStrategy.migrate.selector, true);
 
         vm.expectRevert("MTS:PAUSED");
         strategy.migrate(migrator, arguments);

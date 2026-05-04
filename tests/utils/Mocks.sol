@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 import { MockERC20 } from "../../modules/erc20/contracts/test/mocks/MockERC20.sol";
 
-import { MapleTradingStrategyStorage } from "../../contracts/MapleTradingStrategyStorage.sol";
+import { MapleSkyStrategyStorage } from "../../contracts/MapleSkyStrategyStorage.sol";
 
 contract MockAsset is MockERC20("Asset", "A", 6) {
 
@@ -77,7 +77,7 @@ contract MockGlobals {
 
 contract MockManager {}
 
-contract MockMigrator is MapleTradingStrategyStorage {
+contract MockMigrator is MapleSkyStrategyStorage {
 
     fallback() external {
         manager = abi.decode(msg.data, (address));
