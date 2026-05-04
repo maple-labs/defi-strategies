@@ -3,12 +3,12 @@ pragma solidity 0.8.28;
 
 import { MapleProxiedInternals } from "../modules/proxy-factory/contracts/MapleProxiedInternals.sol";
 
-import { IMapleTradingStrategy }           from "./interfaces/IMapleTradingStrategy.sol";
+import { IMapleSkyStrategy }               from "./interfaces/IMapleSkyStrategy.sol";
 import { IGlobalsLike, IProxyFactoryLike } from "./interfaces/Interfaces.sol";
 
-import { MapleTradingStrategyStorage } from "./MapleTradingStrategyStorage.sol";
+import { MapleSkyStrategyStorage } from "./MapleSkyStrategyStorage.sol";
 
-contract MapleTradingStrategy is IMapleTradingStrategy, MapleTradingStrategyStorage, MapleProxiedInternals {
+contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MapleProxiedInternals {
 
     /**************************************************************************************************************************************/
     /*** Constants                                                                                                                      ***/

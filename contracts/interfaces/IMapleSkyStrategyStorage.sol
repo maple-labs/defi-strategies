@@ -2,9 +2,9 @@
 pragma solidity ^0.8.0;
 
 /**
- *  @title Defines the storage layout of a Maple trading strategy.
+ *  @title Defines the storage layout of a Maple Sky strategy.
  */
-interface IMapleTradingStrategyStorage {
+interface IMapleSkyStrategyStorage {
 
     /**
      *  @dev    Returns the address of the strategy manager contract.

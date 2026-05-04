@@ -3,12 +3,12 @@ pragma solidity ^0.8.0;
 
 import { IMapleProxied } from "../../modules/proxy-factory/contracts/interfaces/IMapleProxied.sol";
 
-import { IMapleTradingStrategyStorage } from "./IMapleTradingStrategyStorage.sol";
+import { IMapleSkyStrategyStorage } from "./IMapleSkyStrategyStorage.sol";
 
 /**
- *  @title Defines a Maple trading strategy.
+ *  @title Defines a Maple Sky strategy.
  */
-interface IMapleTradingStrategy is IMapleTradingStrategyStorage, IMapleProxied {
+interface IMapleSkyStrategy is IMapleSkyStrategyStorage, IMapleProxied {
 
     /**************************************************************************************************************************************/
     /*** Events                                                                                                                         ***/

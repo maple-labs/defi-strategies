@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 import { IMapleProxied } from "../../modules/proxy-factory/contracts/interfaces/IMapleProxied.sol";
 
-import { MapleTradingStrategy } from "../../contracts/MapleTradingStrategy.sol";
+import { MapleSkyStrategy } from "../../contracts/MapleSkyStrategy.sol";
 
 import { MockMigrator } from "../utils/Mocks.sol";
 import { TestBase }     from "../utils/TestBase.sol";
@@ -11,7 +11,7 @@ import { TestBase }     from "../utils/TestBase.sol";
 contract UpgradeTests is TestBase {
 
     address migrator          = address(new MockMigrator());
-    address newImplementation = address(new MapleTradingStrategy());
+    address newImplementation = address(new MapleSkyStrategy());
 
     bytes arguments = abi.encode(address(1337));
 
@@ -25,7 +25,7 @@ contract UpgradeTests is TestBase {
     }
 
     function test_upgrade_protocolPaused() external {
-        globals.__setIsFunctionPaused(MapleTradingStrategy.upgrade.selector, true);
+        globals.__setIsFunctionPaused(MapleSkyStrategy.upgrade.selector, true);
 
         vm.expectRevert("MTS:PAUSED");
         strategy.upgrade(200, arguments);
