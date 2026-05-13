@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.0;
 
-import { MapleSkyStrategy } from "../../contracts/MapleSkyStrategy.sol";
+import { MapleSkyStrategy } from "../../../contracts/MapleSkyStrategy.sol";
 
-import { MockMigrator } from "../utils/Mocks.sol";
-import { TestBase }     from "../utils/TestBase.sol";
+import { MockMigrator } from "../../utils/Mocks.sol";
+import { TestBase }     from "../../utils/TestBase.sol";
 
 contract MigrateTests is TestBase {
 
@@ -31,12 +31,12 @@ contract MigrateTests is TestBase {
     }
 
     function test_migrate_success() external {
-        assertEq(strategy.manager(), params.manager);
+        assertEq(strategy.strategyManager(), params.strategyManager);
 
         vm.prank(address(factory));
         strategy.migrate(migrator, arguments);
 
-        assertEq(strategy.manager(), address(1337));
+        assertEq(strategy.strategyManager(), address(1337));
     }
 
 }

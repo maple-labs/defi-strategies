@@ -16,7 +16,9 @@ import {
     MockAsset,
     MockFactory,
     MockGlobals,
-    MockManager
+    MockManager,
+    MockPsm,
+    MockSavingsUsds
 } from "./Mocks.sol";
 
 contract TestBase is Test {
@@ -32,9 +34,13 @@ contract TestBase is Test {
 
     IMapleSkyStrategyInitializer.Parameters params;
 
-    MockAsset   asset   = new MockAsset();
-    MockGlobals globals = new MockGlobals();
-    MockManager manager = new MockManager();
+    MockAsset       asset           = new MockAsset();
+    MockAsset       usds            = new MockAsset();
+    MockFactory     managerFactory  = new MockFactory();
+    MockGlobals     globals         = new MockGlobals();
+    MockManager     strategyManager = new MockManager();
+    MockPsm         psm             = new MockPsm();
+    MockSavingsUsds savingsUsds     = new MockSavingsUsds();
 
     MapleSkyStrategyFactory factory;
     MapleSkyStrategyHarness strategy;
@@ -42,9 +48,20 @@ contract TestBase is Test {
     function setUp() public virtual {
         startingTime = uint32(block.timestamp);
 
+        psm.__setGem(address(asset));
+        psm.__setUsds(address(usds));
+
+        savingsUsds.__setAsset(address(usds));
+
         globals.__setCanDeploy(deployer, true);
         globals.__setGovernor(governor);
+        globals.__setIsInstanceOf("PSM", address(psm), true);
+        globals.__setIsInstanceOf("STRATEGY_MANAGER_FACTORY", address(managerFactory), true);
+        globals.__setIsInstanceOf("STRATEGY_VAULT", address(savingsUsds), true);
+        globals.__setIsPoolAsset(address(asset), true);
         globals.__setSecurityAdmin(securityAdmin);
+        strategyManager.__setFactory(address(managerFactory));
+        managerFactory.__setIsInstance(address(strategyManager), true);
 
         factory = new MapleSkyStrategyFactory(address(globals));
 
@@ -54,11 +71,21 @@ contract TestBase is Test {
         vm.stopPrank();
 
         params = IMapleSkyStrategyInitializer.Parameters({
-            manager: address(manager)
+            strategyManager:         address(strategyManager),
+            fundsAsset:              address(asset),
+            psm:                     address(psm),
+            savingsUsds:             address(savingsUsds),
+            strategyDelegateFeeRate: 0.02e6,
+            strategyProtocolFeeRate: 0.03e6,
+            referralCode:            123
         });
 
+        bytes memory arguments = abi.encode(params);
+
+        strategyManager.__setUnderlyingStrategy(factory.getInstanceAddress(arguments, "DEFAULT"));
+
         vm.prank(deployer);
-        strategy = MapleSkyStrategyHarness(factory.createInstance(abi.encode(params), "DEFAULT"));
+        strategy = MapleSkyStrategyHarness(factory.createInstance(arguments, "DEFAULT"));
     }
 
 }

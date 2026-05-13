@@ -8,10 +8,22 @@ interface IMapleSkyStrategyInitializer {
 
     /**
      *  @dev   Parameters required to initialize a Sky strategy.
-     *  @param manager Address of the strategy manager contract.
+     *  @param strategyManager         Address of the strategy manager contract.
+     *  @param fundsAsset              Address of the asset used for strategy funds.
+     *  @param psm                     Address of the PSM contract.
+     *  @param savingsUsds             Address of the savings USDS contract.
+     *  @param strategyDelegateFeeRate Percentage of yield collected by the strategy delegate.
+     *  @param strategyProtocolFeeRate Percentage of yield collected by the Maple treasury.
+     *  @param referralCode            Referral code used when depositing into Sky.
      */
     struct Parameters {
-        address manager;
+        address strategyManager;
+        address fundsAsset;
+        address psm;
+        address savingsUsds;
+        uint32  strategyDelegateFeeRate;
+        uint32  strategyProtocolFeeRate;
+        uint16  referralCode;
     }
 
     /**
