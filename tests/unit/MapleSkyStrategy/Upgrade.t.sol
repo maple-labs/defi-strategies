@@ -27,12 +27,12 @@ contract UpgradeTests is TestBase {
     function test_upgrade_protocolPaused() external {
         globals.__setIsFunctionPaused(MapleSkyStrategy.upgrade.selector, true);
 
-        vm.expectRevert("MTS:PAUSED");
+        vm.expectRevert("MSS:PAUSED");
         strategy.upgrade(200, arguments);
     }
 
     function test_upgrade_notAuthorized() external {
-        vm.expectRevert("MTS:U:NOT_AUTHORIZED");
+        vm.expectRevert("MSS:U:NOT_AUTHORIZED");
         strategy.upgrade(200, arguments);
     }
 

@@ -11,7 +11,11 @@ interface IGlobalsLike {
 
     function isPoolAsset(address asset) external view returns (bool);
 
+    function mapleTreasury() external view returns (address);
+
     function securityAdmin() external view returns (address);
+
+    function strategyDelegateOf(address strategyManager) external view returns (address);
 
 }
 
@@ -19,11 +23,27 @@ interface IERC4626Like {
 
     function asset() external view returns (address);
 
+    function balanceOf(address account) external view returns (uint256);
+
+    function deposit(uint256 assets, address receiver, uint16 referralCode) external returns (uint256 shares);
+
+    function previewRedeem(uint256 shares) external view returns (uint256 assets);
+
+    function withdraw(uint256 assets, address receiver, address owner) external returns (uint256 shares);
+
 }
 
 interface IPSMLike {
 
+    function buyGem(address usr, uint256 gemAmount) external returns (uint256 usdsInWad);
+
     function gem() external view returns (address);
+
+    function sellGem(address usr, uint256 gemAmount) external returns (uint256 usdsOutWad);
+
+    function to18ConversionFactor() external view returns (uint256);
+
+    function tout() external view returns (uint256);
 
     function usds() external view returns (address);
 

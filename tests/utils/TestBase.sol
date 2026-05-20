@@ -23,9 +23,11 @@ import {
 
 contract TestBase is Test {
 
-    address deployer      = makeAddr("deployer");
-    address governor      = makeAddr("governor");
-    address securityAdmin = makeAddr("securityAdmin");
+    address deployer         = makeAddr("deployer");
+    address governor         = makeAddr("governor");
+    address mapleTreasury    = makeAddr("mapleTreasury");
+    address securityAdmin    = makeAddr("securityAdmin");
+    address strategyDelegate = makeAddr("strategyDelegate");
 
     address implementation = address(new MapleSkyStrategyHarness());
     address initializer    = address(new MapleSkyStrategyInitializerHarness());
@@ -49,6 +51,7 @@ contract TestBase is Test {
         startingTime = uint32(block.timestamp);
 
         psm.__setGem(address(asset));
+        psm.__setTo18ConversionFactor(1e12);
         psm.__setUsds(address(usds));
 
         savingsUsds.__setAsset(address(usds));
@@ -59,7 +62,10 @@ contract TestBase is Test {
         globals.__setIsInstanceOf("STRATEGY_MANAGER_FACTORY", address(managerFactory), true);
         globals.__setIsInstanceOf("STRATEGY_VAULT", address(savingsUsds), true);
         globals.__setIsPoolAsset(address(asset), true);
+        globals.__setMapleTreasury(mapleTreasury);
         globals.__setSecurityAdmin(securityAdmin);
+        globals.__setStrategyDelegateOf(address(strategyManager), strategyDelegate);
+
         strategyManager.__setFactory(address(managerFactory));
         managerFactory.__setIsInstance(address(strategyManager), true);
 
@@ -86,6 +92,16 @@ contract TestBase is Test {
 
         vm.prank(deployer);
         strategy = MapleSkyStrategyHarness(factory.createInstance(arguments, "DEFAULT"));
+    }
+
+    function assertSkyStrategy(uint256 susdsBalance, uint256 lastRecordedTotalAssets) internal view {
+        assertEq(savingsUsds.balanceOf(address(strategy)), susdsBalance);
+        assertEq(strategy.lastRecordedTotalAssets(),       lastRecordedTotalAssets);
+    }
+
+    function assertCollectedFees(uint256 delegateFee, uint256 protocolFee) internal view {
+        assertEq(asset.balanceOf(strategyDelegate), delegateFee);
+        assertEq(asset.balanceOf(mapleTreasury),    protocolFee);
     }
 
 }

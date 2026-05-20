@@ -5,13 +5,15 @@ import { IMapleSkyStrategyStorage } from "./interfaces/IMapleSkyStrategyStorage.
 
 contract MapleSkyStrategyStorage is IMapleSkyStrategyStorage {
 
-    uint256 internal _locked;  // Used as a reentrancy guard.
+    uint256 internal _locked;
 
-    address public override strategyManager;
     address public override fundsAsset;
     address public override psm;
+    address public override strategyManager;
     address public override savingsUsds;
     address public override usds;
+
+    uint256 public override lastRecordedTotalAssets;
 
     uint32 public override strategyDelegateFeeRate;
     uint32 public override strategyProtocolFeeRate;

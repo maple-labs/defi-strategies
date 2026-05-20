@@ -15,18 +15,18 @@ contract MigrateTests is TestBase {
     function test_migrate_protocolPaused() external {
         globals.__setIsFunctionPaused(MapleSkyStrategy.migrate.selector, true);
 
-        vm.expectRevert("MTS:PAUSED");
+        vm.expectRevert("MSS:PAUSED");
         strategy.migrate(migrator, arguments);
     }
 
     function test_migrate_notFactory() external {
-        vm.expectRevert("MTS:NOT_FACTORY");
+        vm.expectRevert("MSS:NOT_FACTORY");
         strategy.migrate(migrator, arguments);
     }
 
     function test_migrate_failedMigration() external {
         vm.prank(address(factory));
-        vm.expectRevert("MTS:M:FAILED");
+        vm.expectRevert("MSS:M:FAILED");
         strategy.migrate(migrator, "");
     }
 

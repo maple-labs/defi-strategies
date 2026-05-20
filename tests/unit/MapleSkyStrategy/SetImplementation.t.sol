@@ -18,12 +18,12 @@ contract SetImplementationTests is TestBase {
     function test_setImplementation_protocolPaused() external {
         globals.__setIsFunctionPaused(MapleSkyStrategy.setImplementation.selector, true);
 
-        vm.expectRevert("MTS:PAUSED");
+        vm.expectRevert("MSS:PAUSED");
         strategy.setImplementation(newImplementation);
     }
 
     function test_setImplementation_notFactory() external {
-        vm.expectRevert("MTS:NOT_FACTORY");
+        vm.expectRevert("MSS:NOT_FACTORY");
         strategy.setImplementation(newImplementation);
     }
 

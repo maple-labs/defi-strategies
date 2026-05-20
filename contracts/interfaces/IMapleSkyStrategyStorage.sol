@@ -13,6 +13,13 @@ interface IMapleSkyStrategyStorage {
     function fundsAsset() external view returns (address fundsAsset);
 
     /**
+     *  @dev    Returns the funds-asset equivalent of the underlying position recorded at the end of the most
+     *          recent state-changing call. Used as the baseline against which yield (and therefore fees) accrue.
+     *  @return lastRecordedTotalAssets Last recorded funds-asset equivalent of the strategy's sUSDS position.
+     */
+    function lastRecordedTotalAssets() external view returns (uint256 lastRecordedTotalAssets);
+
+    /**
      *  @dev    Returns the address of the PSM contract.
      *  @return psm Address of the PSM.
      */
