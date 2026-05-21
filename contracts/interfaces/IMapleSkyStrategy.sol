@@ -50,6 +50,12 @@ interface IMapleSkyStrategy is IMapleSkyStrategyStorage, IMapleProxied {
     /**************************************************************************************************************************************/
 
     /**
+     *  @dev    Returns the funds-asset equivalent of the strategy's sUSDS position net of accrued yield fees.
+     *  @return assetsUnderManagement Funds-asset equivalent currently attributable to the strategy manager.
+     */
+    function assetsUnderManagement() external view returns (uint256 assetsUnderManagement);
+
+    /**
      *  @dev    Returns the address of the Maple Globals contract.
      *  @return globals Address of the Maple Globals contract.
      */

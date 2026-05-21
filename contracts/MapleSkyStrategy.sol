@@ -123,6 +123,14 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
     /*** View Functions                                                                                                                 ***/
     /**************************************************************************************************************************************/
 
+    function assetsUnderManagement() public view override returns (uint256 assetsUnderManagement_) {
+        uint256 currentTotalAssets_ = _currentTotalAssets(psm, savingsUsds);
+
+        ( uint256 delegateFee_, uint256 protocolFee_ ) = _currentAccruedFees(currentTotalAssets_);
+
+        assetsUnderManagement_ = currentTotalAssets_ - delegateFee_ - protocolFee_;
+    }
+
     function factory() external view override returns (address factory_) {
         factory_ = _factory();
     }

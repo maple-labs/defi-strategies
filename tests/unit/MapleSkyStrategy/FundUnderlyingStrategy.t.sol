@@ -86,7 +86,6 @@ contract FundUnderlyingStrategyFailureTests is TestBase {
 
 }
 
-// TODO: Add assetsUnderManager() checks once function is implemented
 contract FundUnderlyingStrategySuccessTests is TestBase {
 
     function setUp() public override {
@@ -115,12 +114,19 @@ contract FundUnderlyingStrategySuccessTests is TestBase {
 
         vm.prank(address(strategyManager));
         strategy.fundUnderlyingStrategy(100e6, "");
+
+        assertSkyStrategy({
+            susdsBalance:            100e18,
+            lastRecordedTotalAssets: 100e6,
+            assetsUnderManagement:   100e6
+        });
     }
 
     function test_fundUnderlyingStrategy_success_firstDeposit() external {
         assertSkyStrategy({
             susdsBalance:            0,
-            lastRecordedTotalAssets: 0
+            lastRecordedTotalAssets: 0,
+            assetsUnderManagement:   0
         });
 
         uint256 assets                  = 100e6;
@@ -140,7 +146,8 @@ contract FundUnderlyingStrategySuccessTests is TestBase {
 
         assertSkyStrategy({
             susdsBalance:            expectedSharesToReceive,
-            lastRecordedTotalAssets: expectedDeployed
+            lastRecordedTotalAssets: expectedDeployed,
+            assetsUnderManagement:   expectedDeployed
         });
     }
 
@@ -166,9 +173,12 @@ contract FundUnderlyingStrategySuccessTests is TestBase {
 
         usds.mint(address(savingsUsds), 200e18);                              // sUSDS holds 200 USDS reserves to back 100 sUSDS at 2x
 
+        uint256 assetsUnderManagementAfterFirstDeposit = 195e6;  // 200 current assets minus 5 assets fees
+
         assertSkyStrategy({
             susdsBalance:            100e18,
-            lastRecordedTotalAssets: lastRecordedAfterFirstDeposit
+            lastRecordedTotalAssets: lastRecordedAfterFirstDeposit,
+            assetsUnderManagement:   assetsUnderManagementAfterFirstDeposit
         });
 
         assertCollectedFees({
@@ -201,7 +211,8 @@ contract FundUnderlyingStrategySuccessTests is TestBase {
 
         assertSkyStrategy({
             susdsBalance:            expectedBalanceAfterFund,
-            lastRecordedTotalAssets: expectedLastRecordedAfterFund
+            lastRecordedTotalAssets: expectedLastRecordedAfterFund,
+            assetsUnderManagement:   expectedLastRecordedAfterFund
         });
 
         assertCollectedFees({
@@ -230,9 +241,12 @@ contract FundUnderlyingStrategySuccessTests is TestBase {
         savingsUsds.__setSusdsRedeemExchangeRate(0.5e18);                     // 1 sUSDS = 0.5 USDS (50% loss)
         savingsUsds.__setSusdsDepositExchangeRate(2e18);                      // 1 USDS  = 2 sUSDS at current price
 
+        uint256 assetsUnderManagementAfterFirstDeposit = 50e6;  // 100 initial assets minus 50 assets loss
+
         assertSkyStrategy({
             susdsBalance:            100e18,
-            lastRecordedTotalAssets: lastRecordedAfterFirstDeposit
+            lastRecordedTotalAssets: lastRecordedAfterFirstDeposit,
+            assetsUnderManagement:   assetsUnderManagementAfterFirstDeposit
         });
 
         assertCollectedFees({
@@ -256,7 +270,8 @@ contract FundUnderlyingStrategySuccessTests is TestBase {
 
         assertSkyStrategy({
             susdsBalance:            expectedBalanceAfterFund,
-            lastRecordedTotalAssets: expectedLastRecordedAfterFund
+            lastRecordedTotalAssets: expectedLastRecordedAfterFund,
+            assetsUnderManagement:   expectedLastRecordedAfterFund
         });
 
         assertCollectedFees({
@@ -270,7 +285,8 @@ contract FundUnderlyingStrategySuccessTests is TestBase {
 
         assertSkyStrategy({
             susdsBalance:            0,
-            lastRecordedTotalAssets: 0
+            lastRecordedTotalAssets: 0,
+            assetsUnderManagement:   0
         });
 
         vm.prank(address(strategyManager));
@@ -280,7 +296,8 @@ contract FundUnderlyingStrategySuccessTests is TestBase {
 
         assertSkyStrategy({
             susdsBalance:            100e18,
-            lastRecordedTotalAssets: 80e6
+            lastRecordedTotalAssets: 80e6,
+            assetsUnderManagement:   80e6
         });
     }
 
@@ -289,7 +306,8 @@ contract FundUnderlyingStrategySuccessTests is TestBase {
 
         assertSkyStrategy({
             susdsBalance:            0,
-            lastRecordedTotalAssets: 0
+            lastRecordedTotalAssets: 0,
+            assetsUnderManagement:   0
         });
 
         vm.prank(address(strategyManager));
@@ -299,7 +317,8 @@ contract FundUnderlyingStrategySuccessTests is TestBase {
 
         assertSkyStrategy({
             susdsBalance:            100e18,
-            lastRecordedTotalAssets: 99e6
+            lastRecordedTotalAssets: 99e6,
+            assetsUnderManagement:   99e6
         });
     }
 
@@ -309,7 +328,8 @@ contract FundUnderlyingStrategySuccessTests is TestBase {
 
         assertSkyStrategy({
             susdsBalance:            0,
-            lastRecordedTotalAssets: 0
+            lastRecordedTotalAssets: 0,
+            assetsUnderManagement:   0
         });
 
         vm.prank(address(strategyManager));
@@ -319,7 +339,8 @@ contract FundUnderlyingStrategySuccessTests is TestBase {
 
         assertSkyStrategy({
             susdsBalance:            100e18,
-            lastRecordedTotalAssets: 79.2e6
+            lastRecordedTotalAssets: 79.2e6,
+            assetsUnderManagement:   79.2e6
         });
     }
 
@@ -328,7 +349,8 @@ contract FundUnderlyingStrategySuccessTests is TestBase {
 
         assertSkyStrategy({
             susdsBalance:            0,
-            lastRecordedTotalAssets: 0
+            lastRecordedTotalAssets: 0,
+            assetsUnderManagement:   0
         });
 
         vm.prank(address(strategyManager));
@@ -338,7 +360,8 @@ contract FundUnderlyingStrategySuccessTests is TestBase {
 
         assertSkyStrategy({
             susdsBalance:            99e18,
-            lastRecordedTotalAssets: 99e6
+            lastRecordedTotalAssets: 99e6,
+            assetsUnderManagement:   99e6
         });
     }
 
@@ -347,7 +370,8 @@ contract FundUnderlyingStrategySuccessTests is TestBase {
 
         assertSkyStrategy({
             susdsBalance:            0,
-            lastRecordedTotalAssets: 0
+            lastRecordedTotalAssets: 0,
+            assetsUnderManagement:   0
         });
 
         vm.prank(address(strategyManager));
@@ -357,7 +381,8 @@ contract FundUnderlyingStrategySuccessTests is TestBase {
 
         assertSkyStrategy({
             susdsBalance:            95e18,
-            lastRecordedTotalAssets: 95e6
+            lastRecordedTotalAssets: 95e6,
+            assetsUnderManagement:   95e6
         });
     }
 
@@ -366,7 +391,8 @@ contract FundUnderlyingStrategySuccessTests is TestBase {
 
         assertSkyStrategy({
             susdsBalance:            0,
-            lastRecordedTotalAssets: 0
+            lastRecordedTotalAssets: 0,
+            assetsUnderManagement:   0
         });
 
         vm.prank(address(strategyManager));
@@ -376,7 +402,8 @@ contract FundUnderlyingStrategySuccessTests is TestBase {
 
         assertSkyStrategy({
             susdsBalance:            0,
-            lastRecordedTotalAssets: 0
+            lastRecordedTotalAssets: 0,
+            assetsUnderManagement:   0
         });
     }
 
@@ -386,7 +413,8 @@ contract FundUnderlyingStrategySuccessTests is TestBase {
 
         assertSkyStrategy({
             susdsBalance:            0,
-            lastRecordedTotalAssets: 0
+            lastRecordedTotalAssets: 0,
+            assetsUnderManagement:   0
         });
 
         vm.prank(address(strategyManager));
@@ -396,7 +424,8 @@ contract FundUnderlyingStrategySuccessTests is TestBase {
 
         assertSkyStrategy({
             susdsBalance:            94.05e18,
-            lastRecordedTotalAssets: 94.05e6
+            lastRecordedTotalAssets: 94.05e6,
+            assetsUnderManagement:   94.05e6
         });
     }
 
@@ -419,7 +448,8 @@ contract FundUnderlyingStrategySuccessTests is TestBase {
 
         assertSkyStrategy({
             susdsBalance:            0,
-            lastRecordedTotalAssets: 0
+            lastRecordedTotalAssets: 0,
+            assetsUnderManagement:   0
         });
 
         assertCollectedFees({
@@ -434,7 +464,8 @@ contract FundUnderlyingStrategySuccessTests is TestBase {
 
         assertSkyStrategy({
             susdsBalance:            expectedBalanceAfterFirstFund,
-            lastRecordedTotalAssets: lastRecordedAfterFirstDeposit
+            lastRecordedTotalAssets: lastRecordedAfterFirstDeposit,
+            assetsUnderManagement:   lastRecordedAfterFirstDeposit
         });
 
         assertCollectedFees({
@@ -466,7 +497,8 @@ contract FundUnderlyingStrategySuccessTests is TestBase {
 
         assertSkyStrategy({
             susdsBalance:            expectedBalanceAfterFund,
-            lastRecordedTotalAssets: expectedLastRecordedAfterFund
+            lastRecordedTotalAssets: expectedLastRecordedAfterFund,
+            assetsUnderManagement:   expectedLastRecordedAfterFund
         });
 
         assertCollectedFees({
@@ -495,7 +527,8 @@ contract FundUnderlyingStrategySuccessTests is TestBase {
 
         assertSkyStrategy({
             susdsBalance:            100e18,
-            lastRecordedTotalAssets: lastRecordedAfterFirstDeposit
+            lastRecordedTotalAssets: lastRecordedAfterFirstDeposit,
+            assetsUnderManagement:   lastRecordedAfterFirstDeposit
         });
 
         assertCollectedFees({
@@ -525,7 +558,8 @@ contract FundUnderlyingStrategySuccessTests is TestBase {
 
         assertSkyStrategy({
             susdsBalance:            expectedBalanceAfterFund,
-            lastRecordedTotalAssets: expectedLastRecordedAfterFund
+            lastRecordedTotalAssets: expectedLastRecordedAfterFund,
+            assetsUnderManagement:   expectedLastRecordedAfterFund
         });
 
         assertCollectedFees({
@@ -553,7 +587,8 @@ contract FundUnderlyingStrategySuccessTests is TestBase {
 
         assertSkyStrategy({
             susdsBalance:            0,
-            lastRecordedTotalAssets: 0
+            lastRecordedTotalAssets: 0,
+            assetsUnderManagement:   0
         });
 
         assertCollectedFees({
@@ -568,7 +603,8 @@ contract FundUnderlyingStrategySuccessTests is TestBase {
 
         assertSkyStrategy({
             susdsBalance:            expectedBalanceAfterFirstFund,
-            lastRecordedTotalAssets: lastRecordedAfterFirstDeposit
+            lastRecordedTotalAssets: lastRecordedAfterFirstDeposit,
+            assetsUnderManagement:   lastRecordedAfterFirstDeposit
         });
 
         assertCollectedFees({
@@ -600,7 +636,8 @@ contract FundUnderlyingStrategySuccessTests is TestBase {
 
         assertSkyStrategy({
             susdsBalance:            expectedBalanceAfterFund,
-            lastRecordedTotalAssets: expectedLastRecordedAfterFund
+            lastRecordedTotalAssets: expectedLastRecordedAfterFund,
+            assetsUnderManagement:   expectedLastRecordedAfterFund
         });
 
         assertCollectedFees({
@@ -628,7 +665,8 @@ contract FundUnderlyingStrategySuccessTests is TestBase {
 
         assertSkyStrategy({
             susdsBalance:            0,
-            lastRecordedTotalAssets: 0
+            lastRecordedTotalAssets: 0,
+            assetsUnderManagement:   0
         });
 
         assertCollectedFees({
@@ -641,7 +679,8 @@ contract FundUnderlyingStrategySuccessTests is TestBase {
 
         assertSkyStrategy({
             susdsBalance:            expectedBalanceAfterFirstFund,
-            lastRecordedTotalAssets: lastRecordedAfterFirstDeposit
+            lastRecordedTotalAssets: lastRecordedAfterFirstDeposit,
+            assetsUnderManagement:   lastRecordedAfterFirstDeposit
         });
 
         assertCollectedFees({
@@ -671,7 +710,8 @@ contract FundUnderlyingStrategySuccessTests is TestBase {
 
         assertSkyStrategy({
             susdsBalance:            expectedBalanceAfterFund,
-            lastRecordedTotalAssets: expectedLastRecordedAfterFund
+            lastRecordedTotalAssets: expectedLastRecordedAfterFund,
+            assetsUnderManagement:   expectedLastRecordedAfterFund
         });
 
         assertCollectedFees({
@@ -699,7 +739,8 @@ contract FundUnderlyingStrategySuccessTests is TestBase {
 
         assertSkyStrategy({
             susdsBalance:            0,
-            lastRecordedTotalAssets: 0
+            lastRecordedTotalAssets: 0,
+            assetsUnderManagement:   0
         });
 
         assertCollectedFees({
@@ -714,7 +755,8 @@ contract FundUnderlyingStrategySuccessTests is TestBase {
 
         assertSkyStrategy({
             susdsBalance:            expectedBalanceAfterFirstFund,
-            lastRecordedTotalAssets: lastRecordedAfterFirstDeposit
+            lastRecordedTotalAssets: lastRecordedAfterFirstDeposit,
+            assetsUnderManagement:   lastRecordedAfterFirstDeposit
         });
 
         assertCollectedFees({
@@ -744,7 +786,8 @@ contract FundUnderlyingStrategySuccessTests is TestBase {
 
         assertSkyStrategy({
             susdsBalance:            expectedBalanceAfterFund,
-            lastRecordedTotalAssets: expectedLastRecordedAfterFund
+            lastRecordedTotalAssets: expectedLastRecordedAfterFund,
+            assetsUnderManagement:   expectedLastRecordedAfterFund
         });
 
         assertCollectedFees({
@@ -777,7 +820,8 @@ contract FundUnderlyingStrategySuccessTests is TestBase {
 
         assertSkyStrategy({
             susdsBalance:            expectedBalanceAfterFirstFund,
-            lastRecordedTotalAssets: lastRecordedAfterFirstDeposit
+            lastRecordedTotalAssets: lastRecordedAfterFirstDeposit,
+            assetsUnderManagement:   lastRecordedAfterFirstDeposit
         });
 
         assertCollectedFees({
@@ -807,7 +851,8 @@ contract FundUnderlyingStrategySuccessTests is TestBase {
 
         assertSkyStrategy({
             susdsBalance:            expectedBalanceAfterFund,
-            lastRecordedTotalAssets: expectedLastRecordedAfterFund
+            lastRecordedTotalAssets: expectedLastRecordedAfterFund,
+            assetsUnderManagement:   expectedLastRecordedAfterFund
         });
 
         assertCollectedFees({
@@ -835,7 +880,8 @@ contract FundUnderlyingStrategySuccessTests is TestBase {
 
         assertSkyStrategy({
             susdsBalance:            0,
-            lastRecordedTotalAssets: 0
+            lastRecordedTotalAssets: 0,
+            assetsUnderManagement:   0
         });
 
         assertCollectedFees({
@@ -850,7 +896,8 @@ contract FundUnderlyingStrategySuccessTests is TestBase {
 
         assertSkyStrategy({
             susdsBalance:            expectedBalanceAfterFirstFund,
-            lastRecordedTotalAssets: lastRecordedAfterFirstDeposit
+            lastRecordedTotalAssets: lastRecordedAfterFirstDeposit,
+            assetsUnderManagement:   lastRecordedAfterFirstDeposit
         });
 
         assertCollectedFees({
@@ -880,7 +927,8 @@ contract FundUnderlyingStrategySuccessTests is TestBase {
 
         assertSkyStrategy({
             susdsBalance:            expectedBalanceAfterFund,
-            lastRecordedTotalAssets: expectedLastRecordedAfterFund
+            lastRecordedTotalAssets: expectedLastRecordedAfterFund,
+            assetsUnderManagement:   expectedLastRecordedAfterFund
         });
 
         assertCollectedFees({
@@ -908,7 +956,8 @@ contract FundUnderlyingStrategySuccessTests is TestBase {
 
         assertSkyStrategy({
             susdsBalance:            0,
-            lastRecordedTotalAssets: 0
+            lastRecordedTotalAssets: 0,
+            assetsUnderManagement:   0
         });
 
         assertCollectedFees({
@@ -921,7 +970,8 @@ contract FundUnderlyingStrategySuccessTests is TestBase {
 
         assertSkyStrategy({
             susdsBalance:            expectedBalanceAfterFirstFund,
-            lastRecordedTotalAssets: lastRecordedAfterFirstDeposit
+            lastRecordedTotalAssets: lastRecordedAfterFirstDeposit,
+            assetsUnderManagement:   lastRecordedAfterFirstDeposit
         });
 
         assertCollectedFees({
@@ -951,7 +1001,8 @@ contract FundUnderlyingStrategySuccessTests is TestBase {
 
         assertSkyStrategy({
             susdsBalance:            expectedBalanceAfterFund,
-            lastRecordedTotalAssets: expectedLastRecordedAfterFund
+            lastRecordedTotalAssets: expectedLastRecordedAfterFund,
+            assetsUnderManagement:   expectedLastRecordedAfterFund
         });
 
         assertCollectedFees({

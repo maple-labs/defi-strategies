@@ -201,6 +201,13 @@ contract MockSavingsUsds {
         susdsRedeemExchangeRate = rate_;
     }
 
+    function transfer(address to_, uint256 shares_) external returns (bool success_) {
+        balanceOf[msg.sender] -= shares_;
+        balanceOf[to_]        += shares_;
+
+        success_ = true;
+    }
+
     function deposit(uint256 assets_, address receiver_, uint16) external returns (uint256 shares_) {
         shares_ = assets_ * susdsDepositExchangeRate / 1e18;
         balanceOf[receiver_] += shares_;

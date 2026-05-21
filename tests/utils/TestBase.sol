@@ -94,9 +94,10 @@ contract TestBase is Test {
         strategy = MapleSkyStrategyHarness(factory.createInstance(arguments, "DEFAULT"));
     }
 
-    function assertSkyStrategy(uint256 susdsBalance, uint256 lastRecordedTotalAssets) internal view {
+    function assertSkyStrategy(uint256 susdsBalance, uint256 lastRecordedTotalAssets, uint256 assetsUnderManagement) internal view {
         assertEq(savingsUsds.balanceOf(address(strategy)), susdsBalance);
         assertEq(strategy.lastRecordedTotalAssets(),       lastRecordedTotalAssets);
+        assertEq(strategy.assetsUnderManagement(),         assetsUnderManagement);
     }
 
     function assertCollectedFees(uint256 delegateFee, uint256 protocolFee) internal view {
