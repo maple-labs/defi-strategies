@@ -4,9 +4,9 @@ pragma solidity ^0.8.0;
 import { IMapleSkyStrategyInitializer } from "../../../contracts/interfaces/IMapleSkyStrategyInitializer.sol";
 
 import { MapleSkyStrategyInitializerHarness } from "../../utils/Harnesses.sol";
-import { TestBase }                           from "../../utils/TestBase.sol";
+import { SkyTestBase }                        from "../../utils/SkyTestBase.sol";
 
-contract InitializeTests is TestBase {
+contract InitializeTests is SkyTestBase {
 
     MapleSkyStrategyInitializerHarness proxy = MapleSkyStrategyInitializerHarness(initializer);
 

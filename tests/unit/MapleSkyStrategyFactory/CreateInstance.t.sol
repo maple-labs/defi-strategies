@@ -4,9 +4,9 @@ pragma solidity ^0.8.0;
 import { IMapleSkyStrategyInitializer } from "../../../contracts/interfaces/IMapleSkyStrategyInitializer.sol";
 
 import { MapleSkyStrategyHarness } from "../../utils/Harnesses.sol";
-import { TestBase }                from "../../utils/TestBase.sol";
+import { SkyTestBase }             from "../../utils/SkyTestBase.sol";
 
-contract CreateInstanceTests is TestBase {
+contract CreateInstanceTests is SkyTestBase {
 
     function setUp() public override {
         super.setUp();

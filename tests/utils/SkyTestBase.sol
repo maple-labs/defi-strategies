@@ -5,12 +5,9 @@ import { Test } from "../../modules/forge-std/src/Test.sol";
 
 import { IMapleSkyStrategyInitializer } from "../../contracts/interfaces/IMapleSkyStrategyInitializer.sol";
 
-import { MapleSkyStrategyFactory } from "../../contracts/MapleSkyStrategyFactory.sol";
+import { MapleSkyStrategyFactory } from "../../contracts/sky/MapleSkyStrategyFactory.sol";
 
-import {
-    MapleSkyStrategyHarness,
-    MapleSkyStrategyInitializerHarness
-} from "./Harnesses.sol";
+import { MapleSkyStrategyHarness, MapleSkyStrategyInitializerHarness } from "./Harnesses.sol";
 
 import {
     MockAsset,
@@ -21,7 +18,7 @@ import {
     MockSavingsUsds
 } from "./Mocks.sol";
 
-contract TestBase is Test {
+contract SkyTestBase is Test {
 
     address deployer         = makeAddr("deployer");
     address governor         = makeAddr("governor");

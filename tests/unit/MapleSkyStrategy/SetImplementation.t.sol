@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.0;
 
-import { MapleSkyStrategy } from "../../../contracts/MapleSkyStrategy.sol";
+import { MapleSkyStrategy } from "../../../contracts/sky/MapleSkyStrategy.sol";
 
-import { TestBase } from "../../utils/TestBase.sol";
+import { SkyTestBase } from "../../utils/SkyTestBase.sol";
 
-contract SetImplementationTests is TestBase {
+contract SetImplementationTests is SkyTestBase {
 
     address internal newImplementation;
 
@@ -15,14 +15,14 @@ contract SetImplementationTests is TestBase {
         newImplementation = address(new MapleSkyStrategy());
     }
 
-    function test_setImplementation_protocolPaused() external {
+    function test_setImplementation_revert_protocolPaused() external {
         globals.__setIsFunctionPaused(MapleSkyStrategy.setImplementation.selector, true);
 
         vm.expectRevert("MSS:PAUSED");
         strategy.setImplementation(newImplementation);
     }
 
-    function test_setImplementation_notFactory() external {
+    function test_setImplementation_revert_notFactory() external {
         vm.expectRevert("MSS:NOT_FACTORY");
         strategy.setImplementation(newImplementation);
     }

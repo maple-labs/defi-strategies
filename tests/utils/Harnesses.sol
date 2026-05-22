@@ -1,8 +1,31 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.0;
 
-import { MapleSkyStrategy }            from "../../contracts/MapleSkyStrategy.sol";
-import { MapleSkyStrategyInitializer } from "../../contracts/MapleSkyStrategyInitializer.sol";
+import { MapleAaveV3Strategy }            from "../../contracts/aaveV3/MapleAaveV3Strategy.sol";
+import { MapleAaveV3StrategyInitializer } from "../../contracts/aaveV3/MapleAaveV3StrategyInitializer.sol";
+
+import { MapleSkyStrategy }            from "../../contracts/sky/MapleSkyStrategy.sol";
+import { MapleSkyStrategyInitializer } from "../../contracts/sky/MapleSkyStrategyInitializer.sol";
+
+contract MapleAaveV3StrategyHarness is MapleAaveV3Strategy {
+
+    function locked() external view returns (uint256 locked_) {
+        locked_ = _locked;
+    }
+
+}
+
+contract MapleAaveV3StrategyInitializerHarness is MapleAaveV3StrategyInitializer {
+
+    function __initialize(Parameters memory params_) external {
+        _initialize(params_);
+    }
+
+    function locked() external view returns (uint256 locked_) {
+        locked_ = _locked;
+    }
+
+}
 
 contract MapleSkyStrategyHarness is MapleSkyStrategy {
 

@@ -3,12 +3,12 @@ pragma solidity ^0.8.0;
 
 import { IMapleProxied } from "../../../modules/proxy-factory/contracts/interfaces/IMapleProxied.sol";
 
-import { MapleSkyStrategy } from "../../../contracts/MapleSkyStrategy.sol";
+import { MapleSkyStrategy } from "../../../contracts/sky/MapleSkyStrategy.sol";
 
 import { MockMigrator } from "../../utils/Mocks.sol";
-import { TestBase }     from "../../utils/TestBase.sol";
+import { SkyTestBase }  from "../../utils/SkyTestBase.sol";
 
-contract UpgradeTests is TestBase {
+contract UpgradeTests is SkyTestBase {
 
     address migrator          = address(new MockMigrator());
     address newImplementation = address(new MapleSkyStrategy());
@@ -24,19 +24,19 @@ contract UpgradeTests is TestBase {
         vm.stopPrank();
     }
 
-    function test_upgrade_protocolPaused() external {
+    function test_upgrade_revert_protocolPaused() external {
         globals.__setIsFunctionPaused(MapleSkyStrategy.upgrade.selector, true);
 
         vm.expectRevert("MSS:PAUSED");
         strategy.upgrade(200, arguments);
     }
 
-    function test_upgrade_notAuthorized() external {
+    function test_upgrade_revert_notAuthorized() external {
         vm.expectRevert("MSS:U:NOT_AUTHORIZED");
         strategy.upgrade(200, arguments);
     }
 
-    function test_upgrade_internalFailure() external {
+    function test_upgrade_revert_internalFailure() external {
         vm.prank(securityAdmin);
         vm.expectRevert("MPF:UI:FAILED");
         strategy.upgrade(200, "");

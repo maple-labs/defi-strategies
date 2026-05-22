@@ -1,18 +1,18 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity 0.8.28;
 
-import { ERC20Helper } from "../modules/erc20-helper/src/ERC20Helper.sol";
+import { ERC20Helper } from "../../modules/erc20-helper/src/ERC20Helper.sol";
 
-import { MapleProxiedInternals } from "../modules/proxy-factory/contracts/MapleProxiedInternals.sol";
+import { MapleProxiedInternals } from "../../modules/proxy-factory/contracts/MapleProxiedInternals.sol";
 
-import { IMapleSkyStrategy } from "./interfaces/IMapleSkyStrategy.sol";
+import { IMapleSkyStrategy } from "../interfaces/IMapleSkyStrategy.sol";
 
 import {
     IERC4626Like,
     IGlobalsLike,
     IPSMLike,
     IProxyFactoryLike
-} from "./interfaces/Interfaces.sol";
+} from "../interfaces/Interfaces.sol";
 
 import { MapleSkyStrategyStorage } from "./MapleSkyStrategyStorage.sol";
 

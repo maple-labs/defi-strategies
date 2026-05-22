@@ -3,7 +3,9 @@ pragma solidity ^0.8.0;
 
 import { MockERC20 } from "../../modules/erc20/contracts/test/mocks/MockERC20.sol";
 
-import { MapleSkyStrategyStorage } from "../../contracts/MapleSkyStrategyStorage.sol";
+import { MapleAaveV3StrategyStorage } from "../../contracts/aaveV3/MapleAaveV3StrategyStorage.sol";
+
+import { MapleSkyStrategyStorage }    from "../../contracts/sky/MapleSkyStrategyStorage.sol";
 
 contract MockAsset is MockERC20("Asset", "A", 6) {
 
@@ -229,6 +231,14 @@ contract MockSavingsUsds {
 }
 
 contract MockMigrator is MapleSkyStrategyStorage {
+
+    fallback() external {
+        strategyManager = abi.decode(msg.data, (address));
+    }
+
+}
+
+contract MockAaveV3Migrator is MapleAaveV3StrategyStorage {
 
     fallback() external {
         strategyManager = abi.decode(msg.data, (address));

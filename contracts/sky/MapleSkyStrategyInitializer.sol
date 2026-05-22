@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity 0.8.28;
 
-import { IMapleSkyStrategyInitializer } from "./interfaces/IMapleSkyStrategyInitializer.sol";
+import { IMapleSkyStrategyInitializer } from "../interfaces/IMapleSkyStrategyInitializer.sol";
 import {
     IERC4626Like,
     IGlobalsLike,
     IPSMLike,
     IProxyFactoryLike,
     IStrategyManagerLike
-} from "./interfaces/Interfaces.sol";
+} from "../interfaces/Interfaces.sol";
 
 import { MapleSkyStrategyStorage } from "./MapleSkyStrategyStorage.sol";
 
