@@ -102,4 +102,10 @@ contract SkyTestBase is Test {
         assertEq(asset.balanceOf(mapleTreasury),    protocolFee);
     }
 
+    function setSkyStrategyState(uint256 lastRecordedTotalAssets_, uint256 susdsBalance_) internal {
+        strategy.__setLastRecordedTotalAssets(lastRecordedTotalAssets_);
+        savingsUsds.__setBalanceOf(address(strategy), susdsBalance_);
+        usds.mint(address(savingsUsds), susdsBalance_ * savingsUsds.susdsRedeemExchangeRate() / 1e18);
+    }
+
 }

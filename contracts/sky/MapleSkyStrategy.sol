@@ -119,6 +119,28 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
         emit StrategyFunded(msg.sender, assetsIn_, sharesMinted_, deployedAssets_);
     }
 
+    function withdrawFromUnderlyingStrategy(
+        address destination_,
+        uint256 assets_,
+        bytes calldata /* data_ */
+    )
+        external override whenNotPaused nonReentrant onlyStrategyManager
+    {
+        require(destination_ != address(0), "MSS:WFUS:ZERO_DESTINATION");
+        require(assets_      > 0,           "MSS:WFUS:ZERO_ASSETS");
+
+        address psm_         = psm;
+        address savingsUsds_ = savingsUsds;
+
+        _accrueFees(psm_, savingsUsds_);
+
+        uint256 sharesBurned_ = _withdraw(psm_, savingsUsds_, assets_, destination_);
+
+        lastRecordedTotalAssets = _currentTotalAssets(psm_, savingsUsds_);
+
+        emit StrategyWithdrawal(msg.sender, destination_, sharesBurned_, assets_);
+    }
+
     /**************************************************************************************************************************************/
     /*** View Functions                                                                                                                 ***/
     /**************************************************************************************************************************************/
@@ -170,10 +192,17 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
         emit StrategyFeesCollected(delegateFee_, protocolFee_);
     }
 
-    function _withdraw(address psm_, address savingsUsds_, uint256 assets_, address destination_) internal {
+    function _withdraw(
+        address psm_,
+        address savingsUsds_,
+        uint256 assets_,
+        address destination_
+    )
+        internal returns (uint256 sharesBurned_)
+    {
         uint256 requiredUsds_ = _usdsForGem(psm_, assets_);
 
-        IERC4626Like(savingsUsds_).withdraw(requiredUsds_, address(this), address(this));
+        sharesBurned_ = IERC4626Like(savingsUsds_).withdraw(requiredUsds_, address(this), address(this));
 
         require(ERC20Helper.approve(usds, psm_, requiredUsds_), "MSS:W:USDS_APPROVE_FAIL");
 

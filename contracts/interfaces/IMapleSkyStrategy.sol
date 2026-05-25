@@ -30,6 +30,15 @@ interface IMapleSkyStrategy is IMapleSkyStrategyStorage, IMapleProxied {
      */
     event StrategyFeesCollected(uint256 delegateFee, uint256 protocolFee);
 
+    /**
+     *  @dev   Emitted when funds asset is withdrawn from the underlying Sky strategy to a destination.
+     *  @param strategyManager Address of the strategy manager that initiated the call.
+     *  @param destination     Address that received the funds asset.
+     *  @param sharesBurned    Amount of sUSDS shares burned to satisfy the redemption.
+     *  @param assetsOut       Amount of funds asset delivered to the destination.
+     */
+    event StrategyWithdrawal(address indexed strategyManager, address indexed destination, uint256 sharesBurned, uint256 assetsOut);
+
     /**************************************************************************************************************************************/
     /*** State-Changing Functions                                                                                                       ***/
     /**************************************************************************************************************************************/
@@ -44,6 +53,17 @@ interface IMapleSkyStrategy is IMapleSkyStrategyStorage, IMapleProxied {
      *                          net of the PSM `tout` fee that would apply on the inverse redemption.
      */
     function fundUnderlyingStrategy(uint256 assetsIn, bytes calldata data) external returns (uint256 deployedAssets);
+
+    /**
+     *  @dev   Redeems sUSDS shares back into funds asset via the PSM and delivers exactly `assets` to `destination`.
+     *         Callable only by the bound strategy manager. Accrues outstanding fees before withdrawing
+     *         and refreshes the fee-accrual baseline to the post-withdrawal position. The PSM `tout` fee
+     *         is absorbed by the strategy's remaining sUSDS balance and socialized across shareholders.
+     *  @param destination  Address that receives the withdrawn funds asset.
+     *  @param assets       Amount of funds asset to deliver to the destination.
+     *  @param data         Reserved for future strategy-specific calldata. Unused by the Sky strategy.
+     */
+    function withdrawFromUnderlyingStrategy(address destination, uint256 assets, bytes calldata data) external;
 
     /**************************************************************************************************************************************/
     /*** View Functions                                                                                                                 ***/
