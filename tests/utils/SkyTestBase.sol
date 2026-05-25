@@ -29,8 +29,6 @@ contract SkyTestBase is Test {
     address implementation = address(new MapleSkyStrategyHarness());
     address initializer    = address(new MapleSkyStrategyInitializerHarness());
 
-    uint32 startingTime;
-
     IMapleSkyStrategyInitializer.Parameters params;
 
     MockAsset       asset           = new MockAsset();
@@ -45,8 +43,6 @@ contract SkyTestBase is Test {
     MapleSkyStrategyHarness strategy;
 
     function setUp() public virtual {
-        startingTime = uint32(block.timestamp);
-
         psm.__setGem(address(asset));
         psm.__setTo18ConversionFactor(1e12);
         psm.__setUsds(address(usds));

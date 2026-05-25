@@ -43,7 +43,7 @@ contract AaveV3UpgradeTests is AaveV3TestBase {
     }
 
     function test_upgrade_success() external {
-        assertEq(strategy.strategyManager(), address(0));
+        assertEq(strategy.strategyManager(), params.strategyManager);
 
         vm.expectEmit();
         emit IMapleProxied.Upgraded(200, arguments);

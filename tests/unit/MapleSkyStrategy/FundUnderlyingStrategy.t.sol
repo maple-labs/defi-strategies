@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.0;
 
-import { MapleSkyStrategy }  from "../../../contracts/sky/MapleSkyStrategy.sol";
+import { MapleSkyStrategy } from "../../../contracts/sky/MapleSkyStrategy.sol";
 
 import { IMapleSkyStrategy } from "../../../contracts/interfaces/IMapleSkyStrategy.sol";
 import { IERC4626Like }      from "../../../contracts/interfaces/Interfaces.sol";
 
 import { SkyTestBase } from "../../utils/SkyTestBase.sol";
 
-contract FundUnderlyingStrategyFailureTests is SkyTestBase {
+contract SkyFundUnderlyingStrategyFailureTests is SkyTestBase {
 
     function test_fundUnderlyingStrategy_revert_functionPaused() external {
         globals.__setIsFunctionPaused(MapleSkyStrategy.fundUnderlyingStrategy.selector, true);
@@ -87,7 +87,7 @@ contract FundUnderlyingStrategyFailureTests is SkyTestBase {
 
 }
 
-contract FundUnderlyingStrategySuccessTests is SkyTestBase {
+contract SkyFundUnderlyingStrategySuccessTests is SkyTestBase {
 
     function setUp() public override {
         super.setUp();

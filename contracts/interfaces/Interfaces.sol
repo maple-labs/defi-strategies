@@ -19,6 +19,18 @@ interface IGlobalsLike {
 
 }
 
+interface IAaveTokenLike {
+
+    function balanceOf(address account_) external view returns (uint256 balance_);
+
+    function getIncentivesController() external view returns (address incentivesController);
+
+    function POOL() external view returns (address pool);
+
+    function UNDERLYING_ASSET_ADDRESS() external view returns (address asset);
+
+}
+
 interface IERC4626Like {
 
     function asset() external view returns (address);

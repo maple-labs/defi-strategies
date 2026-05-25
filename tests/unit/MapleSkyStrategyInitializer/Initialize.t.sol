@@ -6,7 +6,7 @@ import { IMapleSkyStrategyInitializer } from "../../../contracts/interfaces/IMap
 import { MapleSkyStrategyInitializerHarness } from "../../utils/Harnesses.sol";
 import { SkyTestBase }                        from "../../utils/SkyTestBase.sol";
 
-contract InitializeTests is SkyTestBase {
+contract SkyInitializeTests is SkyTestBase {
 
     MapleSkyStrategyInitializerHarness proxy = MapleSkyStrategyInitializerHarness(initializer);
 

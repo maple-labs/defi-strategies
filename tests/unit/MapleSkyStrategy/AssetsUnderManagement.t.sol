@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 import { SkyTestBase } from "../../utils/SkyTestBase.sol";
 
-contract AssetsUnderManagementTests is SkyTestBase {
+contract SkyAssetsUnderManagementTests is SkyTestBase {
 
     function setUp() public override {
         super.setUp();

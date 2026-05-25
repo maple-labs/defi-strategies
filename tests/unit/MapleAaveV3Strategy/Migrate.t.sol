@@ -31,7 +31,7 @@ contract AaveV3MigrateTests is AaveV3TestBase {
     }
 
     function test_migrate_success() external {
-        assertEq(strategy.strategyManager(), address(0));
+        assertEq(strategy.strategyManager(), params.strategyManager);
 
         vm.prank(address(factory));
         strategy.migrate(migrator, arguments);

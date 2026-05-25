@@ -5,7 +5,7 @@ import { MapleSkyStrategy } from "../../../contracts/sky/MapleSkyStrategy.sol";
 
 import { SkyTestBase } from "../../utils/SkyTestBase.sol";
 
-contract SetImplementationTests is SkyTestBase {
+contract SkySetImplementationTests is SkyTestBase {
 
     address internal newImplementation;
 

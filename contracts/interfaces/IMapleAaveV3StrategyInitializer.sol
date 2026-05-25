@@ -8,16 +8,18 @@ interface IMapleAaveV3StrategyInitializer {
 
     /**
      *  @dev   Parameters required to initialize an Aave V3 strategy.
-     *  @param strategyManager Address of the strategy manager contract.
-     *  @param fundsAsset      Address of the asset used for strategy funds.
-     *  @param aavePool        Address of the Aave V3 pool.
-     *  @param aaveToken       Address of the Aave token.
+     *  @param strategyManager         Address of the strategy manager contract.
+     *  @param aaveToken               Address of the Aave token.
+     *  @param strategyDelegateFeeRate Percentage of yield collected by the strategy delegate.
+     *  @param strategyProtocolFeeRate Percentage of yield collected by the Maple treasury.
+     *  @param referralCode            Referral code used when depositing into Aave.
      */
     struct Parameters {
         address strategyManager;
-        address fundsAsset;
-        address aavePool;
         address aaveToken;
+        uint32  strategyDelegateFeeRate;
+        uint32  strategyProtocolFeeRate;
+        uint16  referralCode;
     }
 
     /**

@@ -8,7 +8,7 @@ import { MapleSkyStrategy } from "../../../contracts/sky/MapleSkyStrategy.sol";
 import { MockMigrator } from "../../utils/Mocks.sol";
 import { SkyTestBase }  from "../../utils/SkyTestBase.sol";
 
-contract UpgradeTests is SkyTestBase {
+contract SkyUpgradeTests is SkyTestBase {
 
     address migrator          = address(new MockMigrator());
     address newImplementation = address(new MapleSkyStrategy());

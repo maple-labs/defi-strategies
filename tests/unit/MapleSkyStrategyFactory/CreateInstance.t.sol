@@ -6,7 +6,7 @@ import { IMapleSkyStrategyInitializer } from "../../../contracts/interfaces/IMap
 import { MapleSkyStrategyHarness } from "../../utils/Harnesses.sol";
 import { SkyTestBase }             from "../../utils/SkyTestBase.sol";
 
-contract CreateInstanceTests is SkyTestBase {
+contract SkyCreateInstanceTests is SkyTestBase {
 
     function setUp() public override {
         super.setUp();

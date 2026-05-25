@@ -5,7 +5,7 @@ import { MockERC20 } from "../../modules/erc20/contracts/test/mocks/MockERC20.so
 
 import { MapleAaveV3StrategyStorage } from "../../contracts/aaveV3/MapleAaveV3StrategyStorage.sol";
 
-import { MapleSkyStrategyStorage }    from "../../contracts/sky/MapleSkyStrategyStorage.sol";
+import { MapleSkyStrategyStorage } from "../../contracts/sky/MapleSkyStrategyStorage.sol";
 
 contract MockAsset is MockERC20("Asset", "A", 6) {
 
@@ -42,6 +42,21 @@ contract MockAsset is MockERC20("Asset", "A", 6) {
         require(!transferFromReverts);
 
         success_ = super.transferFrom(from_, to_, amount_);
+    }
+
+}
+
+contract MockAaveToken {
+
+    address public POOL;
+    address public UNDERLYING_ASSET_ADDRESS;
+
+    function __setPool(address pool_) external {
+        POOL = pool_;
+    }
+
+    function __setUnderlyingAsset(address underlyingAsset_) external {
+        UNDERLYING_ASSET_ADDRESS = underlyingAsset_;
     }
 
 }

@@ -25,9 +25,29 @@ interface IMapleAaveV3StrategyStorage {
     function fundsAsset() external view returns (address fundsAsset);
 
     /**
+     *  @dev    Returns the referral code used when depositing into Aave.
+     *  @return referralCode Referral code used when depositing into Aave.
+     */
+    function referralCode() external view returns (uint16 referralCode);
+
+    /**
+     *  @dev    Returns the percentage of yield collected by the strategy delegate.
+     *          Defined with 6 decimals of precision (1e6 == 100%).
+     *  @return strategyDelegateFeeRate Percentage of yield collected by the strategy delegate.
+     */
+    function strategyDelegateFeeRate() external view returns (uint32 strategyDelegateFeeRate);
+
+    /**
      *  @dev    Returns the address of the strategy manager contract.
      *  @return strategyManager Address of the strategy manager.
      */
     function strategyManager() external view returns (address strategyManager);
+
+    /**
+     *  @dev    Returns the percentage of yield collected by the Maple treasury.
+     *          Defined with 6 decimals of precision (1e6 == 100%).
+     *  @return strategyProtocolFeeRate Percentage of yield collected by the Maple treasury.
+     */
+    function strategyProtocolFeeRate() external view returns (uint32 strategyProtocolFeeRate);
 
 }
