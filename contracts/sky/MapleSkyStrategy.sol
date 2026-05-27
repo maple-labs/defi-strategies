@@ -85,6 +85,7 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
     /**************************************************************************************************************************************/
 
     // TODO: Should other actors be able to call this function?
+    // TODO: Reconsider need for aum diff for deployedAssets_ return var
     function fundUnderlyingStrategy(
         uint256 assetsIn_,
         bytes calldata /* data_ */

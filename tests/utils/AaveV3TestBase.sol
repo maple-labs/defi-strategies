@@ -10,6 +10,7 @@ import { MapleAaveV3StrategyFactory } from "../../contracts/aaveV3/MapleAaveV3St
 import { MapleAaveV3StrategyHarness, MapleAaveV3StrategyInitializerHarness } from "./Harnesses.sol";
 
 import {
+    MockAavePool,
     MockAaveToken,
     MockAsset,
     MockFactory,
@@ -19,11 +20,12 @@ import {
 
 contract AaveV3TestBase is Test {
 
-    address aavePool      = makeAddr("aavePool");
-    address deployer      = makeAddr("deployer");
-    address governor      = makeAddr("governor");
-    address mapleTreasury = makeAddr("mapleTreasury");
-    address securityAdmin = makeAddr("securityAdmin");
+    address aavePool         = address(new MockAavePool());
+    address deployer         = makeAddr("deployer");
+    address governor         = makeAddr("governor");
+    address mapleTreasury    = makeAddr("mapleTreasury");
+    address securityAdmin    = makeAddr("securityAdmin");
+    address strategyDelegate = makeAddr("strategyDelegate");
 
     address implementation = address(new MapleAaveV3StrategyHarness());
     address initializer    = address(new MapleAaveV3StrategyInitializerHarness());
@@ -43,6 +45,8 @@ contract AaveV3TestBase is Test {
         aaveToken.__setPool(aavePool);
         aaveToken.__setUnderlyingAsset(address(asset));
 
+        MockAavePool(aavePool).__setAaveToken(address(aaveToken));
+
         globals.__setCanDeploy(deployer, true);
         globals.__setGovernor(governor);
         globals.__setIsInstanceOf("STRATEGY_MANAGER_FACTORY", address(managerFactory), true);
@@ -50,6 +54,7 @@ contract AaveV3TestBase is Test {
         globals.__setIsPoolAsset(address(asset), true);
         globals.__setMapleTreasury(mapleTreasury);
         globals.__setSecurityAdmin(securityAdmin);
+        globals.__setStrategyDelegateOf(address(strategyManager), strategyDelegate);
 
         strategyManager.__setFactory(address(managerFactory));
         managerFactory.__setIsInstance(address(strategyManager), true);
@@ -75,6 +80,20 @@ contract AaveV3TestBase is Test {
 
         vm.prank(deployer);
         strategy = MapleAaveV3StrategyHarness(factory.createInstance(arguments, "DEFAULT"));
+    }
+
+    function assertAaveV3Strategy(uint256 aaveTokenBalance, uint256 lastRecordedTotalAssets) internal view {
+        assertEq(aaveToken.balanceOf(address(strategy)), aaveTokenBalance);
+        assertEq(strategy.lastRecordedTotalAssets(),     lastRecordedTotalAssets);
+    }
+
+    function assertCollectedFees(uint256 delegateFee, uint256 protocolFee) internal view {
+        assertEq(asset.balanceOf(strategyDelegate), delegateFee);
+        assertEq(asset.balanceOf(mapleTreasury),    protocolFee);
+    }
+
+    function setAaveAmountOut(uint256 amountOut_) internal {
+        MockAavePool(aavePool).__setAmountOut(address(asset), address(strategy), amountOut_);
     }
 
 }

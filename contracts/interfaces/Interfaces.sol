@@ -21,13 +21,21 @@ interface IGlobalsLike {
 
 interface IAaveTokenLike {
 
-    function balanceOf(address account_) external view returns (uint256 balance_);
+    function balanceOf(address account) external view returns (uint256 balance);
 
     function getIncentivesController() external view returns (address incentivesController);
 
     function POOL() external view returns (address pool);
 
     function UNDERLYING_ASSET_ADDRESS() external view returns (address asset);
+
+}
+
+interface IAavePoolLike {
+
+    function supply(address asset, uint256 amount, address onBehalfOf, uint16 referralCode) external;
+
+    function withdraw(address asset, uint256 amount, address to) external returns (uint256 withdrawn);
 
 }
 

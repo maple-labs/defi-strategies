@@ -13,6 +13,26 @@ contract MapleAaveV3StrategyHarness is MapleAaveV3Strategy {
         locked_ = _locked;
     }
 
+    function __setLastRecordedTotalAssets(uint256 lastRecordedTotalAssets_) external {
+        lastRecordedTotalAssets = lastRecordedTotalAssets_;
+    }
+
+    function __setLocked(uint256 locked_) external {
+        _locked = locked_;
+    }
+
+    function __setReferralCode(uint16 referralCode_) external {
+        referralCode = referralCode_;
+    }
+
+    function __setStrategyDelegateFeeRate(uint32 strategyDelegateFeeRate_) external {
+        strategyDelegateFeeRate = strategyDelegateFeeRate_;
+    }
+
+    function __setStrategyProtocolFeeRate(uint32 strategyProtocolFeeRate_) external {
+        strategyProtocolFeeRate = strategyProtocolFeeRate_;
+    }
+
 }
 
 contract MapleAaveV3StrategyInitializerHarness is MapleAaveV3StrategyInitializer {
