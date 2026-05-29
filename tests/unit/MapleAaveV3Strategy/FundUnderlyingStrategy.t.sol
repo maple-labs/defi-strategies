@@ -69,7 +69,8 @@ contract AaveV3FundUnderlyingStrategySuccessTests is AaveV3TestBase {
     function test_fundUnderlyingStrategy_success_forwardsReferralCode() external {
         assertAaveV3Strategy({
             aaveTokenBalance:        0,
-            lastRecordedTotalAssets: 0
+            lastRecordedTotalAssets: 0,
+            assetsUnderManagement:   0
         });
 
         uint16 referralCode = 42;
@@ -87,14 +88,16 @@ contract AaveV3FundUnderlyingStrategySuccessTests is AaveV3TestBase {
 
         assertAaveV3Strategy({
             aaveTokenBalance:        assets,
-            lastRecordedTotalAssets: assets
+            lastRecordedTotalAssets: assets,
+            assetsUnderManagement:   assets
         });
     }
 
     function test_fundUnderlyingStrategy_success_firstDeposit() external {
         assertAaveV3Strategy({
             aaveTokenBalance:        0,
-            lastRecordedTotalAssets: 0
+            lastRecordedTotalAssets: 0,
+            assetsUnderManagement:   0
         });
 
         uint256 assets           = 100e6;
@@ -113,14 +116,16 @@ contract AaveV3FundUnderlyingStrategySuccessTests is AaveV3TestBase {
 
         assertAaveV3Strategy({
             aaveTokenBalance:        expectedDeployed,
-            lastRecordedTotalAssets: expectedDeployed
+            lastRecordedTotalAssets: expectedDeployed,
+            assetsUnderManagement:   expectedDeployed
         });
     }
 
     function test_fundUnderlyingStrategy_success_secondDeposit_strategyHasYield_withProtocolFees() external {
         assertAaveV3Strategy({
             aaveTokenBalance:        0,
-            lastRecordedTotalAssets: 0
+            lastRecordedTotalAssets: 0,
+            assetsUnderManagement:   0
         });
 
         /**********************************************************************************************************************************/
@@ -134,10 +139,11 @@ contract AaveV3FundUnderlyingStrategySuccessTests is AaveV3TestBase {
         /*** Step 2: Make first deposit and simulate yield                                                                              ***/
         /**********************************************************************************************************************************/
 
-        uint256 firstDepositAssets          = 100e6;
-        uint256 expectedFirstDeployedAssets = 100e6;  // First deposit deploys all assets.
-        uint256 expectedTotalAfterFirstFund = 100e6;  // First deposit has no prior yield to collect fees on.
-        uint256 yieldToAdd                  = 40e6;   // Simulate Aave balance increasing by 40 USDC.
+        uint256 firstDepositAssets                  = 100e6;
+        uint256 expectedFirstDeployedAssets         = 100e6;  // First deposit deploys all assets.
+        uint256 expectedTotalAfterFirstFund         = 100e6;  // First deposit has no prior yield to collect fees on.
+        uint256 yieldToAdd                          = 40e6;   // Simulate Aave balance increasing by 40 USDC.
+        uint256 assetsUnderManagementAfterFirstFund = 138e6;  // 140e6 Aave balance - 0.8e6 delegate fee - 1.2e6 protocol fee.
 
         vm.prank(address(strategyManager));
         uint256 firstDeployedAssets = strategy.fundUnderlyingStrategy(firstDepositAssets, "");
@@ -148,7 +154,8 @@ contract AaveV3FundUnderlyingStrategySuccessTests is AaveV3TestBase {
 
         assertAaveV3Strategy({
             aaveTokenBalance:        firstDepositAssets + yieldToAdd,
-            lastRecordedTotalAssets: expectedTotalAfterFirstFund
+            lastRecordedTotalAssets: expectedTotalAfterFirstFund,
+            assetsUnderManagement:   assetsUnderManagementAfterFirstFund
         });
 
         assertCollectedFees({
@@ -184,7 +191,8 @@ contract AaveV3FundUnderlyingStrategySuccessTests is AaveV3TestBase {
 
         assertAaveV3Strategy({
             aaveTokenBalance:        expectedLastRecordedAfterFund,
-            lastRecordedTotalAssets: expectedLastRecordedAfterFund
+            lastRecordedTotalAssets: expectedLastRecordedAfterFund,
+            assetsUnderManagement:   expectedLastRecordedAfterFund
         });
 
         assertCollectedFees({
@@ -196,7 +204,8 @@ contract AaveV3FundUnderlyingStrategySuccessTests is AaveV3TestBase {
     function test_fundUnderlyingStrategy_success_secondDeposit_strategyHasYield_withDelegateFeeOnly() external {
         assertAaveV3Strategy({
             aaveTokenBalance:        0,
-            lastRecordedTotalAssets: 0
+            lastRecordedTotalAssets: 0,
+            assetsUnderManagement:   0
         });
 
         /**********************************************************************************************************************************/
@@ -210,10 +219,11 @@ contract AaveV3FundUnderlyingStrategySuccessTests is AaveV3TestBase {
         /*** Step 2: Make first deposit and simulate yield                                                                              ***/
         /**********************************************************************************************************************************/
 
-        uint256 firstDepositAssets          = 100e6;
-        uint256 expectedFirstDeployedAssets = 100e6;  // First deposit deploys all assets.
-        uint256 expectedTotalAfterFirstFund = 100e6;  // First deposit has no prior yield to collect fees on.
-        uint256 yieldToAdd                  = 40e6;   // Simulate Aave balance increasing by 40 USDC.
+        uint256 firstDepositAssets                  = 100e6;
+        uint256 expectedFirstDeployedAssets         = 100e6;    // First deposit deploys all assets.
+        uint256 expectedTotalAfterFirstFund         = 100e6;    // First deposit has no prior yield to collect fees on.
+        uint256 yieldToAdd                          = 40e6;     // Simulate Aave balance increasing by 40 USDC.
+        uint256 assetsUnderManagementAfterFirstFund = 139.2e6;  // 140e6 Aave balance - 0.8e6 delegate fee.
 
         vm.prank(address(strategyManager));
         uint256 firstDeployedAssets = strategy.fundUnderlyingStrategy(firstDepositAssets, "");
@@ -224,7 +234,8 @@ contract AaveV3FundUnderlyingStrategySuccessTests is AaveV3TestBase {
 
         assertAaveV3Strategy({
             aaveTokenBalance:        firstDepositAssets + yieldToAdd,
-            lastRecordedTotalAssets: expectedTotalAfterFirstFund
+            lastRecordedTotalAssets: expectedTotalAfterFirstFund,
+            assetsUnderManagement:   assetsUnderManagementAfterFirstFund
         });
 
         assertCollectedFees({
@@ -260,7 +271,8 @@ contract AaveV3FundUnderlyingStrategySuccessTests is AaveV3TestBase {
 
         assertAaveV3Strategy({
             aaveTokenBalance:        expectedLastRecordedAfterFund,
-            lastRecordedTotalAssets: expectedLastRecordedAfterFund
+            lastRecordedTotalAssets: expectedLastRecordedAfterFund,
+            assetsUnderManagement:   expectedLastRecordedAfterFund
         });
 
         assertCollectedFees({
@@ -272,7 +284,8 @@ contract AaveV3FundUnderlyingStrategySuccessTests is AaveV3TestBase {
     function test_fundUnderlyingStrategy_success_secondDeposit_strategyHasYield_withProtocolFeeOnly() external {
         assertAaveV3Strategy({
             aaveTokenBalance:        0,
-            lastRecordedTotalAssets: 0
+            lastRecordedTotalAssets: 0,
+            assetsUnderManagement:   0
         });
 
         /**********************************************************************************************************************************/
@@ -286,10 +299,11 @@ contract AaveV3FundUnderlyingStrategySuccessTests is AaveV3TestBase {
         /*** Step 2: Make first deposit and simulate yield                                                                              ***/
         /**********************************************************************************************************************************/
 
-        uint256 firstDepositAssets          = 100e6;
-        uint256 expectedFirstDeployedAssets = 100e6;  // First deposit deploys all assets.
-        uint256 expectedTotalAfterFirstFund = 100e6;  // First deposit has no prior yield to collect fees on.
-        uint256 yieldToAdd                  = 40e6;   // Simulate Aave balance increasing by 40 USDC.
+        uint256 firstDepositAssets                  = 100e6;
+        uint256 expectedFirstDeployedAssets         = 100e6;    // First deposit deploys all assets.
+        uint256 expectedTotalAfterFirstFund         = 100e6;    // First deposit has no prior yield to collect fees on.
+        uint256 yieldToAdd                          = 40e6;     // Simulate Aave balance increasing by 40 USDC.
+        uint256 assetsUnderManagementAfterFirstFund = 138.8e6;  // 140e6 Aave balance - 1.2e6 protocol fee.
 
         vm.prank(address(strategyManager));
         uint256 firstDeployedAssets = strategy.fundUnderlyingStrategy(firstDepositAssets, "");
@@ -300,7 +314,8 @@ contract AaveV3FundUnderlyingStrategySuccessTests is AaveV3TestBase {
 
         assertAaveV3Strategy({
             aaveTokenBalance:        firstDepositAssets + yieldToAdd,
-            lastRecordedTotalAssets: expectedTotalAfterFirstFund
+            lastRecordedTotalAssets: expectedTotalAfterFirstFund,
+            assetsUnderManagement:   assetsUnderManagementAfterFirstFund
         });
 
         assertCollectedFees({
@@ -336,7 +351,8 @@ contract AaveV3FundUnderlyingStrategySuccessTests is AaveV3TestBase {
 
         assertAaveV3Strategy({
             aaveTokenBalance:        expectedLastRecordedAfterFund,
-            lastRecordedTotalAssets: expectedLastRecordedAfterFund
+            lastRecordedTotalAssets: expectedLastRecordedAfterFund,
+            assetsUnderManagement:   expectedLastRecordedAfterFund
         });
 
         assertCollectedFees({
@@ -348,7 +364,8 @@ contract AaveV3FundUnderlyingStrategySuccessTests is AaveV3TestBase {
     function test_fundUnderlyingStrategy_success_secondDeposit_strategyHasYield_feesRoundedDownToZero() external {
         assertAaveV3Strategy({
             aaveTokenBalance:        0,
-            lastRecordedTotalAssets: 0
+            lastRecordedTotalAssets: 0,
+            assetsUnderManagement:   0
         });
 
         /**********************************************************************************************************************************/
@@ -365,7 +382,7 @@ contract AaveV3FundUnderlyingStrategySuccessTests is AaveV3TestBase {
         uint256 firstDepositAssets          = 100e6;
         uint256 expectedFirstDeployedAssets = 100e6;
         uint256 expectedTotalAfterFirstFund = 100e6;
-        uint256 yieldThatRoundsFeesToZero   = 11;
+        uint256 yieldThatRoundsFeesToZero   = 20;
         uint256 aaveAmountOutBeforeFund     = expectedTotalAfterFirstFund + yieldThatRoundsFeesToZero;
 
         vm.prank(address(strategyManager));
@@ -377,7 +394,8 @@ contract AaveV3FundUnderlyingStrategySuccessTests is AaveV3TestBase {
 
         assertAaveV3Strategy({
             aaveTokenBalance:        aaveAmountOutBeforeFund,
-            lastRecordedTotalAssets: expectedTotalAfterFirstFund
+            lastRecordedTotalAssets: expectedTotalAfterFirstFund,
+            assetsUnderManagement:   aaveAmountOutBeforeFund
         });
 
         assertCollectedFees({
@@ -410,7 +428,8 @@ contract AaveV3FundUnderlyingStrategySuccessTests is AaveV3TestBase {
 
         assertAaveV3Strategy({
             aaveTokenBalance:        expectedLastRecordedAfterFund,
-            lastRecordedTotalAssets: expectedLastRecordedAfterFund
+            lastRecordedTotalAssets: expectedLastRecordedAfterFund,
+            assetsUnderManagement:   expectedLastRecordedAfterFund
         });
 
         assertCollectedFees({
@@ -422,7 +441,8 @@ contract AaveV3FundUnderlyingStrategySuccessTests is AaveV3TestBase {
     function test_fundUnderlyingStrategy_success_secondDeposit_strategyHasZeroYield_withProtocolFees() external {
         assertAaveV3Strategy({
             aaveTokenBalance:        0,
-            lastRecordedTotalAssets: 0
+            lastRecordedTotalAssets: 0,
+            assetsUnderManagement:   0
         });
 
         /**********************************************************************************************************************************/
@@ -447,7 +467,8 @@ contract AaveV3FundUnderlyingStrategySuccessTests is AaveV3TestBase {
 
         assertAaveV3Strategy({
             aaveTokenBalance:        expectedTotalAfterFirstFund,
-            lastRecordedTotalAssets: expectedTotalAfterFirstFund
+            lastRecordedTotalAssets: expectedTotalAfterFirstFund,
+            assetsUnderManagement:   expectedTotalAfterFirstFund
         });
 
         assertCollectedFees({
@@ -480,7 +501,8 @@ contract AaveV3FundUnderlyingStrategySuccessTests is AaveV3TestBase {
 
         assertAaveV3Strategy({
             aaveTokenBalance:        expectedLastRecordedAfterFund,
-            lastRecordedTotalAssets: expectedLastRecordedAfterFund
+            lastRecordedTotalAssets: expectedLastRecordedAfterFund,
+            assetsUnderManagement:   expectedLastRecordedAfterFund
         });
 
         assertCollectedFees({
@@ -492,7 +514,8 @@ contract AaveV3FundUnderlyingStrategySuccessTests is AaveV3TestBase {
     function test_fundUnderlyingStrategy_success_secondDeposit_strategyHasLoss_withProtocolFees() external {
         assertAaveV3Strategy({
             aaveTokenBalance:        0,
-            lastRecordedTotalAssets: 0
+            lastRecordedTotalAssets: 0,
+            assetsUnderManagement:   0
         });
 
         /**********************************************************************************************************************************/
@@ -520,7 +543,8 @@ contract AaveV3FundUnderlyingStrategySuccessTests is AaveV3TestBase {
 
         assertAaveV3Strategy({
             aaveTokenBalance:        aaveAmountOutBeforeFund,
-            lastRecordedTotalAssets: expectedTotalAfterFirstFund
+            lastRecordedTotalAssets: expectedTotalAfterFirstFund,
+            assetsUnderManagement:   aaveAmountOutBeforeFund
         });
 
         assertCollectedFees({
@@ -553,7 +577,8 @@ contract AaveV3FundUnderlyingStrategySuccessTests is AaveV3TestBase {
 
         assertAaveV3Strategy({
             aaveTokenBalance:        expectedLastRecordedAfterFund,
-            lastRecordedTotalAssets: expectedLastRecordedAfterFund
+            lastRecordedTotalAssets: expectedLastRecordedAfterFund,
+            assetsUnderManagement:   expectedLastRecordedAfterFund
         });
 
         assertCollectedFees({

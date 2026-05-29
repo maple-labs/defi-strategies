@@ -82,9 +82,16 @@ contract AaveV3TestBase is Test {
         strategy = MapleAaveV3StrategyHarness(factory.createInstance(arguments, "DEFAULT"));
     }
 
-    function assertAaveV3Strategy(uint256 aaveTokenBalance, uint256 lastRecordedTotalAssets) internal view {
+    function assertAaveV3Strategy(
+        uint256 aaveTokenBalance,
+        uint256 lastRecordedTotalAssets,
+        uint256 assetsUnderManagement
+    )
+        internal view
+    {
         assertEq(aaveToken.balanceOf(address(strategy)), aaveTokenBalance);
         assertEq(strategy.lastRecordedTotalAssets(),     lastRecordedTotalAssets);
+        assertEq(strategy.assetsUnderManagement(),       assetsUnderManagement);
     }
 
     function assertCollectedFees(uint256 delegateFee, uint256 protocolFee) internal view {
@@ -94,6 +101,11 @@ contract AaveV3TestBase is Test {
 
     function setAaveAmountOut(uint256 amountOut_) internal {
         MockAavePool(aavePool).__setAmountOut(address(asset), address(strategy), amountOut_);
+    }
+
+    function setAaveV3StrategyState(uint256 lastRecordedTotalAssets_, uint256 aaveTokenBalance_) internal {
+        strategy.__setLastRecordedTotalAssets(lastRecordedTotalAssets_);
+        setAaveAmountOut(aaveTokenBalance_);
     }
 
 }

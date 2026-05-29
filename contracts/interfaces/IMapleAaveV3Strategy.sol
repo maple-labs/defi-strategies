@@ -48,6 +48,12 @@ interface IMapleAaveV3Strategy is IMapleAaveV3StrategyStorage, IMapleProxied {
     /**************************************************************************************************************************************/
 
     /**
+     *  @dev    Returns the funds-asset equivalent of the strategy's Aave position net of accrued yield fees.
+     *  @return assetsUnderManagement Funds-asset equivalent currently attributable to the strategy manager.
+     */
+    function assetsUnderManagement() external view returns (uint256 assetsUnderManagement);
+
+    /**
      *  @dev    Returns the address of the Maple Globals contract.
      *  @return globals Address of the Maple Globals contract.
      */

@@ -118,6 +118,14 @@ contract MapleAaveV3Strategy is IMapleAaveV3Strategy, MapleAaveV3StrategyStorage
     /*** View Functions                                                                                                                 ***/
     /**************************************************************************************************************************************/
 
+    function assetsUnderManagement() external view override returns (uint256 assetsUnderManagement_) {
+        uint256 currentTotalAssets_ = _currentTotalAssets(aaveToken);
+
+        ( uint256 delegateFee_, uint256 protocolFee_ ) = _currentAccruedFees(currentTotalAssets_);
+
+        assetsUnderManagement_ = currentTotalAssets_ - delegateFee_ - protocolFee_;
+    }
+
     function factory() external view override returns (address factory_) {
         factory_ = _factory();
     }
