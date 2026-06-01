@@ -66,6 +66,8 @@ contract MockAaveToken {
     }
 
     function burn(address account_, uint256 amount_) external {
+        require(balanceOf[account_] >= amount_, "MOCK_AAVE_TOKEN:BURN:INSUFFICIENT_BALANCE");
+
         balanceOf[account_] -= amount_;
     }
 
@@ -83,13 +85,13 @@ contract MockAavePool {
         aaveToken = aaveToken_;
     }
 
-    function __setAmountOut(address asset_, address account_, uint256 amountOut_) external {
-        uint256 currentAmountOut_ = MockAaveToken(aaveToken).balanceOf(account_);
+    function __setATokenBalance(address asset_, address account_, uint256 aaveTokenBalance_) external {
+        uint256 currentATokenBalance_ = MockAaveToken(aaveToken).balanceOf(account_);
 
-        if (amountOut_ > currentAmountOut_) MockERC20(asset_).mint(address(this), amountOut_ - currentAmountOut_);
-        if (amountOut_ < currentAmountOut_) MockERC20(asset_).burn(address(this), currentAmountOut_ - amountOut_);
+        if (aaveTokenBalance_ > currentATokenBalance_) MockERC20(asset_).mint(address(this), aaveTokenBalance_ - currentATokenBalance_);
+        if (aaveTokenBalance_ < currentATokenBalance_) MockERC20(asset_).burn(address(this), currentATokenBalance_ - aaveTokenBalance_);
 
-        MockAaveToken(aaveToken).__setBalanceOf(account_, amountOut_);
+        MockAaveToken(aaveToken).__setBalanceOf(account_, aaveTokenBalance_);
     }
 
     function supply(address asset_, uint256 amount_, address onBehalfOf_, uint16) external {

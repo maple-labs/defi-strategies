@@ -29,6 +29,14 @@ interface IMapleAaveV3Strategy is IMapleAaveV3StrategyStorage, IMapleProxied {
      */
     event StrategyFeesCollected(uint256 delegateFee, uint256 protocolFee);
 
+    /**
+     *  @dev   Emitted when funds asset is withdrawn from the underlying Aave strategy to a destination.
+     *  @param strategyManager Address of the strategy manager that initiated the call.
+     *  @param destination     Address that received the funds asset.
+     *  @param assetsOut       Amount of funds asset delivered to the destination.
+     */
+    event StrategyWithdrawal(address indexed strategyManager, address indexed destination, uint256 assetsOut);
+
     /**************************************************************************************************************************************/
     /*** State-Changing Functions                                                                                                       ***/
     /**************************************************************************************************************************************/
@@ -42,6 +50,16 @@ interface IMapleAaveV3Strategy is IMapleAaveV3StrategyStorage, IMapleProxied {
      *  @return deployedAssets Funds-asset amount deployed into Aave.
      */
     function fundUnderlyingStrategy(uint256 assetsIn, bytes calldata data) external returns (uint256 deployedAssets);
+
+    /**
+     *  @dev   Redeems Aave aTokens back into funds asset and delivers the withdrawn assets to `destination`.
+     *         Callable only by the bound strategy manager. Accrues outstanding fees before withdrawing
+     *         and refreshes the fee-accrual baseline to the post-withdrawal position.
+     *  @param destination  Address that receives the withdrawn funds asset.
+     *  @param assets       Amount of funds asset to withdraw from Aave.
+     *  @param data         Reserved for future strategy-specific calldata. Unused by the Aave strategy.
+     */
+    function withdrawFromUnderlyingStrategy(address destination, uint256 assets, bytes calldata data) external;
 
     /**************************************************************************************************************************************/
     /*** View Functions                                                                                                                 ***/

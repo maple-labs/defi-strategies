@@ -129,7 +129,7 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
         external override whenNotPaused nonReentrant onlyStrategyManager
     {
         require(destination_ != address(0), "MSS:WFUS:ZERO_DESTINATION");
-        require(assets_      > 0,           "MSS:WFUS:ZERO_ASSETS");
+        require(assets_       > 0,          "MSS:WFUS:ZERO_ASSETS");
 
         address psm_         = psm;
         address savingsUsds_ = savingsUsds;
@@ -140,6 +140,7 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
 
         lastRecordedTotalAssets = _currentTotalAssets(psm_, savingsUsds_);
 
+        // TODO: remove strategyManager from event?
         emit StrategyWithdrawal(msg.sender, destination_, sharesBurned_, assets_);
     }
 

@@ -150,7 +150,7 @@ contract AaveV3FundUnderlyingStrategySuccessTests is AaveV3TestBase {
 
         assertEq(firstDeployedAssets, expectedFirstDeployedAssets);
 
-        setAaveAmountOut(firstDepositAssets + yieldToAdd);  // Strategy position has 40 USDC of yield
+        setStrategyATokenBalance(firstDepositAssets + yieldToAdd);  // Strategy position has 40 USDC of yield
 
         assertAaveV3Strategy({
             aaveTokenBalance:        firstDepositAssets + yieldToAdd,
@@ -230,7 +230,7 @@ contract AaveV3FundUnderlyingStrategySuccessTests is AaveV3TestBase {
 
         assertEq(firstDeployedAssets, expectedFirstDeployedAssets);
 
-        setAaveAmountOut(firstDepositAssets + yieldToAdd);  // Strategy position has 40 USDC of yield
+        setStrategyATokenBalance(firstDepositAssets + yieldToAdd);  // Strategy position has 40 USDC of yield
 
         assertAaveV3Strategy({
             aaveTokenBalance:        firstDepositAssets + yieldToAdd,
@@ -310,7 +310,7 @@ contract AaveV3FundUnderlyingStrategySuccessTests is AaveV3TestBase {
 
         assertEq(firstDeployedAssets, expectedFirstDeployedAssets);
 
-        setAaveAmountOut(firstDepositAssets + yieldToAdd);  // Strategy position has 40 USDC of yield
+        setStrategyATokenBalance(firstDepositAssets + yieldToAdd);  // Strategy position has 40 USDC of yield
 
         assertAaveV3Strategy({
             aaveTokenBalance:        firstDepositAssets + yieldToAdd,
@@ -390,7 +390,7 @@ contract AaveV3FundUnderlyingStrategySuccessTests is AaveV3TestBase {
 
         assertEq(firstDeployedAssets, expectedFirstDeployedAssets);
 
-        setAaveAmountOut(aaveAmountOutBeforeFund);  // Strategy position has positive yield that rounds fees to zero
+        setStrategyATokenBalance(aaveAmountOutBeforeFund);  // Strategy position has positive yield that rounds fees to zero
 
         assertAaveV3Strategy({
             aaveTokenBalance:        aaveAmountOutBeforeFund,
@@ -539,7 +539,7 @@ contract AaveV3FundUnderlyingStrategySuccessTests is AaveV3TestBase {
 
         assertEq(firstDeployedAssets, expectedFirstDeployedAssets);
 
-        setAaveAmountOut(aaveAmountOutBeforeFund);  // Strategy position has a 20 USDC loss
+        setStrategyATokenBalance(aaveAmountOutBeforeFund);  // Strategy position has a 20 USDC loss
 
         assertAaveV3Strategy({
             aaveTokenBalance:        aaveAmountOutBeforeFund,

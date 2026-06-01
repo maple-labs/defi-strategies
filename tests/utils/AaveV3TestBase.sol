@@ -99,13 +99,13 @@ contract AaveV3TestBase is Test {
         assertEq(asset.balanceOf(mapleTreasury),    protocolFee);
     }
 
-    function setAaveAmountOut(uint256 amountOut_) internal {
-        MockAavePool(aavePool).__setAmountOut(address(asset), address(strategy), amountOut_);
+    function setStrategyATokenBalance(uint256 aaveTokenBalance_) internal {
+        MockAavePool(aavePool).__setATokenBalance(address(asset), address(strategy), aaveTokenBalance_);
     }
 
     function setAaveV3StrategyState(uint256 lastRecordedTotalAssets_, uint256 aaveTokenBalance_) internal {
         strategy.__setLastRecordedTotalAssets(lastRecordedTotalAssets_);
-        setAaveAmountOut(aaveTokenBalance_);
+        setStrategyATokenBalance(aaveTokenBalance_);
     }
 
 }

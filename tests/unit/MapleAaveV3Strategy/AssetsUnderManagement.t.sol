@@ -56,7 +56,7 @@ contract AaveV3AssetsUnderManagementTests is AaveV3TestBase {
             assetsUnderManagement:   100e6
         });
 
-        setAaveAmountOut(200e6);  // 100% yield
+        setStrategyATokenBalance(200e6);  // 100% yield
 
         // the aToken balance has grown to 200 assets, and 5% total fees on 100 yield leaves 195 AUM
         assertAaveV3Strategy({
@@ -78,7 +78,7 @@ contract AaveV3AssetsUnderManagementTests is AaveV3TestBase {
             assetsUnderManagement:   100e6
         });
 
-        setAaveAmountOut(50e6);  // 50% loss
+        setStrategyATokenBalance(50e6);  // 50% loss
 
         // a 50% balance loss makes the position worth 50 assets
         assertAaveV3Strategy({
@@ -103,7 +103,7 @@ contract AaveV3AssetsUnderManagementTests is AaveV3TestBase {
             assetsUnderManagement:   100e6
         });
 
-        setAaveAmountOut(50e6);  // 50% loss
+        setStrategyATokenBalance(50e6);  // 50% loss
 
         // fee rates do not reduce AUM during a loss because there is no yield to charge
         assertAaveV3Strategy({
@@ -125,7 +125,7 @@ contract AaveV3AssetsUnderManagementTests is AaveV3TestBase {
             assetsUnderManagement:   100e6
         });
 
-        setAaveAmountOut(0);  // 100% loss
+        setStrategyATokenBalance(0);  // 100% loss
 
         // zero aToken balance means the position has no recoverable asset value
         assertAaveV3Strategy({
@@ -150,7 +150,7 @@ contract AaveV3AssetsUnderManagementTests is AaveV3TestBase {
             assetsUnderManagement:   100e6
         });
 
-        setAaveAmountOut(100e6 + 20);
+        setStrategyATokenBalance(100e6 + 20);
 
         // positive yield that rounds both fee shares to zero stays in AUM
         assertAaveV3Strategy({
@@ -175,7 +175,7 @@ contract AaveV3AssetsUnderManagementTests is AaveV3TestBase {
             assetsUnderManagement:   100e6
         });
 
-        setAaveAmountOut(200e6);  // 100% yield
+        setStrategyATokenBalance(200e6);  // 100% yield
 
         // 100 assets of yield is fully consumed by 40% delegate and 60% protocol fees
         assertAaveV3Strategy({
@@ -188,7 +188,7 @@ contract AaveV3AssetsUnderManagementTests is AaveV3TestBase {
     function test_assetsUnderManagement_success_maxDelegateFeeRate() external {
         strategy.__setStrategyDelegateFeeRate(1e6);  // 100% delegate fee
 
-        setAaveAmountOut(100e6);
+        setStrategyATokenBalance(100e6);
 
         // all 100 assets are yield and the delegate fee consumes it
         assertAaveV3Strategy({
@@ -201,7 +201,7 @@ contract AaveV3AssetsUnderManagementTests is AaveV3TestBase {
     function test_assetsUnderManagement_success_maxProtocolFeeRate() external {
         strategy.__setStrategyProtocolFeeRate(1e6);  // 100% protocol fee
 
-        setAaveAmountOut(100e6);
+        setStrategyATokenBalance(100e6);
 
         // all 100 assets are yield and the protocol fee consumes it
         assertAaveV3Strategy({
@@ -215,7 +215,7 @@ contract AaveV3AssetsUnderManagementTests is AaveV3TestBase {
         strategy.__setStrategyDelegateFeeRate(0.4e6);  // 40% delegate fee
         strategy.__setStrategyProtocolFeeRate(0.6e6);  // 60% protocol fee
 
-        setAaveAmountOut(100e6);
+        setStrategyATokenBalance(100e6);
 
         // all 100 assets are yield and the combined fee consumes it
         assertAaveV3Strategy({

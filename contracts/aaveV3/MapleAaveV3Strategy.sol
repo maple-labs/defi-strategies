@@ -115,6 +115,30 @@ contract MapleAaveV3Strategy is IMapleAaveV3Strategy, MapleAaveV3StrategyStorage
         emit StrategyFunded(msg.sender, assetsIn_, deployedAssets_);
     }
 
+    function withdrawFromUnderlyingStrategy(
+        address destination_,
+        uint256 assets_,
+        bytes calldata /* data_ */
+    )
+        external override whenNotPaused nonReentrant onlyStrategyManager
+    {
+        require(destination_ != address(0), "MAV3S:WFUS:ZERO_DESTINATION");
+        require(assets_       > 0,          "MAV3S:WFUS:ZERO_ASSETS");
+
+        address aavePool_   = aavePool;
+        address aaveToken_  = aaveToken;
+        address fundsAsset_ = fundsAsset;
+
+        _accrueFees(aavePool_, aaveToken_, fundsAsset_);
+
+        uint256 assetsOut_ = IAavePoolLike(aavePool_).withdraw(fundsAsset_, assets_, destination_);
+
+        lastRecordedTotalAssets = _currentTotalAssets(aaveToken_);
+
+        // TODO: remove strategyManager from event?
+        emit StrategyWithdrawal(msg.sender, destination_, assetsOut_);
+    }
+
     /**************************************************************************************************************************************/
     /*** View Functions                                                                                                                 ***/
     /**************************************************************************************************************************************/
