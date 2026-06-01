@@ -15,8 +15,6 @@ interface IGlobalsLike {
 
     function securityAdmin() external view returns (address);
 
-    function strategyDelegateOf(address strategyManager) external view returns (address);
-
 }
 
 interface IAaveTokenLike {
@@ -82,6 +80,8 @@ interface IProxyFactoryLike {
 interface IStrategyManagerLike {
 
     function factory() external view returns (address);
+
+    function strategyDelegate() external view returns (address);
 
     function underlyingStrategy() external view returns (address);
 

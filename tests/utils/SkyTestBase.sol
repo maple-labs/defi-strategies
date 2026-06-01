@@ -57,9 +57,9 @@ contract SkyTestBase is Test {
         globals.__setIsPoolAsset(address(asset), true);
         globals.__setMapleTreasury(mapleTreasury);
         globals.__setSecurityAdmin(securityAdmin);
-        globals.__setStrategyDelegateOf(address(strategyManager), strategyDelegate);
 
         strategyManager.__setFactory(address(managerFactory));
+        strategyManager.__setStrategyDelegate(strategyDelegate);
         managerFactory.__setIsInstance(address(strategyManager), true);
 
         factory = new MapleSkyStrategyFactory(address(globals));

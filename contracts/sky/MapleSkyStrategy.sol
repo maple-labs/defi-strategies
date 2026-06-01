@@ -11,7 +11,8 @@ import {
     IERC4626Like,
     IGlobalsLike,
     IPSMLike,
-    IProxyFactoryLike
+    IProxyFactoryLike,
+    IStrategyManagerLike
 } from "../interfaces/Interfaces.sol";
 
 import { MapleSkyStrategyStorage } from "./MapleSkyStrategyStorage.sol";
@@ -175,7 +176,7 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
     }
 
     function strategyDelegate() public view override returns (address strategyDelegate_) {
-        strategyDelegate_ = IGlobalsLike(globals()).strategyDelegateOf(strategyManager);
+        strategyDelegate_ = IStrategyManagerLike(strategyManager).strategyDelegate();
     }
 
     /**************************************************************************************************************************************/

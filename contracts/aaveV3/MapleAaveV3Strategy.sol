@@ -11,7 +11,8 @@ import {
     IAavePoolLike,
     IAaveTokenLike,
     IGlobalsLike,
-    IProxyFactoryLike
+    IProxyFactoryLike,
+    IStrategyManagerLike
 } from "../interfaces/Interfaces.sol";
 
 import { MapleAaveV3StrategyStorage } from "./MapleAaveV3StrategyStorage.sol";
@@ -147,7 +148,7 @@ contract MapleAaveV3Strategy is IMapleAaveV3Strategy, MapleAaveV3StrategyStorage
     }
 
     function strategyDelegate() public view override returns (address strategyDelegate_) {
-        strategyDelegate_ = IGlobalsLike(globals()).strategyDelegateOf(strategyManager);
+        strategyDelegate_ = IStrategyManagerLike(strategyManager).strategyDelegate();
     }
 
     /**************************************************************************************************************************************/
