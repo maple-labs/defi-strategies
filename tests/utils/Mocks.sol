@@ -124,6 +124,7 @@ contract MockGlobals {
 
     address public governor;
     address public mapleTreasury;
+    address public operationalAdmin;
     address public securityAdmin;
 
     bool public protocolPaused;
@@ -158,6 +159,10 @@ contract MockGlobals {
 
     function __setMapleTreasury(address mapleTreasury_) external {
         mapleTreasury = mapleTreasury_;
+    }
+
+    function __setOperationalAdmin(address operationalAdmin_) external {
+        operationalAdmin = operationalAdmin_;
     }
 
     function __setProtocolPaused(bool protocolPaused_) external {

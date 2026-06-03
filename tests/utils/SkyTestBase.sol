@@ -23,6 +23,7 @@ contract SkyTestBase is Test {
     address deployer         = makeAddr("deployer");
     address governor         = makeAddr("governor");
     address mapleTreasury    = makeAddr("mapleTreasury");
+    address operationalAdmin = makeAddr("operationalAdmin");
     address securityAdmin    = makeAddr("securityAdmin");
     address strategyDelegate = makeAddr("strategyDelegate");
 
@@ -56,6 +57,7 @@ contract SkyTestBase is Test {
         globals.__setIsInstanceOf("STRATEGY_VAULT", address(savingsUsds), true);
         globals.__setIsPoolAsset(address(asset), true);
         globals.__setMapleTreasury(mapleTreasury);
+        globals.__setOperationalAdmin(operationalAdmin);
         globals.__setSecurityAdmin(securityAdmin);
 
         strategyManager.__setFactory(address(managerFactory));

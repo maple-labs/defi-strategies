@@ -49,6 +49,24 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
         _;
     }
 
+    modifier onlyProtocolAdmins() {
+        address globals_ = globals();
+
+        require(
+            msg.sender == IGlobalsLike(globals_).governor() ||
+            msg.sender == IGlobalsLike(globals_).operationalAdmin(),
+            "MSS:NOT_ADMIN"
+        );
+
+        _;
+    }
+
+    modifier onlyStrategyDelegate() {
+        require(msg.sender == strategyDelegate(), "MSS:NOT_STRATEGY_DELEGATE");
+
+        _;
+    }
+
     modifier onlyStrategyManager() {
         require(msg.sender == strategyManager, "MSS:NOT_STRATEGY_MANAGER");
 
@@ -79,6 +97,40 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
         IProxyFactoryLike(_factory()).upgradeInstance(version_, arguments_);
 
         emit Upgraded(version_, arguments_);
+    }
+
+    /**************************************************************************************************************************************/
+    /*** Admin Functions                                                                                                                ***/
+    /**************************************************************************************************************************************/
+
+    function setStrategyDelegateFeeRate(uint32 strategyDelegateFeeRate_) external override whenNotPaused nonReentrant onlyStrategyDelegate {
+        require(strategyDelegateFeeRate_ + strategyProtocolFeeRate <= HUNDRED_PERCENT, "MSS:SSDFR:INVALID_SUM_FEE_RATE");
+
+        address psm_         = psm;
+        address savingsUsds_ = savingsUsds;
+
+        _accrueFees(psm_, savingsUsds_);
+
+        lastRecordedTotalAssets = _currentTotalAssets(psm_, savingsUsds_);
+
+        strategyDelegateFeeRate = strategyDelegateFeeRate_;
+
+        emit StrategyDelegateFeeRateSet(strategyDelegateFeeRate_);
+    }
+
+    function setStrategyProtocolFeeRate(uint32 strategyProtocolFeeRate_) external override whenNotPaused nonReentrant onlyProtocolAdmins {
+        require(strategyDelegateFeeRate + strategyProtocolFeeRate_ <= HUNDRED_PERCENT, "MSS:SSPFR:INVALID_SUM_FEE_RATE");
+
+        address psm_         = psm;
+        address savingsUsds_ = savingsUsds;
+
+        _accrueFees(psm_, savingsUsds_);
+
+        lastRecordedTotalAssets = _currentTotalAssets(psm_, savingsUsds_);
+
+        strategyProtocolFeeRate = strategyProtocolFeeRate_;
+
+        emit StrategyProtocolFeeRateSet(strategyProtocolFeeRate_);
     }
 
     /**************************************************************************************************************************************/

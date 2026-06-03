@@ -5,6 +5,8 @@ interface IGlobalsLike {
 
     function canDeploy(address caller) external view returns (bool);
 
+    function governor() external view returns (address);
+
     function isFunctionPaused(bytes4 signature) external view returns (bool);
 
     function isInstanceOf(bytes32 key, address instance) external view returns (bool);
@@ -12,6 +14,8 @@ interface IGlobalsLike {
     function isPoolAsset(address asset) external view returns (bool);
 
     function mapleTreasury() external view returns (address);
+
+    function operationalAdmin() external view returns (address);
 
     function securityAdmin() external view returns (address);
 
