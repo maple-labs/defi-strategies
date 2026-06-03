@@ -15,6 +15,13 @@ interface IMapleAaveV3Strategy is IMapleAaveV3StrategyStorage, IMapleProxied {
     /**************************************************************************************************************************************/
 
     /**
+     *  @dev   Emitted when the strategy delegate fee rate is set.
+     *  @param strategyDelegateFeeRate Percentage of yield collected by the strategy delegate, defined with 6 decimals
+     *                                 of precision (1e6 == 100%).
+     */
+    event StrategyDelegateFeeRateSet(uint32 strategyDelegateFeeRate);
+
+    /**
      *  @dev   Emitted when funds asset is deployed into the underlying Aave strategy.
      *  @param strategyManager Address of the strategy manager that initiated the call.
      *  @param assetsIn        Amount of funds asset consumed from the strategy balance.
@@ -28,6 +35,13 @@ interface IMapleAaveV3Strategy is IMapleAaveV3StrategyStorage, IMapleProxied {
      *  @param protocolFee Funds-asset amount paid to the Maple treasury.
      */
     event StrategyFeesCollected(uint256 delegateFee, uint256 protocolFee);
+
+    /**
+     *  @dev   Emitted when the strategy protocol fee rate is set.
+     *  @param strategyProtocolFeeRate Percentage of yield collected by the Maple treasury, defined with 6 decimals
+     *                                 of precision (1e6 == 100%).
+     */
+    event StrategyProtocolFeeRateSet(uint32 strategyProtocolFeeRate);
 
     /**
      *  @dev   Emitted when funds asset is withdrawn from the underlying Aave strategy to a destination.
@@ -50,6 +64,26 @@ interface IMapleAaveV3Strategy is IMapleAaveV3StrategyStorage, IMapleProxied {
      *  @return deployedAssets Funds-asset amount deployed into Aave.
      */
     function fundUnderlyingStrategy(uint256 assetsIn, bytes calldata data) external returns (uint256 deployedAssets);
+
+    /**
+     *  @dev   Sets the percentage of yield collected by the strategy delegate.
+     *         Callable only by the strategy delegate.
+     *         Accrues outstanding fees before updating the rate.
+     *         The combined strategy delegate and protocol fee rates cannot exceed 1e6.
+     *  @param strategyDelegateFeeRate Percentage of yield collected by the strategy delegate, defined with 6 decimals
+     *                                 of precision (1e6 == 100%).
+     */
+    function setStrategyDelegateFeeRate(uint32 strategyDelegateFeeRate) external;
+
+    /**
+     *  @dev   Sets the percentage of yield collected by the Maple treasury.
+     *         Callable only by protocol admins.
+     *         Accrues outstanding fees before updating the rate.
+     *         The combined strategy delegate and protocol fee rates cannot exceed 1e6.
+     *  @param strategyProtocolFeeRate Percentage of yield collected by the Maple treasury, defined with 6 decimals
+     *                                 of precision (1e6 == 100%).
+     */
+    function setStrategyProtocolFeeRate(uint32 strategyProtocolFeeRate) external;
 
     /**
      *  @dev   Redeems Aave aTokens back into funds asset and delivers the withdrawn assets to `destination`.

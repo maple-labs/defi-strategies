@@ -47,6 +47,24 @@ contract MapleAaveV3Strategy is IMapleAaveV3Strategy, MapleAaveV3StrategyStorage
         _;
     }
 
+    modifier onlyProtocolAdmins() {
+        address globals_ = globals();
+
+        require(
+            msg.sender == IGlobalsLike(globals_).governor() ||
+            msg.sender == IGlobalsLike(globals_).operationalAdmin(),
+            "MAV3S:NOT_ADMIN"
+        );
+
+        _;
+    }
+
+    modifier onlyStrategyDelegate() {
+        require(msg.sender == strategyDelegate(), "MAV3S:NOT_STRATEGY_DELEGATE");
+
+        _;
+    }
+
     modifier onlyStrategyManager() {
         require(msg.sender == strategyManager, "MAV3S:NOT_STRATEGY_MANAGER");
 
@@ -77,6 +95,38 @@ contract MapleAaveV3Strategy is IMapleAaveV3Strategy, MapleAaveV3StrategyStorage
         IProxyFactoryLike(_factory()).upgradeInstance(version_, arguments_);
 
         emit Upgraded(version_, arguments_);
+    }
+
+    /**************************************************************************************************************************************/
+    /*** Admin Functions                                                                                                                ***/
+    /**************************************************************************************************************************************/
+
+    function setStrategyDelegateFeeRate(uint32 strategyDelegateFeeRate_) external override whenNotPaused nonReentrant onlyStrategyDelegate {
+        require(strategyDelegateFeeRate_ + strategyProtocolFeeRate <= HUNDRED_PERCENT, "MAV3S:SSDFR:INVALID_SUM_FEE_RATE");
+
+        address aaveToken_  = aaveToken;
+
+        _accrueFees(aavePool, aaveToken_, fundsAsset);
+
+        lastRecordedTotalAssets = _currentTotalAssets(aaveToken_);
+
+        strategyDelegateFeeRate = strategyDelegateFeeRate_;
+
+        emit StrategyDelegateFeeRateSet(strategyDelegateFeeRate_);
+    }
+
+    function setStrategyProtocolFeeRate(uint32 strategyProtocolFeeRate_) external override whenNotPaused nonReentrant onlyProtocolAdmins {
+        require(strategyDelegateFeeRate + strategyProtocolFeeRate_ <= HUNDRED_PERCENT, "MAV3S:SSPFR:INVALID_SUM_FEE_RATE");
+
+        address aaveToken_  = aaveToken;
+
+        _accrueFees(aavePool, aaveToken_, fundsAsset);
+
+        lastRecordedTotalAssets = _currentTotalAssets(aaveToken_);
+
+        strategyProtocolFeeRate = strategyProtocolFeeRate_;
+
+        emit StrategyProtocolFeeRateSet(strategyProtocolFeeRate_);
     }
 
     /**************************************************************************************************************************************/
