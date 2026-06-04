@@ -11,6 +11,7 @@ import { MapleAaveV3StrategyHarness, MapleAaveV3StrategyInitializerHarness } fro
 
 import {
     MockAavePool,
+    MockAaveRewardsController,
     MockAaveToken,
     MockAsset,
     MockFactory,
@@ -33,16 +34,18 @@ contract AaveV3TestBase is Test {
 
     IMapleAaveV3StrategyInitializer.Parameters params;
 
-    MockAsset     asset           = new MockAsset();
-    MockAaveToken aaveToken       = new MockAaveToken();
-    MockGlobals   globals         = new MockGlobals();
-    MockManager   strategyManager = new MockManager();
-    MockFactory   managerFactory  = new MockFactory();
+    MockAsset                 asset             = new MockAsset();
+    MockAaveRewardsController rewardsController = new MockAaveRewardsController();
+    MockAaveToken             aaveToken         = new MockAaveToken();
+    MockGlobals               globals           = new MockGlobals();
+    MockManager               strategyManager   = new MockManager();
+    MockFactory               managerFactory    = new MockFactory();
 
     MapleAaveV3StrategyFactory factory;
     MapleAaveV3StrategyHarness strategy;
 
     function setUp() public virtual {
+        aaveToken.__setIncentivesController(address(rewardsController));
         aaveToken.__setPool(aavePool);
         aaveToken.__setUnderlyingAsset(address(asset));
 

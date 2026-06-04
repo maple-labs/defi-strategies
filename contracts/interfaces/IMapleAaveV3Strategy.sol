@@ -15,6 +15,13 @@ interface IMapleAaveV3Strategy is IMapleAaveV3StrategyStorage, IMapleProxied {
     /**************************************************************************************************************************************/
 
     /**
+     *  @dev   Emitted when rewards are claimed from the Aave Rewards Controller.
+     *  @param rewardToken The address of the reward token.
+     *  @param amount      The amount of rewardToken claimed.
+     */
+    event RewardsClaimed(address indexed rewardToken, uint256 amount);
+
+    /**
      *  @dev   Emitted when the strategy delegate fee rate is set.
      *  @param strategyDelegateFeeRate Percentage of yield collected by the strategy delegate, defined with 6 decimals
      *                                 of precision (1e6 == 100%).
@@ -54,6 +61,14 @@ interface IMapleAaveV3Strategy is IMapleAaveV3StrategyStorage, IMapleProxied {
     /**************************************************************************************************************************************/
     /*** State-Changing Functions                                                                                                       ***/
     /**************************************************************************************************************************************/
+
+    /**
+     *  @dev   Claims rewards from the Aave Incentives Controller to the Maple treasury.
+     *  @param assets      The list of assets to check eligible distributions before claiming rewards.
+     *  @param amount      The amount of rewards to claim. Pass max uint256 to claim the full unclaimed reward balance.
+     *  @param rewardToken The address of the reward token.
+     */
+    function claimRewards(address[] calldata assets, uint256 amount, address rewardToken) external;
 
     /**
      *  @dev    Deploys funds asset already held by this contract into Aave.

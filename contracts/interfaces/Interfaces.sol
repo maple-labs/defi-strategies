@@ -33,6 +33,17 @@ interface IAaveTokenLike {
 
 }
 
+interface IAaveRewardsControllerLike {
+
+    function claimRewards(
+        address[] calldata assets,
+        uint256 amount,
+        address to,
+        address rewardToken
+    ) external returns (uint256 rewardAmount);
+
+}
+
 interface IAavePoolLike {
 
     function supply(address asset, uint256 amount, address onBehalfOf, uint16 referralCode) external;

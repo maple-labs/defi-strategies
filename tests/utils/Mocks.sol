@@ -48,10 +48,15 @@ contract MockAsset is MockERC20("Asset", "A", 6) {
 
 contract MockAaveToken {
 
+    address public incentivesController;
     address public POOL;
     address public UNDERLYING_ASSET_ADDRESS;
 
     mapping(address account => uint256 balance) public balanceOf;
+
+    function __setIncentivesController(address incentivesController_) external {
+        incentivesController = incentivesController_;
+    }
 
     function __setPool(address pool_) external {
         POOL = pool_;
@@ -71,8 +76,28 @@ contract MockAaveToken {
         balanceOf[account_] -= amount_;
     }
 
+    function getIncentivesController() external view returns (address incentivesController_) {
+        incentivesController_ = incentivesController;
+    }
+
     function mint(address account_, uint256 amount_) external {
         balanceOf[account_] += amount_;
+    }
+
+}
+
+contract MockAaveRewardsController {
+
+    uint256 public rewardAmount;
+
+    function __setRewardAmount(uint256 rewardAmount_) external {
+        rewardAmount = rewardAmount_;
+    }
+
+    function claimRewards(address[] calldata, uint256, address to_, address rewardToken_) external returns (uint256 rewardAmount_) {
+        rewardAmount_ = rewardAmount;
+
+        MockERC20(rewardToken_).mint(to_, rewardAmount_);
     }
 
 }

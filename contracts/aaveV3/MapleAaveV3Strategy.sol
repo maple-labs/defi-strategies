@@ -9,6 +9,7 @@ import { IMapleAaveV3Strategy } from "../interfaces/IMapleAaveV3Strategy.sol";
 
 import {
     IAavePoolLike,
+    IAaveRewardsControllerLike,
     IAaveTokenLike,
     IGlobalsLike,
     IProxyFactoryLike,
@@ -100,6 +101,21 @@ contract MapleAaveV3Strategy is IMapleAaveV3Strategy, MapleAaveV3StrategyStorage
     /**************************************************************************************************************************************/
     /*** Admin Functions                                                                                                                ***/
     /**************************************************************************************************************************************/
+
+    function claimRewards(address[] calldata assets_, uint256 amount_, address rewardToken_)
+        external override whenNotPaused nonReentrant onlyProtocolAdmins
+    {
+        address rewardsController_ = IAaveTokenLike(aaveToken).getIncentivesController();
+
+        uint256 rewardAmount_ = IAaveRewardsControllerLike(rewardsController_).claimRewards(
+            assets_,
+            amount_,
+            mapleTreasury(),
+            rewardToken_
+        );
+
+        emit RewardsClaimed(rewardToken_, rewardAmount_);
+    }
 
     function setStrategyDelegateFeeRate(uint32 strategyDelegateFeeRate_) external override whenNotPaused nonReentrant onlyStrategyDelegate {
         require(strategyDelegateFeeRate_ + strategyProtocolFeeRate <= HUNDRED_PERCENT, "MAV3S:SSDFR:INVALID_SUM_FEE_RATE");
