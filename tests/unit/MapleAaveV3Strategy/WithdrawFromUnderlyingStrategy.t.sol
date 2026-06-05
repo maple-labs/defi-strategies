@@ -124,7 +124,7 @@ contract AaveV3WithdrawFromUnderlyingStrategySuccessTests is AaveV3TestBase {
         uint256 expectedLastRecordedAfterWithdraw     = 60e6;
 
         vm.expectEmit();
-        emit IMapleAaveV3Strategy.StrategyWithdrawal(address(strategyManager), destination, withdrawAssets);
+        emit IMapleAaveV3Strategy.StrategyWithdrawal(destination, withdrawAssets);
 
         vm.prank(address(strategyManager));
         strategy.withdrawFromUnderlyingStrategy(destination, withdrawAssets, "");
@@ -177,7 +177,7 @@ contract AaveV3WithdrawFromUnderlyingStrategySuccessTests is AaveV3TestBase {
         uint256 withdrawAssets = 100e6;
 
         vm.expectEmit();
-        emit IMapleAaveV3Strategy.StrategyWithdrawal(address(strategyManager), destination, withdrawAssets);
+        emit IMapleAaveV3Strategy.StrategyWithdrawal(destination, withdrawAssets);
 
         vm.prank(address(strategyManager));
         strategy.withdrawFromUnderlyingStrategy(destination, withdrawAssets, "");
@@ -238,7 +238,7 @@ contract AaveV3WithdrawFromUnderlyingStrategySuccessTests is AaveV3TestBase {
         emit IMapleAaveV3Strategy.StrategyFeesCollected(0, 0);
 
         vm.expectEmit();
-        emit IMapleAaveV3Strategy.StrategyWithdrawal(address(strategyManager), destination, withdrawAssets);
+        emit IMapleAaveV3Strategy.StrategyWithdrawal(destination, withdrawAssets);
 
         vm.prank(address(strategyManager));
         strategy.withdrawFromUnderlyingStrategy(destination, withdrawAssets, "");
@@ -301,7 +301,7 @@ contract AaveV3WithdrawFromUnderlyingStrategySuccessTests is AaveV3TestBase {
         emit IMapleAaveV3Strategy.StrategyFeesCollected(0, 0);
 
         vm.expectEmit();
-        emit IMapleAaveV3Strategy.StrategyWithdrawal(address(strategyManager), destination, withdrawAssets);
+        emit IMapleAaveV3Strategy.StrategyWithdrawal(destination, withdrawAssets);
 
         vm.prank(address(strategyManager));
         strategy.withdrawFromUnderlyingStrategy(destination, withdrawAssets, "");
@@ -365,7 +365,7 @@ contract AaveV3WithdrawFromUnderlyingStrategySuccessTests is AaveV3TestBase {
         emit IMapleAaveV3Strategy.StrategyFeesCollected(expectedDelegateFee, expectedProtocolFee);
 
         vm.expectEmit();
-        emit IMapleAaveV3Strategy.StrategyWithdrawal(address(strategyManager), destination, withdrawAssets);
+        emit IMapleAaveV3Strategy.StrategyWithdrawal(destination, withdrawAssets);
 
         vm.prank(address(strategyManager));
         strategy.withdrawFromUnderlyingStrategy(destination, withdrawAssets, "");
@@ -427,7 +427,7 @@ contract AaveV3WithdrawFromUnderlyingStrategySuccessTests is AaveV3TestBase {
         emit IMapleAaveV3Strategy.StrategyFeesCollected(expectedDelegateFee, expectedProtocolFee);
 
         vm.expectEmit();
-        emit IMapleAaveV3Strategy.StrategyWithdrawal(address(strategyManager), destination, withdrawAssets);
+        emit IMapleAaveV3Strategy.StrategyWithdrawal(destination, withdrawAssets);
 
         vm.prank(address(strategyManager));
         strategy.withdrawFromUnderlyingStrategy(destination, withdrawAssets, "");
@@ -482,7 +482,7 @@ contract AaveV3WithdrawFromUnderlyingStrategySuccessTests is AaveV3TestBase {
         uint256 lastRecordedAfterFirstWithdraw      = 60e6;
 
         vm.expectEmit();
-        emit IMapleAaveV3Strategy.StrategyWithdrawal(address(strategyManager), destination, firstWithdrawAssets);
+        emit IMapleAaveV3Strategy.StrategyWithdrawal(destination, firstWithdrawAssets);
 
         vm.prank(address(strategyManager));
         strategy.withdrawFromUnderlyingStrategy(destination, firstWithdrawAssets, "");
@@ -509,7 +509,7 @@ contract AaveV3WithdrawFromUnderlyingStrategySuccessTests is AaveV3TestBase {
         uint256 lastRecordedAfterSecondWithdraw     = 40e6;
 
         vm.expectEmit();
-        emit IMapleAaveV3Strategy.StrategyWithdrawal(address(strategyManager), destination, secondWithdrawAssets);
+        emit IMapleAaveV3Strategy.StrategyWithdrawal(destination, secondWithdrawAssets);
 
         vm.prank(address(strategyManager));
         strategy.withdrawFromUnderlyingStrategy(destination, secondWithdrawAssets, "");

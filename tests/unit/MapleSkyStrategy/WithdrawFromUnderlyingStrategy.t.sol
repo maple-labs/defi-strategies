@@ -109,7 +109,7 @@ contract WithdrawFromUnderlyingStrategySuccessTests is SkyTestBase {
         uint256 expectedLastRecordedAfterWithdraw = 60e6;
 
         vm.expectEmit();
-        emit IMapleSkyStrategy.StrategyWithdrawal(address(strategyManager), destination, expectedSharesBurned, withdrawAssets);
+        emit IMapleSkyStrategy.StrategyWithdrawal(destination, expectedSharesBurned, withdrawAssets);
 
         vm.prank(address(strategyManager));
         strategy.withdrawFromUnderlyingStrategy(destination, withdrawAssets, "");
@@ -163,7 +163,7 @@ contract WithdrawFromUnderlyingStrategySuccessTests is SkyTestBase {
         uint256 expectedSharesBurned = 100e18;
 
         vm.expectEmit();
-        emit IMapleSkyStrategy.StrategyWithdrawal(address(strategyManager), destination, expectedSharesBurned, withdrawAssets);
+        emit IMapleSkyStrategy.StrategyWithdrawal(destination, expectedSharesBurned, withdrawAssets);
 
         vm.prank(address(strategyManager));
         strategy.withdrawFromUnderlyingStrategy(destination, withdrawAssets, "");
@@ -222,7 +222,7 @@ contract WithdrawFromUnderlyingStrategySuccessTests is SkyTestBase {
         uint256 expectedLastRecordedAfterWithdraw = 60e6;  // 75 USDS / 1.25 = 60 USDC AUM net of tout
 
         vm.expectEmit();
-        emit IMapleSkyStrategy.StrategyWithdrawal(address(strategyManager), destination, expectedSharesBurned, withdrawAssets);
+        emit IMapleSkyStrategy.StrategyWithdrawal(destination, expectedSharesBurned, withdrawAssets);
 
         vm.prank(address(strategyManager));
         strategy.withdrawFromUnderlyingStrategy(destination, withdrawAssets, "");
@@ -280,7 +280,7 @@ contract WithdrawFromUnderlyingStrategySuccessTests is SkyTestBase {
         uint256 expectedLastRecordedAfterWithdraw = 120e6;  // 150 sUSDS × 0.8 = 120 USDS = 120 USDC AUM
 
         vm.expectEmit();
-        emit IMapleSkyStrategy.StrategyWithdrawal(address(strategyManager), destination, expectedSharesBurned, withdrawAssets);
+        emit IMapleSkyStrategy.StrategyWithdrawal(destination, expectedSharesBurned, withdrawAssets);
 
         vm.prank(address(strategyManager));
         strategy.withdrawFromUnderlyingStrategy(destination, withdrawAssets, "");
@@ -340,7 +340,7 @@ contract WithdrawFromUnderlyingStrategySuccessTests is SkyTestBase {
         uint256 expectedLastRecordedAfterWithdraw = 60e6;   // 120 × 0.6 = 72 USDS / 1.2 = 60 USDC AUM
 
         vm.expectEmit();
-        emit IMapleSkyStrategy.StrategyWithdrawal(address(strategyManager), destination, expectedSharesBurned, withdrawAssets);
+        emit IMapleSkyStrategy.StrategyWithdrawal(destination, expectedSharesBurned, withdrawAssets);
 
         vm.prank(address(strategyManager));
         strategy.withdrawFromUnderlyingStrategy(destination, withdrawAssets, "");
@@ -399,7 +399,7 @@ contract WithdrawFromUnderlyingStrategySuccessTests is SkyTestBase {
         uint256 expectedLastRecordedAfterWithdraw = 60e6;  // 75 sUSDS × 0.8 = 60 USDS = 60 USDC (baseline catches up post-loss)
 
         vm.expectEmit();
-        emit IMapleSkyStrategy.StrategyWithdrawal(address(strategyManager), destination, expectedSharesBurned, withdrawAssets);
+        emit IMapleSkyStrategy.StrategyWithdrawal(destination, expectedSharesBurned, withdrawAssets);
 
         vm.prank(address(strategyManager));
         strategy.withdrawFromUnderlyingStrategy(destination, withdrawAssets, "");
@@ -465,7 +465,7 @@ contract WithdrawFromUnderlyingStrategySuccessTests is SkyTestBase {
         emit IMapleSkyStrategy.StrategyFeesCollected(expectedDelegateFee, expectedProtocolFee);
 
         vm.expectEmit();
-        emit IMapleSkyStrategy.StrategyWithdrawal(address(strategyManager), destination, expectedSharesBurned, withdrawAssets);
+        emit IMapleSkyStrategy.StrategyWithdrawal(destination, expectedSharesBurned, withdrawAssets);
 
         vm.prank(address(strategyManager));
         strategy.withdrawFromUnderlyingStrategy(destination, withdrawAssets, "");
@@ -530,7 +530,7 @@ contract WithdrawFromUnderlyingStrategySuccessTests is SkyTestBase {
         emit IMapleSkyStrategy.StrategyFeesCollected(expectedDelegateFee, expectedProtocolFee);
 
         vm.expectEmit();
-        emit IMapleSkyStrategy.StrategyWithdrawal(address(strategyManager), destination, expectedSharesBurned, withdrawAssets);
+        emit IMapleSkyStrategy.StrategyWithdrawal(destination, expectedSharesBurned, withdrawAssets);
 
         vm.prank(address(strategyManager));
         strategy.withdrawFromUnderlyingStrategy(destination, withdrawAssets, "");
@@ -586,7 +586,7 @@ contract WithdrawFromUnderlyingStrategySuccessTests is SkyTestBase {
         uint256 lastRecordedAfterFirstWithdraw = 60e6;  // 60 sUSDS × 1.0 = 60 USDC
 
         vm.expectEmit();
-        emit IMapleSkyStrategy.StrategyWithdrawal(address(strategyManager), destination, firstWithdrawSharesBurned, firstWithdrawAssets);
+        emit IMapleSkyStrategy.StrategyWithdrawal(destination, firstWithdrawSharesBurned, firstWithdrawAssets);
 
         vm.prank(address(strategyManager));
         strategy.withdrawFromUnderlyingStrategy(destination, firstWithdrawAssets, "");
@@ -614,7 +614,7 @@ contract WithdrawFromUnderlyingStrategySuccessTests is SkyTestBase {
         uint256 lastRecordedAfterSecondWithdraw = 40e6;  // 40 sUSDS × 1.0 = 40 USDC
 
         vm.expectEmit();
-        emit IMapleSkyStrategy.StrategyWithdrawal(address(strategyManager), destination, secondWithdrawSharesBurned, secondWithdrawAssets);
+        emit IMapleSkyStrategy.StrategyWithdrawal(destination, secondWithdrawSharesBurned, secondWithdrawAssets);
 
         vm.prank(address(strategyManager));
         strategy.withdrawFromUnderlyingStrategy(destination, secondWithdrawAssets, "");
@@ -681,7 +681,7 @@ contract WithdrawFromUnderlyingStrategySuccessTests is SkyTestBase {
         emit IMapleSkyStrategy.StrategyFeesCollected(expectedDelegateFee, expectedProtocolFee);
 
         vm.expectEmit();
-        emit IMapleSkyStrategy.StrategyWithdrawal(address(strategyManager), destination, expectedSharesBurned, withdrawAssets);
+        emit IMapleSkyStrategy.StrategyWithdrawal(destination, expectedSharesBurned, withdrawAssets);
 
         vm.prank(address(strategyManager));
         strategy.withdrawFromUnderlyingStrategy(destination, withdrawAssets, "");

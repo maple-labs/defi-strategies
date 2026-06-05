@@ -52,11 +52,10 @@ interface IMapleAaveV3Strategy is IMapleAaveV3StrategyStorage, IMapleProxied {
 
     /**
      *  @dev   Emitted when funds asset is withdrawn from the underlying Aave strategy to a destination.
-     *  @param strategyManager Address of the strategy manager that initiated the call.
-     *  @param destination     Address that received the funds asset.
-     *  @param assetsOut       Amount of funds asset delivered to the destination.
+     *  @param destination Address that received the funds asset.
+     *  @param assetsOut   Amount of funds asset delivered to the destination.
      */
-    event StrategyWithdrawal(address indexed strategyManager, address indexed destination, uint256 assetsOut);
+    event StrategyWithdrawal(address indexed destination, uint256 assetsOut);
 
     /**************************************************************************************************************************************/
     /*** State-Changing Functions                                                                                                       ***/

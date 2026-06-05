@@ -24,9 +24,9 @@ contract MapleAaveV3Strategy is IMapleAaveV3Strategy, MapleAaveV3StrategyStorage
     /*** Constants                                                                                                                      ***/
     /**************************************************************************************************************************************/
 
-    // TODO: Add strategy type constant
+    string public constant STRATEGY_TYPE = "AAVEV3";
 
-    uint256 public constant HUNDRED_PERCENT = 1_000_000;
+    uint256 public constant HUNDRED_PERCENT = 1e6;
 
     /**************************************************************************************************************************************/
     /*** Modifiers                                                                                                                      ***/
@@ -149,7 +149,6 @@ contract MapleAaveV3Strategy is IMapleAaveV3Strategy, MapleAaveV3StrategyStorage
     /*** State-Changing Functions                                                                                                       ***/
     /**************************************************************************************************************************************/
 
-    // TODO: Should other actors be able to call this function?
     // TODO: Reconsider need for aum diff for deployedAssets_ return var
     function fundUnderlyingStrategy(
         uint256 assetsIn_,
@@ -201,8 +200,7 @@ contract MapleAaveV3Strategy is IMapleAaveV3Strategy, MapleAaveV3StrategyStorage
 
         lastRecordedTotalAssets = _currentTotalAssets(aaveToken_);
 
-        // TODO: remove strategyManager from event?
-        emit StrategyWithdrawal(msg.sender, destination_, assetsOut_);
+        emit StrategyWithdrawal(destination_, assetsOut_);
     }
 
     /**************************************************************************************************************************************/

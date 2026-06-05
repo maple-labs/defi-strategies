@@ -23,11 +23,11 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
     /*** Constants                                                                                                                      ***/
     /**************************************************************************************************************************************/
 
-    // TODO: Add strategy type constant
-
     uint256 internal constant WAD = 1e18;
 
-    uint256 public constant HUNDRED_PERCENT = 1_000_000;
+    string public constant STRATEGY_TYPE = "SKY";
+
+    uint256 public constant HUNDRED_PERCENT = 1e6;
 
     /**************************************************************************************************************************************/
     /*** Modifiers                                                                                                                      ***/
@@ -136,8 +136,6 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
     /**************************************************************************************************************************************/
     /*** State-Changing Functions                                                                                                       ***/
     /**************************************************************************************************************************************/
-
-    // TODO: Should other actors be able to call this function?
     // TODO: Reconsider need for aum diff for deployedAssets_ return var
     function fundUnderlyingStrategy(
         uint256 assetsIn_,
@@ -192,8 +190,7 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
 
         lastRecordedTotalAssets = _currentTotalAssets(psm_, savingsUsds_);
 
-        // TODO: remove strategyManager from event?
-        emit StrategyWithdrawal(msg.sender, destination_, sharesBurned_, assets_);
+        emit StrategyWithdrawal(destination_, sharesBurned_, assets_);
     }
 
     /**************************************************************************************************************************************/
