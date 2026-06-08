@@ -87,6 +87,13 @@ contract AaveV3TestBase is Test {
         strategy = MapleAaveV3StrategyHarness(factory.createInstance(arguments, "DEFAULT"));
     }
 
+    function assertAaveV3Liquidity(uint256 liquidity) internal view {
+        assertEq(
+            uint256(MockAavePool(aavePool).getVirtualUnderlyingBalance(address(asset))),
+            liquidity
+        );
+    }
+
     function assertAaveV3Strategy(
         uint256 aaveTokenBalance,
         uint256 lastRecordedTotalAssets,
@@ -106,6 +113,10 @@ contract AaveV3TestBase is Test {
 
     function setStrategyATokenBalance(uint256 aaveTokenBalance_) internal {
         MockAavePool(aavePool).__setATokenBalance(address(asset), address(strategy), aaveTokenBalance_);
+    }
+
+    function setAaveV3Liquidity(uint256 liquidity_) internal {
+        MockAavePool(aavePool).__setVirtualUnderlyingBalance(address(asset), liquidity_);
     }
 
     function setAaveV3StrategyState(uint256 lastRecordedTotalAssets_, uint256 aaveTokenBalance_) internal {

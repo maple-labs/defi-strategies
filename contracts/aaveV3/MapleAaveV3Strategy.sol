@@ -207,6 +207,19 @@ contract MapleAaveV3Strategy is IMapleAaveV3Strategy, MapleAaveV3StrategyStorage
     /*** View Functions                                                                                                                 ***/
     /**************************************************************************************************************************************/
 
+    function availableToWithdraw() external view override returns (uint256 availableToWithdraw_) {
+        uint256 currentTotalAssets_ = _currentTotalAssets(aaveToken);
+        // @AUDIT: To confirm preferred way to query AaveV3 liquidity
+        uint256 aaveLiquidity_      = IAavePoolLike(aavePool).getVirtualUnderlyingBalance(fundsAsset);
+        uint256 grossAvailable_     = currentTotalAssets_ < aaveLiquidity_ ? currentTotalAssets_ : aaveLiquidity_;
+
+        ( uint256 delegateFee_, uint256 protocolFee_ ) = _currentAccruedFees(currentTotalAssets_);
+
+        uint256 totalFees_ = delegateFee_ + protocolFee_;
+
+        if (grossAvailable_ > totalFees_) availableToWithdraw_ = grossAvailable_ - totalFees_;
+    }
+
     function assetsUnderManagement() external view override returns (uint256 assetsUnderManagement_) {
         uint256 currentTotalAssets_ = _currentTotalAssets(aaveToken);
 

@@ -106,6 +106,8 @@ contract MockAavePool {
 
     address public aaveToken;
 
+    mapping(address => uint128) public virtualUnderlyingBalance;
+
     function __setAaveToken(address aaveToken_) external {
         aaveToken = aaveToken_;
     }
@@ -113,14 +115,27 @@ contract MockAavePool {
     function __setATokenBalance(address asset_, address account_, uint256 aaveTokenBalance_) external {
         uint256 currentATokenBalance_ = MockAaveToken(aaveToken).balanceOf(account_);
 
-        if (aaveTokenBalance_ > currentATokenBalance_) MockERC20(asset_).mint(address(this), aaveTokenBalance_ - currentATokenBalance_);
-        if (aaveTokenBalance_ < currentATokenBalance_) MockERC20(asset_).burn(address(this), currentATokenBalance_ - aaveTokenBalance_);
+        if (aaveTokenBalance_ > currentATokenBalance_) MockERC20(asset_).mint(aaveToken, aaveTokenBalance_ - currentATokenBalance_);
+        if (aaveTokenBalance_ < currentATokenBalance_) MockERC20(asset_).burn(aaveToken, currentATokenBalance_ - aaveTokenBalance_);
 
         MockAaveToken(aaveToken).__setBalanceOf(account_, aaveTokenBalance_);
     }
 
+    function __setVirtualUnderlyingBalance(address asset_, uint256 liquidity_) external {
+        uint256 currentLiquidity_ = MockERC20(asset_).balanceOf(aaveToken);
+
+        if (liquidity_ > currentLiquidity_) MockERC20(asset_).mint(aaveToken, liquidity_ - currentLiquidity_);
+        if (liquidity_ < currentLiquidity_) MockERC20(asset_).burn(aaveToken, currentLiquidity_ - liquidity_);
+
+        virtualUnderlyingBalance[asset_] = uint128(liquidity_);
+    }
+
+    function getVirtualUnderlyingBalance(address asset_) external view returns (uint128 balance_) {
+        balance_ = virtualUnderlyingBalance[asset_];
+    }
+
     function supply(address asset_, uint256 amount_, address onBehalfOf_, uint16) external {
-        MockERC20(asset_).transferFrom(msg.sender, address(this), amount_);
+        MockERC20(asset_).transferFrom(msg.sender, aaveToken, amount_);
 
         MockAaveToken(aaveToken).mint(onBehalfOf_, amount_);
     }
@@ -128,7 +143,8 @@ contract MockAavePool {
     function withdraw(address asset_, uint256 amount_, address to_) external returns (uint256 withdrawn_) {
         MockAaveToken(aaveToken).burn(msg.sender, amount_);
 
-        MockERC20(asset_).transfer(to_, amount_);
+        MockERC20(asset_).burn(aaveToken, amount_);
+        MockERC20(asset_).mint(to_, amount_);
 
         withdrawn_ = amount_;
     }

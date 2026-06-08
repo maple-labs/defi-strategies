@@ -114,6 +114,13 @@ interface IMapleAaveV3Strategy is IMapleAaveV3StrategyStorage, IMapleProxied {
     /**************************************************************************************************************************************/
 
     /**
+     *  @dev    Returns the funds-asset amount that can be withdrawn immediately by the strategy manager, bounded
+     *          by Aave's available liquidity and net of accrued yield fees that would be collected before a withdrawal.
+     *  @return availableToWithdraw Funds-asset amount immediately withdrawable by the strategy manager.
+     */
+    function availableToWithdraw() external view returns (uint256 availableToWithdraw);
+
+    /**
      *  @dev    Returns the funds-asset equivalent of the strategy's Aave position net of accrued yield fees.
      *  @return assetsUnderManagement Funds-asset equivalent currently attributable to the strategy manager.
      */
