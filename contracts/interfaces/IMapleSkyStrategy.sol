@@ -103,6 +103,14 @@ interface IMapleSkyStrategy is IMapleSkyStrategyStorage, IMapleProxied {
     /**************************************************************************************************************************************/
 
     /**
+     *  @dev    Returns the funds-asset amount that can be withdrawn immediately by the strategy manager, net
+     *          of accrued yield fees that would be collected before a withdrawal.
+     *          Reverts when Sky's PSM `buyGem` path is halted by setting `tout` to type(uint256).max.
+     *  @return availableToWithdraw Funds-asset amount immediately withdrawable by the strategy manager.
+     */
+    function availableToWithdraw() external view returns (uint256 availableToWithdraw);
+
+    /**
      *  @dev    Returns the funds-asset equivalent of the strategy's sUSDS position net of accrued yield fees.
      *  @return assetsUnderManagement Funds-asset equivalent currently attributable to the strategy manager.
      */

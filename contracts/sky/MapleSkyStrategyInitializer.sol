@@ -34,8 +34,10 @@ contract MapleSkyStrategyInitializer is IMapleSkyStrategyInitializer, MapleSkySt
         require(IGlobalsLike(globals_).isInstanceOf("STRATEGY_VAULT", params_.savingsUsds), "MSSI:I:INVALID_STRATEGY_VAULT");
         require(IGlobalsLike(globals_).isInstanceOf("PSM", params_.psm),                    "MSSI:I:INVALID_PSM");
 
+        // Sky strategy withdrawals rely on LitePSM-compatible PSMs, where gem liquidity is held in a pocket address.
         require(IPSMLike(params_.psm).gem() == params_.fundsAsset, "MSSI:I:INVALID_GEM_PSM");
         require(IPSMLike(params_.psm).usds() == usds_,             "MSSI:I:INVALID_USDS_PSM");
+        require(IPSMLike(params_.psm).pocket() != address(0),      "MSSI:I:INVALID_POCKET_PSM");
 
         strategyManager = params_.strategyManager;
         fundsAsset      = params_.fundsAsset;

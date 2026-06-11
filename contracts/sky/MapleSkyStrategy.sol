@@ -8,6 +8,7 @@ import { MapleProxiedInternals } from "../../modules/proxy-factory/contracts/Map
 import { IMapleSkyStrategy } from "../interfaces/IMapleSkyStrategy.sol";
 
 import {
+    IERC20Like,
     IERC4626Like,
     IGlobalsLike,
     IPSMLike,
@@ -201,6 +202,23 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
     /*** View Functions                                                                                                                 ***/
     /**************************************************************************************************************************************/
 
+    function availableToWithdraw() external view override returns (uint256 availableToWithdraw_) {
+        address psm_         = psm;
+        address savingsUsds_ = savingsUsds;
+
+        uint256 currentTotalAssets_ = _currentTotalAssets(psm_, savingsUsds_);
+        // TODO: revisit the pocket balance check before the audit.
+        uint256 psmPocketLiquidity_ = IERC20Like(fundsAsset).balanceOf(IPSMLike(psm_).pocket());
+
+        uint256 grossAvailable_ = _min(currentTotalAssets_, psmPocketLiquidity_);
+
+        ( uint256 delegateFee_, uint256 protocolFee_ ) = _currentAccruedFees(currentTotalAssets_);
+
+        uint256 totalFees_ = delegateFee_ + protocolFee_;
+
+        if (grossAvailable_ > totalFees_) availableToWithdraw_ = grossAvailable_ - totalFees_;
+    }
+
     function assetsUnderManagement() public view override returns (uint256 assetsUnderManagement_) {
         uint256 currentTotalAssets_ = _currentTotalAssets(psm, savingsUsds);
 
@@ -266,7 +284,7 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
     }
 
     /**************************************************************************************************************************************/
-    /*** Internal View Functions                                                                                                        ***/
+    /*** Internal Helper Functions                                                                                                        ***/
     /**************************************************************************************************************************************/
 
     function _currentAccruedFees(uint256 currentTotalAssets_) internal view returns (uint256 delegateFee_, uint256 protocolFee_) {
@@ -293,7 +311,13 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
         uint256 tout_                 = IPSMLike(psm_).tout();
         uint256 to18ConversionFactor_ = IPSMLike(psm_).to18ConversionFactor();
 
+        // Sky's PSM uses type(uint256).max `tout` to halt `buyGem`
+        // WAD + tout_ intentionally reverts in that state.
         gemAmount_ = (usdsAmount_ * WAD) / (to18ConversionFactor_ * (WAD + tout_));
+    }
+
+    function _min(uint256 x_, uint256 y_) internal pure returns (uint256 min_) {
+        min_ = x_ < y_ ? x_ : y_;
     }
 
     function _usdsForGem(address psm_, uint256 gemAmount_) internal view returns (uint256 usdsAmount_) {

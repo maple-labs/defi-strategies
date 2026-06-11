@@ -54,6 +54,12 @@ interface IAavePoolLike {
 
 }
 
+interface IERC20Like {
+
+    function balanceOf(address account) external view returns (uint256 balance);
+
+}
+
 interface IERC4626Like {
 
     function asset() external view returns (address);
@@ -73,6 +79,9 @@ interface IPSMLike {
     function buyGem(address usr, uint256 gemAmount) external returns (uint256 usdsInWad);
 
     function gem() external view returns (address);
+
+    // LitePSM-compatible PSMs hold gem liquidity in a separate pocket address.
+    function pocket() external view returns (address);
 
     function sellGem(address usr, uint256 gemAmount) external returns (uint256 usdsOutWad);
 

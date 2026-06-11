@@ -24,6 +24,7 @@ contract SkyTestBase is Test {
     address governor         = makeAddr("governor");
     address mapleTreasury    = makeAddr("mapleTreasury");
     address operationalAdmin = makeAddr("operationalAdmin");
+    address psmPocket        = makeAddr("psmPocket");
     address securityAdmin    = makeAddr("securityAdmin");
     address strategyDelegate = makeAddr("strategyDelegate");
 
@@ -45,10 +46,16 @@ contract SkyTestBase is Test {
 
     function setUp() public virtual {
         psm.__setGem(address(asset));
+        psm.__setPocket(psmPocket);
         psm.__setTo18ConversionFactor(1e12);
         psm.__setUsds(address(usds));
 
         savingsUsds.__setAsset(address(usds));
+
+        asset.mint(psmPocket, 1e36);
+
+        vm.prank(psmPocket);
+        asset.approve(address(psm), type(uint256).max);
 
         globals.__setCanDeploy(deployer, true);
         globals.__setGovernor(governor);
@@ -98,6 +105,13 @@ contract SkyTestBase is Test {
     function assertCollectedFees(uint256 delegateFee, uint256 protocolFee) internal view {
         assertEq(asset.balanceOf(strategyDelegate), delegateFee);
         assertEq(asset.balanceOf(mapleTreasury),    protocolFee);
+    }
+
+    function setPsmPocketLiquidity(uint256 liquidity_) internal {
+        uint256 currentLiquidity_ = asset.balanceOf(psmPocket);
+
+        if (liquidity_ > currentLiquidity_) asset.mint(psmPocket, liquidity_ - currentLiquidity_);
+        if (liquidity_ < currentLiquidity_) asset.burn(psmPocket, currentLiquidity_ - liquidity_);
     }
 
     function setSkyStrategyState(uint256 lastRecordedTotalAssets_, uint256 susdsBalance_) internal {

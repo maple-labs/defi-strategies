@@ -239,6 +239,7 @@ contract MockManager {
 contract MockPsm {
 
     address public gem;
+    address public pocket;
     address public usds;
 
     uint256 public tout;
@@ -249,6 +250,10 @@ contract MockPsm {
 
     function __setGem(address gem_) external {
         gem = gem_;
+    }
+
+    function __setPocket(address pocket_) external {
+        pocket = pocket_;
     }
 
     function __setTo18ConversionFactor(uint256 to18ConversionFactor_) external {
@@ -275,13 +280,13 @@ contract MockPsm {
         usdsIn_ = gemAmount_ * to18ConversionFactor * usdsRedeemExchangeRate / 1e18;
 
         MockERC20(usds).transferFrom(msg.sender, address(this), usdsIn_);
-        MockERC20(gem).mint(usr_, gemAmount_);
+        MockERC20(gem).transferFrom(pocket, usr_, gemAmount_);
     }
 
     function sellGem(address usr_, uint256 gemAmount_) external returns (uint256 usdsOut_) {
         usdsOut_ = gemAmount_ * to18ConversionFactor * usdsDepositExchangeRate / 1e18;
 
-        MockERC20(gem).transferFrom(msg.sender, address(this), gemAmount_);
+        MockERC20(gem).transferFrom(msg.sender, pocket, gemAmount_);
         MockERC20(usds).mint(usr_, usdsOut_);
     }
 

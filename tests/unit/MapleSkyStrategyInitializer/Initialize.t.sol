@@ -113,6 +113,14 @@ contract SkyInitializeTests is SkyTestBase {
         proxy.__initialize(params);
     }
 
+    function test_initialize_revert_invalidPsmPocket() external {
+        psm.__setPocket(address(0));
+
+        vm.prank(address(factory));
+        vm.expectRevert("MSSI:I:INVALID_POCKET_PSM");
+        proxy.__initialize(params);
+    }
+
     function test_initialize_success() external {
         vm.expectEmit();
         emit IMapleSkyStrategyInitializer.Initialized(params);
