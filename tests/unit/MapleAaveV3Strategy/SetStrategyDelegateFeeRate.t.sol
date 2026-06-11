@@ -43,6 +43,26 @@ contract AaveV3SetStrategyDelegateFeeRateFailureTests is AaveV3TestBase {
         strategy.setStrategyDelegateFeeRate(strategyDelegateFeeRate_);
     }
 
+    function test_setStrategyDelegateFeeRate_revert_noChange() external {
+        uint32 strategyDelegateFeeRate_ = 0.04e6;  // 4% delegate fee
+        uint32 strategyProtocolFeeRate_ = 0.03e6;  // 3% protocol fee
+
+        strategy.__setStrategyDelegateFeeRate(strategyDelegateFeeRate_);
+        strategy.__setStrategyProtocolFeeRate(strategyProtocolFeeRate_);
+
+        vm.prank(strategyDelegate);
+        vm.expectRevert("MAV3S:SSDFR:NO_CHANGE");
+        strategy.setStrategyDelegateFeeRate(strategyDelegateFeeRate_);
+    }
+
+    function test_setStrategyDelegateFeeRate_revert_invalidFeeRate() external {
+        uint32 strategyDelegateFeeRate_ = 1.5e6;  // 150% delegate fee
+
+        vm.prank(strategyDelegate);
+        vm.expectRevert("MAV3S:SSDFR:INVALID_FEE_RATE");
+        strategy.setStrategyDelegateFeeRate(strategyDelegateFeeRate_);
+    }
+
     function test_setStrategyDelegateFeeRate_revert_invalidSumFeeRate() external {
         uint32 strategyDelegateFeeRate_ = 0.97e6 + 1;  // > 97% delegate fee
         uint32 strategyProtocolFeeRate_ = 0.03e6;      // 3% protocol fee
@@ -121,6 +141,103 @@ contract AaveV3SetStrategyDelegateFeeRateSuccessTests is AaveV3TestBase {
         strategy.setStrategyDelegateFeeRate(strategyDelegateFeeRate_);
 
         assertEq(strategy.strategyDelegateFeeRate(), strategyDelegateFeeRate_);
+        assertEq(strategy.strategyProtocolFeeRate(), strategyProtocolFeeRate_);
+
+        assertAaveV3Strategy({
+            aaveTokenBalance:        0,
+            lastRecordedTotalAssets: 0,
+            assetsUnderManagement:   0
+        });
+    }
+
+    function test_setStrategyDelegateFeeRate_success_minFeeRate() external {
+        uint32 strategyDelegateFeeRate_ = 1;  // Minimum non-zero delegate fee.
+
+        assertEq(strategy.strategyDelegateFeeRate(), 0);
+        assertEq(strategy.strategyProtocolFeeRate(), 0);
+
+        assertAaveV3Strategy({
+            aaveTokenBalance:        0,
+            lastRecordedTotalAssets: 0,
+            assetsUnderManagement:   0
+        });
+
+        vm.expectEmit();
+        emit IMapleAaveV3Strategy.StrategyFeesCollected(0, 0);
+
+        vm.expectEmit();
+        emit IMapleAaveV3Strategy.StrategyDelegateFeeRateSet(strategyDelegateFeeRate_);
+
+        vm.prank(strategyDelegate);
+        strategy.setStrategyDelegateFeeRate(strategyDelegateFeeRate_);
+
+        assertEq(strategy.strategyDelegateFeeRate(), strategyDelegateFeeRate_);
+        assertEq(strategy.strategyProtocolFeeRate(), 0);
+
+        assertAaveV3Strategy({
+            aaveTokenBalance:        0,
+            lastRecordedTotalAssets: 0,
+            assetsUnderManagement:   0
+        });
+    }
+
+    function test_setStrategyDelegateFeeRate_success_maxFeeRate() external {
+        uint32 strategyDelegateFeeRate_ = 1e6;  // 100% delegate fee.
+
+        assertEq(strategy.strategyDelegateFeeRate(), 0);
+        assertEq(strategy.strategyProtocolFeeRate(), 0);
+
+        assertAaveV3Strategy({
+            aaveTokenBalance:        0,
+            lastRecordedTotalAssets: 0,
+            assetsUnderManagement:   0
+        });
+
+        vm.expectEmit();
+        emit IMapleAaveV3Strategy.StrategyFeesCollected(0, 0);
+
+        vm.expectEmit();
+        emit IMapleAaveV3Strategy.StrategyDelegateFeeRateSet(strategyDelegateFeeRate_);
+
+        vm.prank(strategyDelegate);
+        strategy.setStrategyDelegateFeeRate(strategyDelegateFeeRate_);
+
+        assertEq(strategy.strategyDelegateFeeRate(), strategyDelegateFeeRate_);
+        assertEq(strategy.strategyProtocolFeeRate(), 0);
+
+        assertAaveV3Strategy({
+            aaveTokenBalance:        0,
+            lastRecordedTotalAssets: 0,
+            assetsUnderManagement:   0
+        });
+    }
+
+    function test_setStrategyDelegateFeeRate_success_zeroFeeRate() external {
+        uint32 strategyDelegateFeeRate_ = 0.04e6;  // 4% delegate fee
+        uint32 strategyProtocolFeeRate_ = 0.03e6;  // 3% protocol fee
+
+        strategy.__setStrategyDelegateFeeRate(strategyDelegateFeeRate_);
+        strategy.__setStrategyProtocolFeeRate(strategyProtocolFeeRate_);
+
+        assertEq(strategy.strategyDelegateFeeRate(), strategyDelegateFeeRate_);
+        assertEq(strategy.strategyProtocolFeeRate(), strategyProtocolFeeRate_);
+
+        assertAaveV3Strategy({
+            aaveTokenBalance:        0,
+            lastRecordedTotalAssets: 0,
+            assetsUnderManagement:   0
+        });
+
+        vm.expectEmit();
+        emit IMapleAaveV3Strategy.StrategyFeesCollected(0, 0);
+
+        vm.expectEmit();
+        emit IMapleAaveV3Strategy.StrategyDelegateFeeRateSet(0);
+
+        vm.prank(strategyDelegate);
+        strategy.setStrategyDelegateFeeRate(0);
+
+        assertEq(strategy.strategyDelegateFeeRate(), 0);
         assertEq(strategy.strategyProtocolFeeRate(), strategyProtocolFeeRate_);
 
         assertAaveV3Strategy({

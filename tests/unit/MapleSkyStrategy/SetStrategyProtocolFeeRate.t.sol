@@ -43,6 +43,26 @@ contract SkySetStrategyProtocolFeeRateFailureTests is SkyTestBase {
         strategy.setStrategyProtocolFeeRate(strategyProtocolFeeRate_);
     }
 
+    function test_setStrategyProtocolFeeRate_revert_noChange() external {
+        uint32 strategyDelegateFeeRate_ = 0.02e6;  // 2% delegate fee
+        uint32 strategyProtocolFeeRate_ = 0.05e6;  // 5% protocol fee
+
+        strategy.__setStrategyDelegateFeeRate(strategyDelegateFeeRate_);
+        strategy.__setStrategyProtocolFeeRate(strategyProtocolFeeRate_);
+
+        vm.prank(governor);
+        vm.expectRevert("MSS:SSPFR:NO_CHANGE");
+        strategy.setStrategyProtocolFeeRate(strategyProtocolFeeRate_);
+    }
+
+    function test_setStrategyProtocolFeeRate_revert_invalidFeeRate() external {
+        uint32 strategyProtocolFeeRate_ = 1.5e6;  // 150% protocol fee
+
+        vm.prank(governor);
+        vm.expectRevert("MSS:SSPFR:INVALID_FEE_RATE");
+        strategy.setStrategyProtocolFeeRate(strategyProtocolFeeRate_);
+    }
+
     function test_setStrategyProtocolFeeRate_revert_invalidSumFeeRate() external {
         uint32 strategyDelegateFeeRate_ = 0.03e6;      // 3% delegate fee
         uint32 strategyProtocolFeeRate_ = 0.97e6 + 1;  // > 97% protocol fee
@@ -153,6 +173,103 @@ contract SkySetStrategyProtocolFeeRateSuccessTests is SkyTestBase {
 
         assertEq(strategy.strategyDelegateFeeRate(), strategyDelegateFeeRate_);
         assertEq(strategy.strategyProtocolFeeRate(), strategyProtocolFeeRate_);
+    }
+
+    function test_setStrategyProtocolFeeRate_success_minFeeRate() external {
+        uint32 strategyProtocolFeeRate_ = 1;  // Minimum non-zero protocol fee.
+
+        assertEq(strategy.strategyDelegateFeeRate(), 0);
+        assertEq(strategy.strategyProtocolFeeRate(), 0);
+
+        assertSkyStrategy({
+            susdsBalance:            0,
+            lastRecordedTotalAssets: 0,
+            assetsUnderManagement:   0
+        });
+
+        vm.expectEmit();
+        emit IMapleSkyStrategy.StrategyFeesCollected(0, 0);
+
+        vm.expectEmit();
+        emit IMapleSkyStrategy.StrategyProtocolFeeRateSet(strategyProtocolFeeRate_);
+
+        vm.prank(governor);
+        strategy.setStrategyProtocolFeeRate(strategyProtocolFeeRate_);
+
+        assertEq(strategy.strategyDelegateFeeRate(), 0);
+        assertEq(strategy.strategyProtocolFeeRate(), strategyProtocolFeeRate_);
+
+        assertSkyStrategy({
+            susdsBalance:            0,
+            lastRecordedTotalAssets: 0,
+            assetsUnderManagement:   0
+        });
+    }
+
+    function test_setStrategyProtocolFeeRate_success_maxFeeRate() external {
+        uint32 strategyProtocolFeeRate_ = 1e6;  // 100% protocol fee.
+
+        assertEq(strategy.strategyDelegateFeeRate(), 0);
+        assertEq(strategy.strategyProtocolFeeRate(), 0);
+
+        assertSkyStrategy({
+            susdsBalance:            0,
+            lastRecordedTotalAssets: 0,
+            assetsUnderManagement:   0
+        });
+
+        vm.expectEmit();
+        emit IMapleSkyStrategy.StrategyFeesCollected(0, 0);
+
+        vm.expectEmit();
+        emit IMapleSkyStrategy.StrategyProtocolFeeRateSet(strategyProtocolFeeRate_);
+
+        vm.prank(governor);
+        strategy.setStrategyProtocolFeeRate(strategyProtocolFeeRate_);
+
+        assertEq(strategy.strategyDelegateFeeRate(), 0);
+        assertEq(strategy.strategyProtocolFeeRate(), strategyProtocolFeeRate_);
+
+        assertSkyStrategy({
+            susdsBalance:            0,
+            lastRecordedTotalAssets: 0,
+            assetsUnderManagement:   0
+        });
+    }
+
+    function test_setStrategyProtocolFeeRate_success_zeroFeeRate() external {
+        uint32 strategyDelegateFeeRate_ = 0.02e6;  // 2% delegate fee
+        uint32 strategyProtocolFeeRate_ = 0.05e6;  // 5% protocol fee
+
+        strategy.__setStrategyDelegateFeeRate(strategyDelegateFeeRate_);
+        strategy.__setStrategyProtocolFeeRate(strategyProtocolFeeRate_);
+
+        assertEq(strategy.strategyDelegateFeeRate(), strategyDelegateFeeRate_);
+        assertEq(strategy.strategyProtocolFeeRate(), strategyProtocolFeeRate_);
+
+        assertSkyStrategy({
+            susdsBalance:            0,
+            lastRecordedTotalAssets: 0,
+            assetsUnderManagement:   0
+        });
+
+        vm.expectEmit();
+        emit IMapleSkyStrategy.StrategyFeesCollected(0, 0);
+
+        vm.expectEmit();
+        emit IMapleSkyStrategy.StrategyProtocolFeeRateSet(0);
+
+        vm.prank(governor);
+        strategy.setStrategyProtocolFeeRate(0);
+
+        assertEq(strategy.strategyDelegateFeeRate(), strategyDelegateFeeRate_);
+        assertEq(strategy.strategyProtocolFeeRate(), 0);
+
+        assertSkyStrategy({
+            susdsBalance:            0,
+            lastRecordedTotalAssets: 0,
+            assetsUnderManagement:   0
+        });
     }
 
     function test_setStrategyProtocolFeeRate_success_accruesFeesBeforeUpdatingRate() external {

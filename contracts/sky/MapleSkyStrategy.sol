@@ -104,6 +104,8 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
     /**************************************************************************************************************************************/
 
     function setStrategyDelegateFeeRate(uint32 strategyDelegateFeeRate_) external override whenNotPaused nonReentrant onlyStrategyDelegate {
+        require(strategyDelegateFeeRate_ != strategyDelegateFeeRate,                   "MSS:SSDFR:NO_CHANGE");
+        require(strategyDelegateFeeRate_ <= HUNDRED_PERCENT,                           "MSS:SSDFR:INVALID_FEE_RATE");
         require(strategyDelegateFeeRate_ + strategyProtocolFeeRate <= HUNDRED_PERCENT, "MSS:SSDFR:INVALID_SUM_FEE_RATE");
 
         address psm_         = psm;
@@ -119,6 +121,8 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
     }
 
     function setStrategyProtocolFeeRate(uint32 strategyProtocolFeeRate_) external override whenNotPaused nonReentrant onlyProtocolAdmins {
+        require(strategyProtocolFeeRate_ != strategyProtocolFeeRate,                   "MSS:SSPFR:NO_CHANGE");
+        require(strategyProtocolFeeRate_ <= HUNDRED_PERCENT,                           "MSS:SSPFR:INVALID_FEE_RATE");
         require(strategyDelegateFeeRate + strategyProtocolFeeRate_ <= HUNDRED_PERCENT, "MSS:SSPFR:INVALID_SUM_FEE_RATE");
 
         address psm_         = psm;
