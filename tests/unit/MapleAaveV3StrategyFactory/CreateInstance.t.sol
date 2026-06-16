@@ -11,7 +11,7 @@ contract AaveV3CreateInstanceTests is AaveV3TestBase {
     function setUp() public override {
         super.setUp();
 
-        strategyManager.__setUnderlyingStrategy(factory.getInstanceAddress(abi.encode(params), ""));
+        strategyManager.__setUnderlyingStrategy(factory.getInstanceAddress(initializationArguments(), ""));
     }
 
     function test_createInstance_revert_invalidDeployer() external {
@@ -19,7 +19,7 @@ contract AaveV3CreateInstanceTests is AaveV3TestBase {
 
         vm.prank(deployer);
         vm.expectRevert("MAV3SF:CI:CANNOT_DEPLOY");
-        factory.createInstance(abi.encode(params), "");
+        factory.createInstance(initializationArguments(), "");
     }
 
     function test_createInstance_revert_protocolPaused() external {
@@ -27,7 +27,7 @@ contract AaveV3CreateInstanceTests is AaveV3TestBase {
 
         vm.prank(deployer);
         vm.expectRevert("MPF:PROTOCOL_PAUSED");
-        factory.createInstance(abi.encode(params), "");
+        factory.createInstance(initializationArguments(), "");
     }
 
     function test_createInstance_revert_malformedPayload() external {
@@ -35,7 +35,7 @@ contract AaveV3CreateInstanceTests is AaveV3TestBase {
         vm.expectRevert("MPF:CI:FAILED");
         factory.createInstance(new bytes(0), "");
 
-        bytes memory validArguments     = abi.encode(params);
+        bytes memory validArguments     = initializationArguments();
         bytes memory truncatedArguments = new bytes(validArguments.length - 1);
 
         vm.prank(deployer);
@@ -45,10 +45,10 @@ contract AaveV3CreateInstanceTests is AaveV3TestBase {
 
     function test_createInstance_success() external {
         vm.expectEmit();
-        emit IMapleAaveV3StrategyInitializer.Initialized(params);
+        emit IMapleAaveV3StrategyInitializer.Initialized(address(strategyManager), params);
 
         vm.prank(deployer);
-        strategy = MapleAaveV3StrategyHarness(factory.createInstance(abi.encode(params), ""));
+        strategy = MapleAaveV3StrategyHarness(factory.createInstance(initializationArguments(), ""));
 
         assertTrue(factory.isInstance(address(strategy)));
 

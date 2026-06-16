@@ -37,8 +37,8 @@ contract MapleAaveV3StrategyHarness is MapleAaveV3Strategy {
 
 contract MapleAaveV3StrategyInitializerHarness is MapleAaveV3StrategyInitializer {
 
-    function __initialize(Parameters memory params_) external {
-        _initialize(params_);
+    function __initialize(address strategyManager_, Parameters memory params_) external {
+        _initialize(strategyManager_, params_);
     }
 
     function locked() external view returns (uint256 locked_) {
@@ -77,8 +77,8 @@ contract MapleSkyStrategyHarness is MapleSkyStrategy {
 
 contract MapleSkyStrategyInitializerHarness is MapleSkyStrategyInitializer {
 
-    function __initialize(Parameters memory params_) external {
-        _initialize(params_);
+    function __initialize(address strategyManager_, Parameters memory params_) external {
+        _initialize(strategyManager_, params_);
     }
 
     function locked() external view returns (uint256 locked_) {

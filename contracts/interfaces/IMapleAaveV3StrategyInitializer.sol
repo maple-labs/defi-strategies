@@ -8,14 +8,13 @@ interface IMapleAaveV3StrategyInitializer {
 
     /**
      *  @dev   Parameters required to initialize an Aave V3 strategy.
-     *  @param strategyManager         Address of the strategy manager contract.
+     *         Initializer arguments are encoded as abi.encode(strategyManager) || abi.encode(params).
      *  @param aaveToken               Address of the Aave token.
      *  @param strategyDelegateFeeRate Percentage of yield collected by the strategy delegate.
      *  @param strategyProtocolFeeRate Percentage of yield collected by the Maple treasury.
      *  @param referralCode            Referral code used when depositing into Aave.
      */
     struct Parameters {
-        address strategyManager;
         address aaveToken;
         uint32  strategyDelegateFeeRate;
         uint32  strategyProtocolFeeRate;
@@ -24,8 +23,9 @@ interface IMapleAaveV3StrategyInitializer {
 
     /**
      *  @dev   Emitted when the Aave V3 strategy proxy is initialized.
-     *  @param params Aave V3 strategy parameters set during initialization.
+     *  @param strategyManager Address of the strategy manager contract.
+     *  @param params          Aave V3 strategy parameters set during initialization.
      */
-    event Initialized(Parameters params);
+    event Initialized(address indexed strategyManager, Parameters params);
 
 }

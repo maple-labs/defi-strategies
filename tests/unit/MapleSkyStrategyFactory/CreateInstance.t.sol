@@ -11,7 +11,7 @@ contract SkyCreateInstanceTests is SkyTestBase {
     function setUp() public override {
         super.setUp();
 
-        strategyManager.__setUnderlyingStrategy(factory.getInstanceAddress(abi.encode(params), ""));
+        strategyManager.__setUnderlyingStrategy(factory.getInstanceAddress(initializationArguments(), ""));
     }
 
     function test_createInstance_revert_invalidDeployer() external {
@@ -19,7 +19,7 @@ contract SkyCreateInstanceTests is SkyTestBase {
 
         vm.prank(deployer);
         vm.expectRevert("MTSF:CI:CANNOT_DEPLOY");
-        factory.createInstance(abi.encode(params), "");
+        factory.createInstance(initializationArguments(), "");
     }
 
     function test_createInstance_revert_protocolPaused() external {
@@ -27,7 +27,7 @@ contract SkyCreateInstanceTests is SkyTestBase {
 
         vm.prank(deployer);
         vm.expectRevert("MPF:PROTOCOL_PAUSED");
-        factory.createInstance(abi.encode(params), "");
+        factory.createInstance(initializationArguments(), "");
     }
 
     function test_createInstance_revert_malformedPayload() external {
@@ -35,7 +35,7 @@ contract SkyCreateInstanceTests is SkyTestBase {
         vm.expectRevert("MPF:CI:FAILED");
         factory.createInstance(new bytes(0), "");
 
-        bytes memory validArguments      = abi.encode(params);
+        bytes memory validArguments      = initializationArguments();
         bytes memory truncatedArguments  = new bytes(validArguments.length - 1);
 
         vm.prank(deployer);
@@ -45,10 +45,10 @@ contract SkyCreateInstanceTests is SkyTestBase {
 
     function test_createInstance_success() external {
         vm.expectEmit();
-        emit IMapleSkyStrategyInitializer.Initialized(params);
+        emit IMapleSkyStrategyInitializer.Initialized(address(strategyManager), params);
 
         vm.prank(deployer);
-        strategy = MapleSkyStrategyHarness(factory.createInstance(abi.encode(params), ""));
+        strategy = MapleSkyStrategyHarness(factory.createInstance(initializationArguments(), ""));
 
         assertTrue(factory.isInstance(address(strategy)));
 

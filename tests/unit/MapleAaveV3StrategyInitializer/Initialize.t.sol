@@ -17,11 +17,9 @@ contract AaveV3InitializeTests is AaveV3TestBase {
     }
 
     function test_initialize_revert_zeroStrategyManager() external {
-        params.strategyManager = address(0);
-
         vm.prank(address(factory));
         vm.expectRevert("MAV3SI:I:ZERO_STRATEGY_MANAGER");
-        proxy.__initialize(params);
+        proxy.__initialize(address(0), params);
     }
 
     function test_initialize_revert_zeroAaveToken() external {
@@ -29,7 +27,7 @@ contract AaveV3InitializeTests is AaveV3TestBase {
 
         vm.prank(address(factory));
         vm.expectRevert("MAV3SI:I:ZERO_AAVE_TOKEN");
-        proxy.__initialize(params);
+        proxy.__initialize(address(strategyManager), params);
     }
 
     function test_initialize_revert_invalidSumFeeRate() external {
@@ -38,7 +36,7 @@ contract AaveV3InitializeTests is AaveV3TestBase {
 
         vm.prank(address(factory));
         vm.expectRevert("MAV3SI:I:INVALID_SUM_FEE_RATE");
-        proxy.__initialize(params);
+        proxy.__initialize(address(strategyManager), params);
     }
 
     function test_initialize_revert_invalidFactory() external {
@@ -46,15 +44,15 @@ contract AaveV3InitializeTests is AaveV3TestBase {
 
         vm.prank(address(factory));
         vm.expectRevert("MAV3SI:I:INVALID_FACTORY");
-        proxy.__initialize(params);
+        proxy.__initialize(address(strategyManager), params);
     }
 
     function test_initialize_revert_invalidInstance() external {
-        managerFactory.__setIsInstance(params.strategyManager, false);
+        managerFactory.__setIsInstance(address(strategyManager), false);
 
         vm.prank(address(factory));
         vm.expectRevert("MAV3SI:I:INVALID_INSTANCE");
-        proxy.__initialize(params);
+        proxy.__initialize(address(strategyManager), params);
     }
 
     function test_initialize_revert_invalidUnderlyingStrategy() external {
@@ -62,7 +60,7 @@ contract AaveV3InitializeTests is AaveV3TestBase {
 
         vm.prank(address(factory));
         vm.expectRevert("MAV3SI:I:INVALID_UNDERLYING");
-        proxy.__initialize(params);
+        proxy.__initialize(address(strategyManager), params);
     }
 
     function test_initialize_revert_invalidStrategyVault() external {
@@ -70,7 +68,7 @@ contract AaveV3InitializeTests is AaveV3TestBase {
 
         vm.prank(address(factory));
         vm.expectRevert("MAV3SI:I:INVALID_STRATEGY_VAULT");
-        proxy.__initialize(params);
+        proxy.__initialize(address(strategyManager), params);
     }
 
     function test_initialize_revert_invalidAsset() external {
@@ -78,15 +76,15 @@ contract AaveV3InitializeTests is AaveV3TestBase {
 
         vm.prank(address(factory));
         vm.expectRevert("MAV3SI:I:INVALID_ASSET");
-        proxy.__initialize(params);
+        proxy.__initialize(address(strategyManager), params);
     }
 
     function test_initialize_success() external {
         vm.expectEmit();
-        emit IMapleAaveV3StrategyInitializer.Initialized(params);
+        emit IMapleAaveV3StrategyInitializer.Initialized(address(strategyManager), params);
 
         vm.prank(address(factory));
-        proxy.__initialize(params);
+        proxy.__initialize(address(strategyManager), params);
 
         assertEq(proxy.strategyManager(), address(strategyManager));
         assertEq(proxy.fundsAsset(),      address(asset));

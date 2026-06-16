@@ -8,7 +8,7 @@ interface IMapleSkyStrategyInitializer {
 
     /**
      *  @dev   Parameters required to initialize a Sky strategy.
-     *  @param strategyManager         Address of the strategy manager contract.
+     *         Initializer arguments are encoded as abi.encode(strategyManager) || abi.encode(params).
      *  @param fundsAsset              Address of the asset used for strategy funds.
      *  @param psm                     Address of the PSM contract.
      *  @param savingsUsds             Address of the savings USDS contract.
@@ -17,7 +17,6 @@ interface IMapleSkyStrategyInitializer {
      *  @param referralCode            Referral code used when depositing into Sky.
      */
     struct Parameters {
-        address strategyManager;
         address fundsAsset;
         address psm;
         address savingsUsds;
@@ -28,8 +27,9 @@ interface IMapleSkyStrategyInitializer {
 
     /**
      *  @dev   Emitted when the Sky strategy proxy is initialized.
-     *  @param params Sky strategy parameters set during initialization.
+     *  @param strategyManager Address of the strategy manager contract.
+     *  @param params          Sky strategy parameters set during initialization.
      */
-    event Initialized(Parameters params);
+    event Initialized(address indexed strategyManager, Parameters params);
 
 }

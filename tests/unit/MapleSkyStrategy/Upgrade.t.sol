@@ -43,7 +43,7 @@ contract SkyUpgradeTests is SkyTestBase {
     }
 
     function test_upgrade_success() external {
-        assertEq(strategy.strategyManager(), params.strategyManager);
+        assertEq(strategy.strategyManager(), address(strategyManager));
 
         vm.expectEmit();
         emit IMapleProxied.Upgraded(200, arguments);

@@ -72,14 +72,13 @@ contract AaveV3TestBase is Test {
         vm.stopPrank();
 
         params = IMapleAaveV3StrategyInitializer.Parameters({
-            strategyManager:         address(strategyManager),
             aaveToken:               address(aaveToken),
             strategyDelegateFeeRate: 0.02e6,
             strategyProtocolFeeRate: 0.03e6,
             referralCode:            123
         });
 
-        bytes memory arguments = abi.encode(params);
+        bytes memory arguments = initializationArguments();
 
         strategyManager.__setUnderlyingStrategy(factory.getInstanceAddress(arguments, "DEFAULT"));
 
@@ -109,6 +108,10 @@ contract AaveV3TestBase is Test {
     function assertCollectedFees(uint256 delegateFee, uint256 protocolFee) internal view {
         assertEq(asset.balanceOf(strategyDelegate), delegateFee);
         assertEq(asset.balanceOf(mapleTreasury),    protocolFee);
+    }
+
+    function initializationArguments() internal view returns (bytes memory arguments_) {
+        arguments_ = bytes.concat(abi.encode(address(strategyManager)), abi.encode(params));
     }
 
     function setStrategyATokenBalance(uint256 aaveTokenBalance_) internal {

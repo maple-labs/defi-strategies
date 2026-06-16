@@ -79,7 +79,6 @@ contract SkyTestBase is Test {
         vm.stopPrank();
 
         params = IMapleSkyStrategyInitializer.Parameters({
-            strategyManager:         address(strategyManager),
             fundsAsset:              address(asset),
             psm:                     address(psm),
             savingsUsds:             address(savingsUsds),
@@ -88,7 +87,7 @@ contract SkyTestBase is Test {
             referralCode:            123
         });
 
-        bytes memory arguments = abi.encode(params);
+        bytes memory arguments = initializationArguments();
 
         strategyManager.__setUnderlyingStrategy(factory.getInstanceAddress(arguments, "DEFAULT"));
 
@@ -105,6 +104,10 @@ contract SkyTestBase is Test {
     function assertCollectedFees(uint256 delegateFee, uint256 protocolFee) internal view {
         assertEq(asset.balanceOf(strategyDelegate), delegateFee);
         assertEq(asset.balanceOf(mapleTreasury),    protocolFee);
+    }
+
+    function initializationArguments() internal view returns (bytes memory arguments_) {
+        arguments_ = bytes.concat(abi.encode(address(strategyManager)), abi.encode(params));
     }
 
     function setPsmPocketLiquidity(uint256 liquidity_) internal {

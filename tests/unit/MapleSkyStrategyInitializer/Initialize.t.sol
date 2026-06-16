@@ -17,11 +17,9 @@ contract SkyInitializeTests is SkyTestBase {
     }
 
     function test_initialize_revert_zeroStrategyManager() external {
-        params.strategyManager = address(0);
-
         vm.prank(address(factory));
         vm.expectRevert("MSSI:I:ZERO_STRATEGY_MANAGER");
-        proxy.__initialize(params);
+        proxy.__initialize(address(0), params);
     }
 
     function test_initialize_revert_zeroSavingsUsds() external {
@@ -29,7 +27,7 @@ contract SkyInitializeTests is SkyTestBase {
 
         vm.prank(address(factory));
         vm.expectRevert("MSSI:I:ZERO_SAVINGS_USDS");
-        proxy.__initialize(params);
+        proxy.__initialize(address(strategyManager), params);
     }
 
     function test_initialize_revert_zeroPsm() external {
@@ -37,7 +35,7 @@ contract SkyInitializeTests is SkyTestBase {
 
         vm.prank(address(factory));
         vm.expectRevert("MSSI:I:ZERO_PSM");
-        proxy.__initialize(params);
+        proxy.__initialize(address(strategyManager), params);
     }
 
     function test_initialize_revert_invalidSumFeeRate() external {
@@ -46,7 +44,7 @@ contract SkyInitializeTests is SkyTestBase {
 
         vm.prank(address(factory));
         vm.expectRevert("MSSI:I:INVALID_SUM_FEE_RATE");
-        proxy.__initialize(params);
+        proxy.__initialize(address(strategyManager), params);
     }
 
     function test_initialize_revert_invalidAsset() external {
@@ -54,7 +52,7 @@ contract SkyInitializeTests is SkyTestBase {
 
         vm.prank(address(factory));
         vm.expectRevert("MSSI:I:INVALID_ASSET");
-        proxy.__initialize(params);
+        proxy.__initialize(address(strategyManager), params);
     }
 
     function test_initialize_revert_invalidFactory() external {
@@ -62,15 +60,15 @@ contract SkyInitializeTests is SkyTestBase {
 
         vm.prank(address(factory));
         vm.expectRevert("MSSI:I:INVALID_FACTORY");
-        proxy.__initialize(params);
+        proxy.__initialize(address(strategyManager), params);
     }
 
     function test_initialize_revert_invalidInstance() external {
-        managerFactory.__setIsInstance(params.strategyManager, false);
+        managerFactory.__setIsInstance(address(strategyManager), false);
 
         vm.prank(address(factory));
         vm.expectRevert("MSSI:I:INVALID_INSTANCE");
-        proxy.__initialize(params);
+        proxy.__initialize(address(strategyManager), params);
     }
 
     function test_initialize_revert_invalidUnderlyingStrategy() external {
@@ -78,7 +76,7 @@ contract SkyInitializeTests is SkyTestBase {
 
         vm.prank(address(factory));
         vm.expectRevert("MSSI:I:INVALID_UNDERLYING");
-        proxy.__initialize(params);
+        proxy.__initialize(address(strategyManager), params);
     }
 
     function test_initialize_revert_invalidStrategyVault() external {
@@ -86,7 +84,7 @@ contract SkyInitializeTests is SkyTestBase {
 
         vm.prank(address(factory));
         vm.expectRevert("MSSI:I:INVALID_STRATEGY_VAULT");
-        proxy.__initialize(params);
+        proxy.__initialize(address(strategyManager), params);
     }
 
     function test_initialize_revert_invalidPsm() external {
@@ -94,7 +92,7 @@ contract SkyInitializeTests is SkyTestBase {
 
         vm.prank(address(factory));
         vm.expectRevert("MSSI:I:INVALID_PSM");
-        proxy.__initialize(params);
+        proxy.__initialize(address(strategyManager), params);
     }
 
     function test_initialize_revert_invalidPsmGem() external {
@@ -102,7 +100,7 @@ contract SkyInitializeTests is SkyTestBase {
 
         vm.prank(address(factory));
         vm.expectRevert("MSSI:I:INVALID_GEM_PSM");
-        proxy.__initialize(params);
+        proxy.__initialize(address(strategyManager), params);
     }
 
     function test_initialize_revert_invalidPsmUsds() external {
@@ -110,7 +108,7 @@ contract SkyInitializeTests is SkyTestBase {
 
         vm.prank(address(factory));
         vm.expectRevert("MSSI:I:INVALID_USDS_PSM");
-        proxy.__initialize(params);
+        proxy.__initialize(address(strategyManager), params);
     }
 
     function test_initialize_revert_invalidPsmPocket() external {
@@ -118,15 +116,15 @@ contract SkyInitializeTests is SkyTestBase {
 
         vm.prank(address(factory));
         vm.expectRevert("MSSI:I:INVALID_POCKET_PSM");
-        proxy.__initialize(params);
+        proxy.__initialize(address(strategyManager), params);
     }
 
     function test_initialize_success() external {
         vm.expectEmit();
-        emit IMapleSkyStrategyInitializer.Initialized(params);
+        emit IMapleSkyStrategyInitializer.Initialized(address(strategyManager), params);
 
         vm.prank(address(factory));
-        proxy.__initialize(params);
+        proxy.__initialize(address(strategyManager), params);
 
         assertEq(proxy.strategyManager(), address(strategyManager));
         assertEq(proxy.fundsAsset(),      address(asset));
