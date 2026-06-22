@@ -74,6 +74,12 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
         _;
     }
 
+    modifier whenLossNotRecognized() {
+        require(!isLossRecognized, "MSS:LOSS_RECOGNIZED");
+
+        _;
+    }
+
     modifier whenNotPaused() {
         require(!IGlobalsLike(globals()).isFunctionPaused(msg.sig), "MSS:PAUSED");
 
@@ -103,6 +109,26 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
     /**************************************************************************************************************************************/
     /*** Admin Functions                                                                                                                ***/
     /**************************************************************************************************************************************/
+
+    // TODO: set unrealizedLosses to zero once impairment is implemented.
+    function recognizeLoss() external override whenNotPaused nonReentrant onlyProtocolAdmins whenLossNotRecognized {
+        isLossRecognized        = true;
+        lastRecordedTotalAssets = 0;
+
+        emit LossRecognized();
+    }
+
+    function recoverPosition() external override whenNotPaused nonReentrant onlyProtocolAdmins {
+        require(isLossRecognized, "MSS:RP:LOSS_NOT_RECOGNIZED");
+
+        address savingsUsds_ = savingsUsds;
+        uint256 balance_     = IERC20Like(savingsUsds_).balanceOf(address(this));
+
+        require(balance_ > 0,                                                  "MSS:RP:ZERO_BALANCE");
+        require(ERC20Helper.transfer(savingsUsds_, mapleTreasury(), balance_), "MSS:RP:TRANSFER_FAILED");
+
+        emit PositionRecovered(balance_);
+    }
 
     function setStrategyDelegateFeeRate(uint32 strategyDelegateFeeRate_) external override whenNotPaused nonReentrant onlyStrategyDelegate {
         require(strategyDelegateFeeRate_ != strategyDelegateFeeRate,                   "MSS:SSDFR:NO_CHANGE");
@@ -146,7 +172,7 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
         uint256 assetsIn_,
         bytes calldata /* data_ */
     )
-        external override whenNotPaused nonReentrant onlyStrategyManager returns (uint256 deployedAssets_)
+        external override whenNotPaused nonReentrant onlyStrategyManager whenLossNotRecognized returns (uint256 deployedAssets_)
     {
         require(assetsIn_ > 0, "MSS:FUS:ZERO_ASSETS");
 
@@ -181,7 +207,7 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
         uint256 assets_,
         bytes calldata /* data_ */
     )
-        external override whenNotPaused nonReentrant onlyStrategyManager
+        external override whenNotPaused nonReentrant onlyStrategyManager whenLossNotRecognized
     {
         require(destination_ != address(0), "MSS:WFUS:ZERO_DESTINATION");
         require(assets_       > 0,          "MSS:WFUS:ZERO_ASSETS");
@@ -203,6 +229,8 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
     /**************************************************************************************************************************************/
 
     function availableToWithdraw() external view override returns (uint256 availableToWithdraw_) {
+        if (isLossRecognized) return 0;
+
         address psm_         = psm;
         address savingsUsds_ = savingsUsds;
 
@@ -220,6 +248,8 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
     }
 
     function assetsUnderManagement() public view override returns (uint256 assetsUnderManagement_) {
+        if (isLossRecognized) return 0;
+
         uint256 currentTotalAssets_ = _currentTotalAssets(psm, savingsUsds);
 
         ( uint256 delegateFee_, uint256 protocolFee_ ) = _currentAccruedFees(currentTotalAssets_);
@@ -301,6 +331,8 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
     function _currentTotalAssets(address psm_, address savingsUsds_)
         internal view returns (uint256 currentTotalAssets_)
     {
+        if (isLossRecognized) return 0;
+
         currentTotalAssets_ = _gemForUsds(
             psm_,
             IERC4626Like(savingsUsds_).previewRedeem(IERC4626Like(savingsUsds_).balanceOf(address(this)))

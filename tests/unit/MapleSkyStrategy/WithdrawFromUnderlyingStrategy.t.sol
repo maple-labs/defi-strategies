@@ -30,6 +30,14 @@ contract WithdrawFromUnderlyingStrategyFailureTests is SkyTestBase {
         strategy.withdrawFromUnderlyingStrategy(makeAddr("destination"), 1, "");
     }
 
+    function test_withdrawFromUnderlyingStrategy_revert_lossRecognized() external {
+        strategy.__setIsLossRecognized(true);
+
+        vm.prank(address(strategyManager));
+        vm.expectRevert("MSS:LOSS_RECOGNIZED");
+        strategy.withdrawFromUnderlyingStrategy(address(this), 1, "");
+    }
+
     function test_withdrawFromUnderlyingStrategy_revert_zeroDestination() external {
         vm.prank(address(strategyManager));
         vm.expectRevert("MSS:WFUS:ZERO_DESTINATION");

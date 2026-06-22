@@ -296,6 +296,8 @@ contract MockSavingsUsds {
 
     address public asset;
 
+    bool transferReverts;
+
     uint256 public susdsDepositExchangeRate;
     uint256 public susdsRedeemExchangeRate;
 
@@ -317,7 +319,13 @@ contract MockSavingsUsds {
         susdsRedeemExchangeRate = rate_;
     }
 
+    function __setTransferReverts(bool transferReverts_) external {
+        transferReverts = transferReverts_;
+    }
+
     function transfer(address to_, uint256 shares_) external returns (bool success_) {
+        require(!transferReverts);
+
         balanceOf[msg.sender] -= shares_;
         balanceOf[to_]        += shares_;
 

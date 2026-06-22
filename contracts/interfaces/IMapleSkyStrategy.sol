@@ -15,6 +15,17 @@ interface IMapleSkyStrategy is IMapleSkyStrategyStorage, IMapleProxied {
     /**************************************************************************************************************************************/
 
     /**
+     *  @dev   Emitted when the strategy is shut down after final loss recognition.
+     */
+    event LossRecognized();
+
+    /**
+     *  @dev   Emitted when the remaining Sky position is recovered to the Maple treasury after final loss recognition.
+     *  @param shares Amount of sUSDS shares recovered.
+     */
+    event PositionRecovered(uint256 shares);
+
+    /**
      *  @dev   Emitted when the strategy delegate fee rate is set.
      *  @param strategyDelegateFeeRate Percentage of yield collected by the strategy delegate, defined with 6 decimals
      *                                 of precision (1e6 == 100%).
@@ -60,12 +71,25 @@ interface IMapleSkyStrategy is IMapleSkyStrategyStorage, IMapleProxied {
      *  @dev    Deploys funds asset already held by this contract into the Sky savings vault via the PSM.
      *          Callable only by the bound strategy manager. Accrues outstanding fees before depositing
      *          and refreshes the fee-accrual baseline to the post-deposit position.
+     *          Reverts after final loss recognition.
      *  @param  assetsIn        Amount of funds asset to deploy. Must already be held by this contract.
      *  @param  data            Reserved for future strategy-specific calldata. Unused by the Sky strategy.
      *  @return deployedAssets  Funds-asset equivalent redeemable from the shares minted by this deposit,
      *                          net of the PSM `tout` fee that would apply on the inverse redemption.
      */
     function fundUnderlyingStrategy(uint256 assetsIn, bytes calldata data) external returns (uint256 deployedAssets);
+
+    /**
+     *  @dev   Marks the strategy as shut down after all reasonably recoverable assets have been withdrawn.
+     *         Callable only by protocol admins. This is final and causes reported AUM and availability to be zero.
+     */
+    function recognizeLoss() external;
+
+    /**
+     *  @dev   Recovers the remaining underlying position to the Maple treasury after final loss recognition.
+     *         Callable only by protocol admins.
+     */
+    function recoverPosition() external;
 
     /**
      *  @dev   Sets the percentage of yield collected by the strategy delegate.
@@ -92,6 +116,7 @@ interface IMapleSkyStrategy is IMapleSkyStrategyStorage, IMapleProxied {
      *         Callable only by the bound strategy manager. Accrues outstanding fees before withdrawing
      *         and refreshes the fee-accrual baseline to the post-withdrawal position. The PSM `tout` fee
      *         is absorbed by the strategy's remaining sUSDS balance and socialized across shareholders.
+     *         Reverts after final loss recognition.
      *  @param destination  Address that receives the withdrawn funds asset.
      *  @param assets       Amount of funds asset to deliver to the destination.
      *  @param data         Reserved for future strategy-specific calldata. Unused by the Sky strategy.
@@ -105,13 +130,15 @@ interface IMapleSkyStrategy is IMapleSkyStrategyStorage, IMapleProxied {
     /**
      *  @dev    Returns the funds-asset amount that can be withdrawn immediately by the strategy manager, net
      *          of accrued yield fees that would be collected before a withdrawal.
-     *          Reverts when Sky's PSM `buyGem` path is halted by setting `tout` to type(uint256).max.
+     *          Returns zero after final loss recognition before reading Sky's PSM state.
+     *          Otherwise, reverts when Sky's PSM `buyGem` path is halted by setting `tout` to type(uint256).max.
      *  @return availableToWithdraw Funds-asset amount immediately withdrawable by the strategy manager.
      */
     function availableToWithdraw() external view returns (uint256 availableToWithdraw);
 
     /**
      *  @dev    Returns the funds-asset equivalent of the strategy's sUSDS position net of accrued yield fees.
+     *          Returns zero after final loss recognition.
      *  @return assetsUnderManagement Funds-asset equivalent currently attributable to the strategy manager.
      */
     function assetsUnderManagement() external view returns (uint256 assetsUnderManagement);

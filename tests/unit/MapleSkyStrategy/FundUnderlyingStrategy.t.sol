@@ -31,6 +31,14 @@ contract SkyFundUnderlyingStrategyFailureTests is SkyTestBase {
         strategy.fundUnderlyingStrategy(1, "");
     }
 
+    function test_fundUnderlyingStrategy_revert_lossRecognized() external {
+        strategy.__setIsLossRecognized(true);
+
+        vm.prank(address(strategyManager));
+        vm.expectRevert("MSS:LOSS_RECOGNIZED");
+        strategy.fundUnderlyingStrategy(1, "");
+    }
+
     function test_fundUnderlyingStrategy_revert_zeroAssets() external {
         vm.prank(address(strategyManager));
         vm.expectRevert("MSS:FUS:ZERO_ASSETS");
