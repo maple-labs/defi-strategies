@@ -110,10 +110,29 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
     /*** Admin Functions                                                                                                                ***/
     /**************************************************************************************************************************************/
 
-    // TODO: set unrealizedLosses to zero once impairment is implemented.
+    function impair(uint256 assets_) external override whenNotPaused nonReentrant onlyProtocolAdmins whenLossNotRecognized {
+        require(assets_ > 0, "MSS:I:ZERO");
+
+        impairedAssets += assets_;
+
+        emit Impaired(assets_);
+    }
+
+    function removeImpairment(uint256 assets_)
+        external override whenNotPaused nonReentrant onlyProtocolAdmins whenLossNotRecognized
+    {
+        require(assets_ > 0,               "MSS:RI:ZERO");
+        require(assets_ <= impairedAssets, "MSS:RI:EXCEEDS_IMPAIRMENT");
+
+        impairedAssets -= assets_;
+
+        emit ImpairmentRemoved(assets_);
+    }
+
     function recognizeLoss() external override whenNotPaused nonReentrant onlyProtocolAdmins whenLossNotRecognized {
         isLossRecognized        = true;
         lastRecordedTotalAssets = 0;
+        impairedAssets          = 0;
 
         emit LossRecognized();
     }
@@ -279,6 +298,10 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
 
     function strategyDelegate() public view override returns (address strategyDelegate_) {
         strategyDelegate_ = IStrategyManagerLike(strategyManager).strategyDelegate();
+    }
+
+    function unrealizedLosses() public view override returns (uint256 unrealizedLosses_) {
+        unrealizedLosses_ = _min(impairedAssets, assetsUnderManagement());
     }
 
     /**************************************************************************************************************************************/

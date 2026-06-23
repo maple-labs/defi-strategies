@@ -77,6 +77,10 @@ contract MapleSkyStrategyHarness is MapleSkyStrategy {
         strategyProtocolFeeRate = strategyProtocolFeeRate_;
     }
 
+    function __setImpairedAssets(uint256 impairedAssets_) external {
+        impairedAssets = impairedAssets_;
+    }
+
 }
 
 contract MapleSkyStrategyInitializerHarness is MapleSkyStrategyInitializer {

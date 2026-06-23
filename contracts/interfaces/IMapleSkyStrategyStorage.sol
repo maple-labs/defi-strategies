@@ -13,6 +13,12 @@ interface IMapleSkyStrategyStorage {
     function fundsAsset() external view returns (address fundsAsset);
 
     /**
+     *  @dev    Returns the full asset-denominated impairment recorded for the strategy.
+     *  @return impairedAssets Funds-asset amount of impairment recorded for the strategy.
+     */
+    function impairedAssets() external view returns (uint256 impairedAssets);
+
+    /**
      *  @dev    Returns whether a final loss has been recognized for this strategy.
      *  @return isLossRecognized Whether the strategy is shut down after final loss recognition.
      */

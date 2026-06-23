@@ -56,6 +56,7 @@ contract SkyRecognizeLossSuccessTests is SkyTestBase {
     function test_recognizeLoss_success_governor() external {
         uint256 currentTotalAssets = 100e6;  // Strategy holds 100 sUSDS worth 100 assets.
         uint256 susdsBalance       = 100e18; // Strategy holds 100 sUSDS.
+        uint256 unrealizedLosses   = 20e6;   // Strategy has 20 assets of unrealized losses recorded.
 
         setSkyStrategyState({
             lastRecordedTotalAssets_: currentTotalAssets,
@@ -63,8 +64,11 @@ contract SkyRecognizeLossSuccessTests is SkyTestBase {
         });
 
         setPsmPocketLiquidity(currentTotalAssets);
+        strategy.__setImpairedAssets(unrealizedLosses);
 
         assertEq(strategy.isLossRecognized(), false);
+        assertEq(strategy.impairedAssets(),   unrealizedLosses);
+        assertEq(strategy.unrealizedLosses(), unrealizedLosses);
 
         assertSkyStrategy({
             susdsBalance:            susdsBalance,
@@ -81,6 +85,8 @@ contract SkyRecognizeLossSuccessTests is SkyTestBase {
         strategy.recognizeLoss();
 
         assertEq(strategy.isLossRecognized(), true);
+        assertEq(strategy.impairedAssets(),   0);
+        assertEq(strategy.unrealizedLosses(), 0);
 
         assertSkyStrategy({
             susdsBalance:            susdsBalance,
@@ -94,6 +100,7 @@ contract SkyRecognizeLossSuccessTests is SkyTestBase {
     function test_recognizeLoss_success_operationalAdmin() external {
         uint256 currentTotalAssets = 100e6;  // Strategy holds 100 sUSDS worth 100 assets.
         uint256 susdsBalance       = 100e18; // Strategy holds 100 sUSDS.
+        uint256 unrealizedLosses   = 20e6;   // Strategy has 20 assets of unrealized losses recorded.
 
         setSkyStrategyState({
             lastRecordedTotalAssets_: currentTotalAssets,
@@ -101,8 +108,11 @@ contract SkyRecognizeLossSuccessTests is SkyTestBase {
         });
 
         setPsmPocketLiquidity(currentTotalAssets);
+        strategy.__setImpairedAssets(unrealizedLosses);
 
         assertEq(strategy.isLossRecognized(), false);
+        assertEq(strategy.impairedAssets(),   unrealizedLosses);
+        assertEq(strategy.unrealizedLosses(), unrealizedLosses);
 
         assertSkyStrategy({
             susdsBalance:            susdsBalance,
@@ -119,6 +129,8 @@ contract SkyRecognizeLossSuccessTests is SkyTestBase {
         strategy.recognizeLoss();
 
         assertEq(strategy.isLossRecognized(), true);
+        assertEq(strategy.impairedAssets(),   0);
+        assertEq(strategy.unrealizedLosses(), 0);
 
         assertSkyStrategy({
             susdsBalance:            susdsBalance,
