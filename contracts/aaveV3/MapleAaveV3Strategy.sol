@@ -117,6 +117,23 @@ contract MapleAaveV3Strategy is IMapleAaveV3Strategy, MapleAaveV3StrategyStorage
         emit RewardsClaimed(rewardToken_, rewardAmount_);
     }
 
+    function impair(uint256 assets_) external override whenNotPaused nonReentrant onlyProtocolAdmins {
+        require(assets_ > 0, "MAV3S:I:ZERO");
+
+        impairedAssets += assets_;
+
+        emit Impaired(assets_);
+    }
+
+    function removeImpairment(uint256 assets_) external override whenNotPaused nonReentrant onlyProtocolAdmins {
+        require(assets_ > 0,               "MAV3S:RI:ZERO");
+        require(assets_ <= impairedAssets, "MAV3S:RI:EXCEEDS_IMPAIRMENT");
+
+        impairedAssets -= assets_;
+
+        emit ImpairmentRemoved(assets_);
+    }
+
     function setStrategyDelegateFeeRate(uint32 strategyDelegateFeeRate_) external override whenNotPaused nonReentrant onlyStrategyDelegate {
         require(strategyDelegateFeeRate_ != strategyDelegateFeeRate,                   "MAV3S:SSDFR:NO_CHANGE");
         require(strategyDelegateFeeRate_ <= HUNDRED_PERCENT,                           "MAV3S:SSDFR:INVALID_FEE_RATE");
@@ -224,7 +241,7 @@ contract MapleAaveV3Strategy is IMapleAaveV3Strategy, MapleAaveV3StrategyStorage
         if (grossAvailable_ > totalFees_) availableToWithdraw_ = grossAvailable_ - totalFees_;
     }
 
-    function assetsUnderManagement() external view override returns (uint256 assetsUnderManagement_) {
+    function assetsUnderManagement() public view override returns (uint256 assetsUnderManagement_) {
         uint256 currentTotalAssets_ = _currentTotalAssets(aaveToken);
 
         ( uint256 delegateFee_, uint256 protocolFee_ ) = _currentAccruedFees(currentTotalAssets_);
@@ -256,6 +273,10 @@ contract MapleAaveV3Strategy is IMapleAaveV3Strategy, MapleAaveV3StrategyStorage
         strategyDelegate_ = IStrategyManagerLike(strategyManager).strategyDelegate();
     }
 
+    function unrealizedLosses() public view override returns (uint256 unrealizedLosses_) {
+        unrealizedLosses_ = _min(impairedAssets, assetsUnderManagement());
+    }
+
     /**************************************************************************************************************************************/
     /*** Internal Functions                                                                                                             ***/
     /**************************************************************************************************************************************/
@@ -272,7 +293,7 @@ contract MapleAaveV3Strategy is IMapleAaveV3Strategy, MapleAaveV3StrategyStorage
     }
 
     /**************************************************************************************************************************************/
-    /*** Internal View Functions                                                                                                        ***/
+    /*** Internal Helper Functions                                                                                                        ***/
     /**************************************************************************************************************************************/
 
     function _currentAccruedFees(uint256 currentTotalAssets_) internal view returns (uint256 delegateFee_, uint256 protocolFee_) {
@@ -288,6 +309,10 @@ contract MapleAaveV3Strategy is IMapleAaveV3Strategy, MapleAaveV3StrategyStorage
 
     function _currentTotalAssets(address aaveToken_) internal view returns (uint256 currentTotalAssets_) {
         currentTotalAssets_ = IAaveTokenLike(aaveToken_).balanceOf(address(this));
+    }
+
+    function _min(uint256 x_, uint256 y_) internal pure returns (uint256 min_) {
+        min_ = x_ < y_ ? x_ : y_;
     }
 
 }

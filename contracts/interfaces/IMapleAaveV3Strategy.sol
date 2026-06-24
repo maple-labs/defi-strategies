@@ -15,6 +15,18 @@ interface IMapleAaveV3Strategy is IMapleAaveV3StrategyStorage, IMapleProxied {
     /**************************************************************************************************************************************/
 
     /**
+     *  @dev   Emitted when the strategy's impaired assets are increased.
+     *  @param assets Funds-asset amount of impairment added to the strategy.
+     */
+    event Impaired(uint256 assets);
+
+    /**
+     *  @dev   Emitted when the strategy's impaired assets are decreased.
+     *  @param assets Funds-asset amount of impairment removed from the strategy.
+     */
+    event ImpairmentRemoved(uint256 assets);
+
+    /**
      *  @dev   Emitted when rewards are claimed from the Aave Rewards Controller.
      *  @param rewardToken The address of the reward token.
      *  @param amount      The amount of rewardToken claimed.
@@ -78,6 +90,20 @@ interface IMapleAaveV3Strategy is IMapleAaveV3StrategyStorage, IMapleProxied {
      *  @return deployedAssets Funds-asset amount deployed into Aave.
      */
     function fundUnderlyingStrategy(uint256 assetsIn, bytes calldata data) external returns (uint256 deployedAssets);
+
+    /**
+     *  @dev   Increases the asset-denominated impairment recorded for the strategy.
+     *         Callable only by protocol admins. Does not affect reported AUM or withdrawable assets.
+     *  @param assets Funds-asset amount of impairment to add to the strategy.
+     */
+    function impair(uint256 assets) external;
+
+    /**
+     *  @dev   Decreases the asset-denominated impairment recorded for the strategy.
+     *         Callable only by protocol admins. Does not affect reported AUM or withdrawable assets.
+     *  @param assets Funds-asset amount of impairment to remove from the strategy.
+     */
+    function removeImpairment(uint256 assets) external;
 
     /**
      *  @dev   Sets the percentage of yield collected by the strategy delegate.
@@ -150,5 +176,11 @@ interface IMapleAaveV3Strategy is IMapleAaveV3StrategyStorage, IMapleProxied {
      *  @return strategyDelegate Address of the strategy delegate.
      */
     function strategyDelegate() external view returns (address strategyDelegate);
+
+    /**
+     *  @dev    Returns the asset-denominated unrealized losses reported for the strategy, capped by reported AUM.
+     *  @return unrealizedLosses Funds-asset amount of unrealized losses reported for the strategy.
+     */
+    function unrealizedLosses() external view returns (uint256 unrealizedLosses);
 
 }

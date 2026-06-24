@@ -17,6 +17,10 @@ contract MapleAaveV3StrategyHarness is MapleAaveV3Strategy {
         lastRecordedTotalAssets = lastRecordedTotalAssets_;
     }
 
+    function __setImpairedAssets(uint256 impairedAssets_) external {
+        impairedAssets = impairedAssets_;
+    }
+
     function __setLocked(uint256 locked_) external {
         _locked = locked_;
     }

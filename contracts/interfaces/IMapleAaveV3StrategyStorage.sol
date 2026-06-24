@@ -25,6 +25,12 @@ interface IMapleAaveV3StrategyStorage {
     function fundsAsset() external view returns (address fundsAsset);
 
     /**
+     *  @dev    Returns the full asset-denominated impairment recorded for the strategy.
+     *  @return impairedAssets Funds-asset amount of impairment recorded for the strategy.
+     */
+    function impairedAssets() external view returns (uint256 impairedAssets);
+
+    /**
      *  @dev    Returns the funds-asset equivalent of the Aave position recorded at the end of the most
      *          recent state-changing call. Used as the baseline against which yield (and therefore fees) accrue.
      *  @return lastRecordedTotalAssets Last recorded funds-asset equivalent of the strategy's Aave position.
