@@ -16,9 +16,10 @@ contract SkyAvailableToWithdrawTests is SkyTestBase {
         strategy.__setStrategyProtocolFeeRate(0);        // 0% protocol fee
     }
 
-    function test_availableToWithdraw_revert_psmBuyGemHalted() external {
-        // Sky's PSM uses type(uint256).max `tout` to halt the `buyGem` path.
+    function test_availableToWithdraw_success_psmBuyGemHalted() external {
         psm.__setTout(type(uint256).max);
+
+        strategy.__setFallbackTout(0.25e18);
 
         setSkyStrategyState({
             lastRecordedTotalAssets_: 0,
@@ -27,8 +28,7 @@ contract SkyAvailableToWithdrawTests is SkyTestBase {
 
         setPsmPocketLiquidity(100e6);
 
-        vm.expectRevert(abi.encodeWithSignature("Panic(uint256)", 0x11));
-        strategy.availableToWithdraw();
+        assertEq(strategy.availableToWithdraw(), 0);
     }
 
     function test_availableToWithdraw_success_zeroPosition() external {

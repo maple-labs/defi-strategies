@@ -149,6 +149,15 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
         emit PositionRecovered(balance_);
     }
 
+    function setFallbackTout(uint256 fallbackTout_) external override whenNotPaused nonReentrant onlyProtocolAdmins {
+        require(fallbackTout_ != fallbackTout,      "MSS:SFT:NO_CHANGE");
+        require(fallbackTout_ != type(uint256).max, "MSS:SFT:INVALID_TOUT");
+
+        fallbackTout = fallbackTout_;
+
+        emit FallbackToutSet(fallbackTout_);
+    }
+
     function setStrategyDelegateFeeRate(uint32 strategyDelegateFeeRate_) external override whenNotPaused nonReentrant onlyStrategyDelegate {
         require(strategyDelegateFeeRate_ != strategyDelegateFeeRate,                   "MSS:SSDFR:NO_CHANGE");
         require(strategyDelegateFeeRate_ <= HUNDRED_PERCENT,                           "MSS:SSDFR:INVALID_FEE_RATE");
@@ -202,6 +211,8 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
         require(IGlobalsLike(globals_).isInstanceOf("STRATEGY_VAULT", savingsUsds_), "MSS:FUS:INVALID_STRATEGY_VAULT");
         require(IGlobalsLike(globals_).isInstanceOf("PSM",            psm_),         "MSS:FUS:INVALID_PSM");
 
+        require(IPSMLike(psm_).tout() != type(uint256).max, "MSS:FUS:PSM_HALTED");
+
         _accrueFees(psm_, savingsUsds_);
 
         uint256 aumBefore_ = _currentTotalAssets(psm_, savingsUsds_);
@@ -252,6 +263,8 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
 
         address psm_         = psm;
         address savingsUsds_ = savingsUsds;
+
+        if (IPSMLike(psm_).tout() == type(uint256).max) return 0;
 
         uint256 currentTotalAssets_ = _currentTotalAssets(psm_, savingsUsds_);
         // TODO: revisit the pocket balance check before the audit.
@@ -363,12 +376,17 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
     }
 
     function _gemForUsds(address psm_, uint256 usdsAmount_) internal view returns (uint256 gemAmount_) {
-        uint256 tout_                 = IPSMLike(psm_).tout();
+        uint256 tout_                 = _getTout(psm_);
         uint256 to18ConversionFactor_ = IPSMLike(psm_).to18ConversionFactor();
 
-        // Sky's PSM uses type(uint256).max `tout` to halt `buyGem`
-        // WAD + tout_ intentionally reverts in that state.
         gemAmount_ = (usdsAmount_ * WAD) / (to18ConversionFactor_ * (WAD + tout_));
+    }
+
+    function _getTout(address psm_) internal view returns (uint256 tout_) {
+        tout_ = IPSMLike(psm_).tout();
+
+        // Sky halts `buyGem` by setting `tout` to type(uint256).max; value the position with the fallback in that state.
+        if (tout_ == type(uint256).max) tout_ = fallbackTout;
     }
 
     function _min(uint256 x_, uint256 y_) internal pure returns (uint256 min_) {

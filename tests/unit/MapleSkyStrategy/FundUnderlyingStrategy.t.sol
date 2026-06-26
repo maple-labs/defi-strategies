@@ -61,6 +61,14 @@ contract SkyFundUnderlyingStrategyFailureTests is SkyTestBase {
         strategy.fundUnderlyingStrategy(1, "");
     }
 
+    function test_fundUnderlyingStrategy_revert_psmHalted() external {
+        psm.__setTout(type(uint256).max);
+
+        vm.prank(address(strategyManager));
+        vm.expectRevert("MSS:FUS:PSM_HALTED");
+        strategy.fundUnderlyingStrategy(1, "");
+    }
+
     function test_fundUnderlyingStrategy_revert_gemApproveFail() external {
         asset.__setApproveReverts(address(psm), true);
 

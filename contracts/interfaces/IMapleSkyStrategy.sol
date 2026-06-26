@@ -15,6 +15,12 @@ interface IMapleSkyStrategy is IMapleSkyStrategyStorage, IMapleProxied {
     /**************************************************************************************************************************************/
 
     /**
+     *  @dev   Emitted when the fallback PSM `tout` used for valuation during a Sky halt is set.
+     *  @param fallbackTout PSM `tout` value used for valuation while the live `tout` is type(uint256).max.
+     */
+    event FallbackToutSet(uint256 fallbackTout);
+
+    /**
      *  @dev   Emitted when the strategy's impaired assets are increased.
      *  @param assets Funds-asset amount of impairment added to the strategy.
      */
@@ -118,6 +124,14 @@ interface IMapleSkyStrategy is IMapleSkyStrategyStorage, IMapleProxied {
     function recoverPosition() external;
 
     /**
+     *  @dev   Sets the fallback PSM `tout` used to value the position while Sky halts the PSM `buyGem` path
+     *         by setting the live `tout` to type(uint256).max. Callable only by protocol admins. Must mirror
+     *         Sky's live `tout` and cannot itself be type(uint256).max.
+     *  @param fallbackTout PSM `tout` value used for valuation while the live `tout` is type(uint256).max.
+     */
+    function setFallbackTout(uint256 fallbackTout) external;
+
+    /**
      *  @dev   Sets the percentage of yield collected by the strategy delegate.
      *         Callable only by the strategy delegate.
      *         Accrues outstanding fees before updating the rate.
@@ -157,7 +171,8 @@ interface IMapleSkyStrategy is IMapleSkyStrategyStorage, IMapleProxied {
      *  @dev    Returns the funds-asset amount that can be withdrawn immediately by the strategy manager, net
      *          of accrued yield fees that would be collected before a withdrawal.
      *          Returns zero after final loss recognition before reading Sky's PSM state.
-     *          Otherwise, reverts when Sky's PSM `buyGem` path is halted by setting `tout` to type(uint256).max.
+     *          Also returns zero while Sky's PSM `buyGem` path is halted (live `tout` is type(uint256).max),
+     *          since nothing can be withdrawn even though AUM remains valued via `fallbackTout`.
      *  @return availableToWithdraw Funds-asset amount immediately withdrawable by the strategy manager.
      */
     function availableToWithdraw() external view returns (uint256 availableToWithdraw);

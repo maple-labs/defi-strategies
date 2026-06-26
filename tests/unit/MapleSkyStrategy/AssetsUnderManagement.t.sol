@@ -191,6 +191,60 @@ contract SkyAssetsUnderManagementTests is SkyTestBase {
         assertEq(strategy.assetsUnderManagement(), 80e6);
     }
 
+    function test_assetsUnderManagement_success_psmHaltedUsesFallbackTout() external {
+        psm.__setTout(type(uint256).max); // Sky halts `buyGem` with a max tout
+
+        strategy.__setLastRecordedTotalAssets(100e6);
+        savingsUsds.__setBalanceOf(address(strategy), 100e18);
+
+        // AUM stays live during the halt and a zero fallback tout values the position at par
+        assertEq(strategy.assetsUnderManagement(), 100e6);
+    }
+
+    function test_assetsUnderManagement_success_psmHaltedFallbackToutRedemptionFee() external {
+        psm.__setTout(type(uint256).max); // Sky halts `buyGem` with a max tout
+
+        strategy.__setFallbackTout(0.25e18); // USDS redemption fee: 20%
+
+        strategy.__setLastRecordedTotalAssets(100e6);
+        savingsUsds.__setBalanceOf(address(strategy), 100e18);
+
+        // the fallback tout reduces the halted position to 80 assets, matching a live tout of 0.25e18
+        assertEq(strategy.assetsUnderManagement(), 80e6);
+    }
+
+    function test_assetsUnderManagement_success_psmHaltedFallbackToutWithYield() external {
+        strategy.__setStrategyDelegateFeeRate(0.02e6); // 2% delegate fee
+        strategy.__setStrategyProtocolFeeRate(0.03e6); // 3% protocol fee
+
+        psm.__setTout(type(uint256).max); // Sky halts `buyGem` with a max tout
+
+        strategy.__setLastRecordedTotalAssets(100e6);
+        savingsUsds.__setBalanceOf(address(strategy), 100e18);
+
+        savingsUsds.__setSusdsRedeemExchangeRate(2e18); // 1 sUSDS = 2 USDS (100% yield)
+
+        // yield is still valued during the halt and 5% total fees on 100 yield leaves 195 AUM
+        assertEq(strategy.assetsUnderManagement(), 195e6);
+    }
+
+    function test_assetsUnderManagement_success_psmHaltedFallbackToutWithYieldAndFees() external {
+        strategy.__setStrategyDelegateFeeRate(0.02e6); // 2% delegate fee
+        strategy.__setStrategyProtocolFeeRate(0.03e6); // 3% protocol fee
+
+        psm.__setTout(type(uint256).max); // Sky halts `buyGem` with a max tout
+
+        strategy.__setFallbackTout(0.25e18); // USDS redemption fee: 20%
+
+        strategy.__setLastRecordedTotalAssets(100e6);
+        savingsUsds.__setBalanceOf(address(strategy), 100e18);
+
+        savingsUsds.__setSusdsRedeemExchangeRate(2e18); // 1 sUSDS = 2 USDS (100% yield)
+
+        // the fallback tout discounts the 200 USDS position to 160 assets, and 5% fees on 60 yield leaves 157 AUM
+        assertEq(strategy.assetsUnderManagement(), 157e6);
+    }
+
     function test_assetsUnderManagement_success_subtractsBothFeeShares() external {
         strategy.__setStrategyDelegateFeeRate(0.4e6); // 40% delegate fee
         strategy.__setStrategyProtocolFeeRate(0.6e6); // 60% protocol fee

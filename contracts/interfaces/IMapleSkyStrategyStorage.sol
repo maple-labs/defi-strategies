@@ -13,6 +13,13 @@ interface IMapleSkyStrategyStorage {
     function fundsAsset() external view returns (address fundsAsset);
 
     /**
+     *  @dev    Returns the admin-maintained mirror of Sky's PSM `tout`, used to value the position while Sky
+     *          halts the PSM `buyGem` path by setting the live `tout` to type(uint256).max.
+     *  @return fallbackTout PSM `tout` value used for valuation while the live `tout` is type(uint256).max.
+     */
+    function fallbackTout() external view returns (uint256 fallbackTout);
+
+    /**
      *  @dev    Returns the full asset-denominated impairment recorded for the strategy.
      *  @return impairedAssets Funds-asset amount of impairment recorded for the strategy.
      */

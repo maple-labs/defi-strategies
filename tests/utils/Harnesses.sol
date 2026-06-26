@@ -61,6 +61,10 @@ contract MapleSkyStrategyHarness is MapleSkyStrategy {
         locked_ = _locked;
     }
 
+    function __setFallbackTout(uint256 fallbackTout_) external {
+        fallbackTout = fallbackTout_;
+    }
+
     function __setIsLossRecognized(bool isLossRecognized_) external {
         isLossRecognized = isLossRecognized_;
     }
