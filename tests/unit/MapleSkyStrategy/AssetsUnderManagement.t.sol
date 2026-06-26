@@ -151,6 +151,33 @@ contract SkyAssetsUnderManagementTests is SkyTestBase {
         assertEq(strategy.assetsUnderManagement(), 0);
     }
 
+    function test_assetsUnderManagement_success_lossRecognizedReturnsZeroAfterRawPositionGrows() external {
+        uint256 currentTotalAssets = 100e6;  // Strategy holds 100 sUSDS worth 100 assets.
+        uint256 susdsBalance       = 100e18; // Strategy holds 100 sUSDS.
+
+        setSkyStrategyState({
+            lastRecordedTotalAssets_: currentTotalAssets,
+            susdsBalance_:            susdsBalance
+        });
+
+        assertSkyStrategy({
+            susdsBalance:            susdsBalance,
+            lastRecordedTotalAssets: currentTotalAssets,
+            assetsUnderManagement:   currentTotalAssets
+        });
+
+        vm.prank(governor);
+        strategy.recognizeLoss();
+
+        savingsUsds.__setSusdsRedeemExchangeRate(2e18); // Raw Sky position grows to 200 assets after final loss recognition.
+
+        assertSkyStrategy({
+            susdsBalance:            susdsBalance,
+            lastRecordedTotalAssets: 0,
+            assetsUnderManagement:   0
+        });
+    }
+
     function test_assetsUnderManagement_success_usdsRedemptionFee() external {
         strategy.__setLastRecordedTotalAssets(100e6);
         savingsUsds.__setBalanceOf(address(strategy), 100e18);

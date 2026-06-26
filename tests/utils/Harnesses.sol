@@ -13,6 +13,10 @@ contract MapleAaveV3StrategyHarness is MapleAaveV3Strategy {
         locked_ = _locked;
     }
 
+    function __setIsLossRecognized(bool isLossRecognized_) external {
+        isLossRecognized = isLossRecognized_;
+    }
+
     function __setLastRecordedTotalAssets(uint256 lastRecordedTotalAssets_) external {
         lastRecordedTotalAssets = lastRecordedTotalAssets_;
     }

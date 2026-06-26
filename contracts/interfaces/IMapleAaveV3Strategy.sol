@@ -27,6 +27,17 @@ interface IMapleAaveV3Strategy is IMapleAaveV3StrategyStorage, IMapleProxied {
     event ImpairmentRemoved(uint256 assets);
 
     /**
+     *  @dev   Emitted when the strategy is shut down after final loss recognition.
+     */
+    event LossRecognized();
+
+    /**
+     *  @dev   Emitted when the remaining Aave position is recovered to the Maple treasury after final loss recognition.
+     *  @param shares Amount of aTokens recovered.
+     */
+    event PositionRecovered(uint256 shares);
+
+    /**
      *  @dev   Emitted when rewards are claimed from the Aave Rewards Controller.
      *  @param rewardToken The address of the reward token.
      *  @param amount      The amount of rewardToken claimed.
@@ -85,6 +96,7 @@ interface IMapleAaveV3Strategy is IMapleAaveV3StrategyStorage, IMapleProxied {
      *  @dev    Deploys funds asset already held by this contract into Aave.
      *          Callable only by the bound strategy manager. Accrues outstanding fees before depositing
      *          and refreshes the fee-accrual baseline to the post-deposit position.
+     *          Reverts after final loss recognition.
      *  @param  assetsIn       Amount of funds asset to deploy. Must already be held by this contract.
      *  @param  data           Reserved for future strategy-specific calldata. Unused by the Aave strategy.
      *  @return deployedAssets Funds-asset amount deployed into Aave.
@@ -104,6 +116,18 @@ interface IMapleAaveV3Strategy is IMapleAaveV3StrategyStorage, IMapleProxied {
      *  @param assets Funds-asset amount of impairment to remove from the strategy.
      */
     function removeImpairment(uint256 assets) external;
+
+    /**
+     *  @dev   Marks the strategy as shut down after all reasonably recoverable assets have been withdrawn.
+     *         Callable only by protocol admins. This is final and causes reported AUM and availability to be zero.
+     */
+    function recognizeLoss() external;
+
+    /**
+     *  @dev   Recovers the remaining underlying position to the Maple treasury after final loss recognition.
+     *         Callable only by protocol admins.
+     */
+    function recoverPosition() external;
 
     /**
      *  @dev   Sets the percentage of yield collected by the strategy delegate.
@@ -129,6 +153,7 @@ interface IMapleAaveV3Strategy is IMapleAaveV3StrategyStorage, IMapleProxied {
      *  @dev   Redeems Aave aTokens back into funds asset and delivers the withdrawn assets to `destination`.
      *         Callable only by the bound strategy manager. Accrues outstanding fees before withdrawing
      *         and refreshes the fee-accrual baseline to the post-withdrawal position.
+     *         Reverts after final loss recognition.
      *  @param destination  Address that receives the withdrawn funds asset.
      *  @param assets       Amount of funds asset to withdraw from Aave.
      *  @param data         Reserved for future strategy-specific calldata. Unused by the Aave strategy.
@@ -142,12 +167,14 @@ interface IMapleAaveV3Strategy is IMapleAaveV3StrategyStorage, IMapleProxied {
     /**
      *  @dev    Returns the funds-asset amount that can be withdrawn immediately by the strategy manager, bounded
      *          by Aave's available liquidity and net of accrued yield fees that would be collected before a withdrawal.
+     *          Returns zero after final loss recognition.
      *  @return availableToWithdraw Funds-asset amount immediately withdrawable by the strategy manager.
      */
     function availableToWithdraw() external view returns (uint256 availableToWithdraw);
 
     /**
      *  @dev    Returns the funds-asset equivalent of the strategy's Aave position net of accrued yield fees.
+     *          Returns zero after final loss recognition.
      *  @return assetsUnderManagement Funds-asset equivalent currently attributable to the strategy manager.
      */
     function assetsUnderManagement() external view returns (uint256 assetsUnderManagement);

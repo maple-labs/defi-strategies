@@ -31,6 +31,14 @@ contract AaveV3RemoveImpairmentFailureTests is AaveV3TestBase {
         strategy.removeImpairment(1);
     }
 
+    function test_removeImpairment_revert_lossRecognized() external {
+        strategy.__setIsLossRecognized(true);
+
+        vm.prank(governor);
+        vm.expectRevert("MAV3S:LOSS_RECOGNIZED");
+        strategy.removeImpairment(1);
+    }
+
     function test_removeImpairment_revert_zeroUnrealizedLosses() external {
         vm.prank(governor);
         vm.expectRevert("MAV3S:RI:ZERO");

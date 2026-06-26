@@ -316,6 +316,46 @@ contract AaveV3AvailableToWithdrawTests is AaveV3TestBase {
         assertEq(strategy.availableToWithdraw(), lossExpectedAvailableToWithdraw);
     }
 
+    function test_availableToWithdraw_success_lossRecognizedReturnsZeroAfterRawPositionAndLiquidityGrow() external {
+        uint256 currentTotalAssets = 100e6; // Strategy holds 100 aTokens worth 100 assets.
+        uint256 aaveTokenBalance   = 100e6; // Strategy holds 100 aTokens.
+        uint256 aaveLiquidity      = 100e6; // Aave can cover the full 100e6 strategy balance.
+
+        setAaveV3StrategyState({
+            lastRecordedTotalAssets_: currentTotalAssets,
+            aaveTokenBalance_:        aaveTokenBalance
+        });
+
+        setAaveV3Liquidity(aaveLiquidity);
+
+        assertAaveV3Strategy({
+            aaveTokenBalance:        aaveTokenBalance,
+            lastRecordedTotalAssets: currentTotalAssets,
+            assetsUnderManagement:   currentTotalAssets
+        });
+
+        assertAaveV3Liquidity(aaveLiquidity);
+
+        vm.prank(governor);
+        strategy.recognizeLoss();
+
+        uint256 increasedATokenBalance = 200e6; // Raw Aave position grows after final loss recognition.
+        uint256 increasedAaveLiquidity = 200e6; // Aave liquidity also grows after final loss recognition.
+
+        setStrategyATokenBalance(increasedATokenBalance);
+        setAaveV3Liquidity(increasedAaveLiquidity);
+
+        assertAaveV3Strategy({
+            aaveTokenBalance:        increasedATokenBalance,
+            lastRecordedTotalAssets: 0,
+            assetsUnderManagement:   0
+        });
+
+        assertAaveV3Liquidity(increasedAaveLiquidity);
+
+        assertEq(strategy.availableToWithdraw(), 0);
+    }
+
     function test_availableToWithdraw_success_maxFeeRateReturnsZero() external {
         /**********************************************************************************************************************************/
         /*** Step 1: Pre-seed strategy state                                                                                            ***/

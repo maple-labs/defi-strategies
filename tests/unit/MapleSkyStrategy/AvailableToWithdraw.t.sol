@@ -175,6 +175,69 @@ contract SkyAvailableToWithdrawTests is SkyTestBase {
         assertEq(strategy.availableToWithdraw(), psmPocketLiquidity);
     }
 
+    function test_availableToWithdraw_success_lossRecognizedReturnsZeroAfterRawPositionAndLiquidityGrow() external {
+        uint256 currentTotalAssets = 100e6;  // Strategy holds 100 sUSDS worth 100 assets.
+        uint256 susdsBalance       = 100e18; // Strategy holds 100 sUSDS.
+        uint256 psmPocketLiquidity = 100e6;  // PSM pocket liquidity can cover the full 100e6 strategy position.
+
+        setSkyStrategyState({
+            lastRecordedTotalAssets_: currentTotalAssets,
+            susdsBalance_:            susdsBalance
+        });
+
+        setPsmPocketLiquidity(psmPocketLiquidity);
+
+        assertSkyStrategy({
+            susdsBalance:            susdsBalance,
+            lastRecordedTotalAssets: currentTotalAssets,
+            assetsUnderManagement:   currentTotalAssets
+        });
+
+        assertEq(asset.balanceOf(psmPocket), psmPocketLiquidity);
+
+        vm.prank(governor);
+        strategy.recognizeLoss();
+
+        savingsUsds.__setSusdsRedeemExchangeRate(2e18); // Raw Sky position grows to 200 assets after final loss recognition.
+
+        uint256 increasedPsmPocketLiquidity = 200e6; // PSM pocket liquidity also grows after final loss recognition.
+
+        setPsmPocketLiquidity(increasedPsmPocketLiquidity);
+
+        assertSkyStrategy({
+            susdsBalance:            susdsBalance,
+            lastRecordedTotalAssets: 0,
+            assetsUnderManagement:   0
+        });
+
+        assertEq(asset.balanceOf(psmPocket), increasedPsmPocketLiquidity);
+        assertEq(strategy.availableToWithdraw(), 0);
+    }
+
+    function test_availableToWithdraw_success_lossRecognizedReturnsZeroWhenPsmBuyGemHalted() external {
+        uint256 currentTotalAssets = 100e6;  // Strategy holds 100 sUSDS worth 100 assets.
+        uint256 susdsBalance       = 100e18; // Strategy holds 100 sUSDS.
+
+        setSkyStrategyState({
+            lastRecordedTotalAssets_: currentTotalAssets,
+            susdsBalance_:            susdsBalance
+        });
+
+        vm.prank(governor);
+        strategy.recognizeLoss();
+
+        // Sky's PSM uses type(uint256).max `tout` to halt the `buyGem` path.
+        psm.__setTout(type(uint256).max);
+
+        assertSkyStrategy({
+            susdsBalance:            susdsBalance,
+            lastRecordedTotalAssets: 0,
+            assetsUnderManagement:   0
+        });
+
+        assertEq(strategy.availableToWithdraw(), 0);
+    }
+
     function test_availableToWithdraw_success_maxFeeRateReturnsZero() external {
         strategy.__setStrategyDelegateFeeRate(0.4e6);  // 40% delegate fee
         strategy.__setStrategyProtocolFeeRate(0.6e6);  // 60% protocol fee

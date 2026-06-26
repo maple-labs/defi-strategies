@@ -30,6 +30,14 @@ contract AaveV3WithdrawFromUnderlyingStrategyFailureTests is AaveV3TestBase {
         strategy.withdrawFromUnderlyingStrategy(makeAddr("destination"), 1, "");
     }
 
+    function test_withdrawFromUnderlyingStrategy_revert_lossRecognized() external {
+        strategy.__setIsLossRecognized(true);
+
+        vm.prank(address(strategyManager));
+        vm.expectRevert("MAV3S:LOSS_RECOGNIZED");
+        strategy.withdrawFromUnderlyingStrategy(makeAddr("destination"), 1, "");
+    }
+
     function test_withdrawFromUnderlyingStrategy_revert_zeroDestination() external {
         vm.prank(address(strategyManager));
         vm.expectRevert("MAV3S:WFUS:ZERO_DESTINATION");

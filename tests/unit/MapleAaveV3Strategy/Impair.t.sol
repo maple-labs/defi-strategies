@@ -31,6 +31,14 @@ contract AaveV3ImpairFailureTests is AaveV3TestBase {
         strategy.impair(1);
     }
 
+    function test_impair_revert_lossRecognized() external {
+        strategy.__setIsLossRecognized(true);
+
+        vm.prank(governor);
+        vm.expectRevert("MAV3S:LOSS_RECOGNIZED");
+        strategy.impair(1);
+    }
+
     function test_impair_revert_zeroUnrealizedLosses() external {
         vm.prank(governor);
         vm.expectRevert("MAV3S:I:ZERO");

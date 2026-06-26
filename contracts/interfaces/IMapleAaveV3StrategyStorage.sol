@@ -31,6 +31,12 @@ interface IMapleAaveV3StrategyStorage {
     function impairedAssets() external view returns (uint256 impairedAssets);
 
     /**
+     *  @dev    Returns whether a final loss has been recognized for this strategy.
+     *  @return isLossRecognized Whether the strategy is shut down after final loss recognition.
+     */
+    function isLossRecognized() external view returns (bool isLossRecognized);
+
+    /**
      *  @dev    Returns the funds-asset equivalent of the Aave position recorded at the end of the most
      *          recent state-changing call. Used as the baseline against which yield (and therefore fees) accrue.
      *  @return lastRecordedTotalAssets Last recorded funds-asset equivalent of the strategy's Aave position.

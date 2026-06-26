@@ -31,6 +31,14 @@ contract AaveV3FundUnderlyingStrategyFailureTests is AaveV3TestBase {
         strategy.fundUnderlyingStrategy(1, "");
     }
 
+    function test_fundUnderlyingStrategy_revert_lossRecognized() external {
+        strategy.__setIsLossRecognized(true);
+
+        vm.prank(address(strategyManager));
+        vm.expectRevert("MAV3S:LOSS_RECOGNIZED");
+        strategy.fundUnderlyingStrategy(1, "");
+    }
+
     function test_fundUnderlyingStrategy_revert_zeroAssets() external {
         vm.prank(address(strategyManager));
         vm.expectRevert("MAV3S:FUS:ZERO_ASSETS");

@@ -135,6 +135,35 @@ contract AaveV3AssetsUnderManagementTests is AaveV3TestBase {
         });
     }
 
+    function test_assetsUnderManagement_success_lossRecognizedReturnsZeroAfterRawPositionGrows() external {
+        uint256 currentTotalAssets = 100e6; // Strategy holds 100 aTokens worth 100 assets.
+        uint256 aaveTokenBalance   = 100e6; // Strategy holds 100 aTokens.
+
+        setAaveV3StrategyState({
+            lastRecordedTotalAssets_: currentTotalAssets,
+            aaveTokenBalance_:        aaveTokenBalance
+        });
+
+        assertAaveV3Strategy({
+            aaveTokenBalance:        aaveTokenBalance,
+            lastRecordedTotalAssets: currentTotalAssets,
+            assetsUnderManagement:   currentTotalAssets
+        });
+
+        vm.prank(governor);
+        strategy.recognizeLoss();
+
+        uint256 increasedATokenBalance = 200e6; // Raw Aave position grows after final loss recognition.
+
+        setStrategyATokenBalance(increasedATokenBalance);
+
+        assertAaveV3Strategy({
+            aaveTokenBalance:        increasedATokenBalance,
+            lastRecordedTotalAssets: 0,
+            assetsUnderManagement:   0
+        });
+    }
+
     function test_assetsUnderManagement_success_feesRoundedDownToZero() external {
         strategy.__setStrategyDelegateFeeRate(0.02e6);  // 2% delegate fee
         strategy.__setStrategyProtocolFeeRate(0.03e6);  // 3% protocol fee

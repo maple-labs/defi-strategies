@@ -12,6 +12,8 @@ contract MapleAaveV3StrategyStorage is IMapleAaveV3StrategyStorage {
     address public override fundsAsset;
     address public override strategyManager;
 
+    bool public override isLossRecognized;
+
     uint256 public override impairedAssets;
     uint256 public override lastRecordedTotalAssets;
 

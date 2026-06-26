@@ -72,6 +72,12 @@ contract MapleAaveV3Strategy is IMapleAaveV3Strategy, MapleAaveV3StrategyStorage
         _;
     }
 
+    modifier whenLossNotRecognized() {
+        require(!isLossRecognized, "MAV3S:LOSS_RECOGNIZED");
+
+        _;
+    }
+
     modifier whenNotPaused() {
         require(!IGlobalsLike(globals()).isFunctionPaused(msg.sig), "MAV3S:PAUSED");
 
@@ -117,7 +123,7 @@ contract MapleAaveV3Strategy is IMapleAaveV3Strategy, MapleAaveV3StrategyStorage
         emit RewardsClaimed(rewardToken_, rewardAmount_);
     }
 
-    function impair(uint256 assets_) external override whenNotPaused nonReentrant onlyProtocolAdmins {
+    function impair(uint256 assets_) external override whenNotPaused nonReentrant onlyProtocolAdmins whenLossNotRecognized {
         require(assets_ > 0, "MAV3S:I:ZERO");
 
         impairedAssets += assets_;
@@ -125,7 +131,7 @@ contract MapleAaveV3Strategy is IMapleAaveV3Strategy, MapleAaveV3StrategyStorage
         emit Impaired(assets_);
     }
 
-    function removeImpairment(uint256 assets_) external override whenNotPaused nonReentrant onlyProtocolAdmins {
+    function removeImpairment(uint256 assets_) external override whenNotPaused nonReentrant onlyProtocolAdmins whenLossNotRecognized {
         require(assets_ > 0,               "MAV3S:RI:ZERO");
         require(assets_ <= impairedAssets, "MAV3S:RI:EXCEEDS_IMPAIRMENT");
 
@@ -134,12 +140,32 @@ contract MapleAaveV3Strategy is IMapleAaveV3Strategy, MapleAaveV3StrategyStorage
         emit ImpairmentRemoved(assets_);
     }
 
+    function recognizeLoss() external override whenNotPaused nonReentrant onlyProtocolAdmins whenLossNotRecognized {
+        isLossRecognized        = true;
+        lastRecordedTotalAssets = 0;
+        impairedAssets          = 0;
+
+        emit LossRecognized();
+    }
+
+    function recoverPosition() external override whenNotPaused nonReentrant onlyProtocolAdmins {
+        require(isLossRecognized, "MAV3S:RP:LOSS_NOT_RECOGNIZED");
+
+        address aaveToken_ = aaveToken;
+        uint256 balance_   = IAaveTokenLike(aaveToken_).balanceOf(address(this));
+
+        require(balance_ > 0,                                                "MAV3S:RP:ZERO_BALANCE");
+        require(ERC20Helper.transfer(aaveToken_, mapleTreasury(), balance_), "MAV3S:RP:TRANSFER_FAILED");
+
+        emit PositionRecovered(balance_);
+    }
+
     function setStrategyDelegateFeeRate(uint32 strategyDelegateFeeRate_) external override whenNotPaused nonReentrant onlyStrategyDelegate {
         require(strategyDelegateFeeRate_ != strategyDelegateFeeRate,                   "MAV3S:SSDFR:NO_CHANGE");
         require(strategyDelegateFeeRate_ <= HUNDRED_PERCENT,                           "MAV3S:SSDFR:INVALID_FEE_RATE");
         require(strategyDelegateFeeRate_ + strategyProtocolFeeRate <= HUNDRED_PERCENT, "MAV3S:SSDFR:INVALID_SUM_FEE_RATE");
 
-        address aaveToken_  = aaveToken;
+        address aaveToken_ = aaveToken;
 
         _accrueFees(aavePool, aaveToken_, fundsAsset);
 
@@ -155,7 +181,7 @@ contract MapleAaveV3Strategy is IMapleAaveV3Strategy, MapleAaveV3StrategyStorage
         require(strategyProtocolFeeRate_ <= HUNDRED_PERCENT,                           "MAV3S:SSPFR:INVALID_FEE_RATE");
         require(strategyDelegateFeeRate + strategyProtocolFeeRate_ <= HUNDRED_PERCENT, "MAV3S:SSPFR:INVALID_SUM_FEE_RATE");
 
-        address aaveToken_  = aaveToken;
+        address aaveToken_ = aaveToken;
 
         _accrueFees(aavePool, aaveToken_, fundsAsset);
 
@@ -175,7 +201,7 @@ contract MapleAaveV3Strategy is IMapleAaveV3Strategy, MapleAaveV3StrategyStorage
         uint256 assetsIn_,
         bytes calldata /* data_ */
     )
-        external override whenNotPaused nonReentrant onlyStrategyManager returns (uint256 deployedAssets_)
+        external override whenNotPaused nonReentrant onlyStrategyManager whenLossNotRecognized returns (uint256 deployedAssets_)
     {
         require(assetsIn_ > 0, "MAV3S:FUS:ZERO_ASSETS");
 
@@ -206,7 +232,7 @@ contract MapleAaveV3Strategy is IMapleAaveV3Strategy, MapleAaveV3StrategyStorage
         uint256 assets_,
         bytes calldata /* data_ */
     )
-        external override whenNotPaused nonReentrant onlyStrategyManager
+        external override whenNotPaused nonReentrant onlyStrategyManager whenLossNotRecognized
     {
         require(destination_ != address(0), "MAV3S:WFUS:ZERO_DESTINATION");
         require(assets_       > 0,          "MAV3S:WFUS:ZERO_ASSETS");
@@ -229,6 +255,8 @@ contract MapleAaveV3Strategy is IMapleAaveV3Strategy, MapleAaveV3StrategyStorage
     /**************************************************************************************************************************************/
 
     function availableToWithdraw() external view override returns (uint256 availableToWithdraw_) {
+        if (isLossRecognized) return 0;
+
         uint256 currentTotalAssets_ = _currentTotalAssets(aaveToken);
         // @AUDIT: To confirm preferred way to query AaveV3 liquidity
         uint256 aaveLiquidity_      = IAavePoolLike(aavePool).getVirtualUnderlyingBalance(fundsAsset);
@@ -242,6 +270,8 @@ contract MapleAaveV3Strategy is IMapleAaveV3Strategy, MapleAaveV3StrategyStorage
     }
 
     function assetsUnderManagement() public view override returns (uint256 assetsUnderManagement_) {
+        if (isLossRecognized) return 0;
+
         uint256 currentTotalAssets_ = _currentTotalAssets(aaveToken);
 
         ( uint256 delegateFee_, uint256 protocolFee_ ) = _currentAccruedFees(currentTotalAssets_);
@@ -293,7 +323,7 @@ contract MapleAaveV3Strategy is IMapleAaveV3Strategy, MapleAaveV3StrategyStorage
     }
 
     /**************************************************************************************************************************************/
-    /*** Internal Helper Functions                                                                                                        ***/
+    /*** Internal Helper Functions                                                                                                      ***/
     /**************************************************************************************************************************************/
 
     function _currentAccruedFees(uint256 currentTotalAssets_) internal view returns (uint256 delegateFee_, uint256 protocolFee_) {
@@ -308,6 +338,8 @@ contract MapleAaveV3Strategy is IMapleAaveV3Strategy, MapleAaveV3StrategyStorage
     }
 
     function _currentTotalAssets(address aaveToken_) internal view returns (uint256 currentTotalAssets_) {
+        if (isLossRecognized) return 0;
+
         currentTotalAssets_ = IAaveTokenLike(aaveToken_).balanceOf(address(this));
     }
 

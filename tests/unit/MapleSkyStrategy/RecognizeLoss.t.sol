@@ -141,54 +141,6 @@ contract SkyRecognizeLossSuccessTests is SkyTestBase {
         assertEq(strategy.availableToWithdraw(), 0);
     }
 
-    function test_recognizeLoss_success_viewsStayZeroAfterRawPositionGrows() external {
-        uint256 currentTotalAssets = 100e6;  // Strategy holds 100 sUSDS worth 100 assets.
-        uint256 susdsBalance       = 100e18; // Strategy holds 100 sUSDS.
-
-        setSkyStrategyState({
-            lastRecordedTotalAssets_: currentTotalAssets,
-            susdsBalance_:            susdsBalance
-        });
-
-        vm.prank(governor);
-        strategy.recognizeLoss();
-
-        savingsUsds.__setSusdsRedeemExchangeRate(2e18); // Raw Sky position grows to 200 assets after final loss recognition.
-        setPsmPocketLiquidity(200e6);
-
-        assertSkyStrategy({
-            susdsBalance:            susdsBalance,
-            lastRecordedTotalAssets: 0,
-            assetsUnderManagement:   0
-        });
-
-        assertEq(strategy.availableToWithdraw(), 0);
-    }
-
-    function test_recognizeLoss_success_availableToWithdrawReturnsZeroWhenPsmBuyGemHalted() external {
-        uint256 currentTotalAssets = 100e6;  // Strategy holds 100 sUSDS worth 100 assets.
-        uint256 susdsBalance       = 100e18; // Strategy holds 100 sUSDS.
-
-        setSkyStrategyState({
-            lastRecordedTotalAssets_: currentTotalAssets,
-            susdsBalance_:            susdsBalance
-        });
-
-        vm.prank(governor);
-        strategy.recognizeLoss();
-
-        // Sky's PSM uses type(uint256).max `tout` to halt the `buyGem` path.
-        psm.__setTout(type(uint256).max);
-
-        assertSkyStrategy({
-            susdsBalance:            susdsBalance,
-            lastRecordedTotalAssets: 0,
-            assetsUnderManagement:   0
-        });
-
-        assertEq(strategy.availableToWithdraw(), 0);
-    }
-
     function test_recognizeLoss_success_feeRateSetterDoesNotCollectFeesOrReviveAum() external {
         uint32 strategyProtocolFeeRate = 0.04e6; // New 4% protocol fee.
 

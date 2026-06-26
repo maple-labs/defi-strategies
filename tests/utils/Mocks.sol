@@ -18,12 +18,12 @@ contract MockAsset is MockERC20("Asset", "A", 6) {
         approveReverts[spender_] = approveReverts_;
     }
 
-    function __setTransferReverts(bool transferReverts_) external {
-        transferReverts = transferReverts_;
-    }
-
     function __setTransferFromReverts(bool transferFromReverts_) external {
         transferFromReverts = transferFromReverts_;
+    }
+
+    function __setTransferReverts(bool transferReverts_) external {
+        transferReverts = transferReverts_;
     }
 
     function approve(address spender_, uint256 amount_) public override returns (bool success_) {
@@ -52,7 +52,13 @@ contract MockAaveToken {
     address public POOL;
     address public UNDERLYING_ASSET_ADDRESS;
 
+    bool transferReverts;
+
     mapping(address account => uint256 balance) public balanceOf;
+
+    function __setBalanceOf(address account_, uint256 balance_) external {
+        balanceOf[account_] = balance_;
+    }
 
     function __setIncentivesController(address incentivesController_) external {
         incentivesController = incentivesController_;
@@ -62,12 +68,12 @@ contract MockAaveToken {
         POOL = pool_;
     }
 
-    function __setUnderlyingAsset(address underlyingAsset_) external {
-        UNDERLYING_ASSET_ADDRESS = underlyingAsset_;
+    function __setTransferReverts(bool transferReverts_) external {
+        transferReverts = transferReverts_;
     }
 
-    function __setBalanceOf(address account_, uint256 balance_) external {
-        balanceOf[account_] = balance_;
+    function __setUnderlyingAsset(address underlyingAsset_) external {
+        UNDERLYING_ASSET_ADDRESS = underlyingAsset_;
     }
 
     function burn(address account_, uint256 amount_) external {
@@ -82,6 +88,15 @@ contract MockAaveToken {
 
     function mint(address account_, uint256 amount_) external {
         balanceOf[account_] += amount_;
+    }
+
+    function transfer(address to_, uint256 amount_) external returns (bool success_) {
+        require(!transferReverts);
+
+        balanceOf[msg.sender] -= amount_;
+        balanceOf[to_]        += amount_;
+
+        success_ = true;
     }
 
 }
