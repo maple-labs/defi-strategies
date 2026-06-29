@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity 0.8.28;
 
-import { IMapleAaveV3StrategyInitializer } from "../interfaces/IMapleAaveV3StrategyInitializer.sol";
+import { AaveV3StrategyInitializerParams, IMapleAaveV3StrategyInitializer } from "../interfaces/IMapleAaveV3StrategyInitializer.sol";
+
 import {
     IAaveTokenLike,
     IGlobalsLike,
@@ -13,7 +14,7 @@ import { MapleAaveV3StrategyStorage } from "./MapleAaveV3StrategyStorage.sol";
 
 contract MapleAaveV3StrategyInitializer is IMapleAaveV3StrategyInitializer, MapleAaveV3StrategyStorage {
 
-    function _initialize(address strategyManager_, IMapleAaveV3StrategyInitializer.Parameters memory params_) internal {
+    function _initialize(address strategyManager_, AaveV3StrategyInitializerParams memory params_) internal {
         require(strategyManager_  != address(0), "MAV3SI:I:ZERO_STRATEGY_MANAGER");
         require(params_.aaveToken != address(0), "MAV3SI:I:ZERO_AAVE_TOKEN");
 
@@ -45,8 +46,8 @@ contract MapleAaveV3StrategyInitializer is IMapleAaveV3StrategyInitializer, Mapl
     }
 
     fallback() external {
-        address           strategyManager_ = abi.decode(msg.data[:32], (address));
-        Parameters memory params_          = abi.decode(msg.data[32:], (Parameters));
+        address                                strategyManager_ = abi.decode(msg.data[:32], (address));
+        AaveV3StrategyInitializerParams memory params_          = abi.decode(msg.data[32:], (AaveV3StrategyInitializerParams));
 
         _initialize(strategyManager_, params_);
     }

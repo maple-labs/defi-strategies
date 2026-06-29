@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 import { Test } from "../../modules/forge-std/src/Test.sol";
 
-import { IMapleSkyStrategyInitializer } from "../../contracts/interfaces/IMapleSkyStrategyInitializer.sol";
+import { SkyStrategyInitializerParams } from "../../contracts/interfaces/IMapleSkyStrategyInitializer.sol";
 
 import { MapleSkyStrategyFactory } from "../../contracts/sky/MapleSkyStrategyFactory.sol";
 
@@ -31,7 +31,7 @@ contract SkyTestBase is Test {
     address implementation = address(new MapleSkyStrategyHarness());
     address initializer    = address(new MapleSkyStrategyInitializerHarness());
 
-    IMapleSkyStrategyInitializer.Parameters params;
+    SkyStrategyInitializerParams params;
 
     MockAsset       asset           = new MockAsset();
     MockAsset       usds            = new MockAsset();
@@ -78,7 +78,7 @@ contract SkyTestBase is Test {
         factory.setDefaultVersion(100);
         vm.stopPrank();
 
-        params = IMapleSkyStrategyInitializer.Parameters({
+        params = SkyStrategyInitializerParams({
             fundsAsset:              address(asset),
             psm:                     address(psm),
             savingsUsds:             address(savingsUsds),

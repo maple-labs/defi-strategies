@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 import { Test } from "../../modules/forge-std/src/Test.sol";
 
-import { IMapleAaveV3StrategyInitializer } from "../../contracts/interfaces/IMapleAaveV3StrategyInitializer.sol";
+import { AaveV3StrategyInitializerParams } from "../../contracts/interfaces/IMapleAaveV3StrategyInitializer.sol";
 
 import { MapleAaveV3StrategyFactory } from "../../contracts/aaveV3/MapleAaveV3StrategyFactory.sol";
 
@@ -32,7 +32,7 @@ contract AaveV3TestBase is Test {
     address implementation = address(new MapleAaveV3StrategyHarness());
     address initializer    = address(new MapleAaveV3StrategyInitializerHarness());
 
-    IMapleAaveV3StrategyInitializer.Parameters params;
+    AaveV3StrategyInitializerParams params;
 
     MockAsset                 asset             = new MockAsset();
     MockAaveRewardsController rewardsController = new MockAaveRewardsController();
@@ -71,7 +71,7 @@ contract AaveV3TestBase is Test {
         factory.setDefaultVersion(100);
         vm.stopPrank();
 
-        params = IMapleAaveV3StrategyInitializer.Parameters({
+        params = AaveV3StrategyInitializerParams({
             aaveToken:               address(aaveToken),
             strategyDelegateFeeRate: 0.02e6,
             strategyProtocolFeeRate: 0.03e6,

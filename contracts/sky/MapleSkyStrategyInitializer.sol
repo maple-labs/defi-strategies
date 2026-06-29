@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity 0.8.28;
 
-import { IMapleSkyStrategyInitializer } from "../interfaces/IMapleSkyStrategyInitializer.sol";
+import { IMapleSkyStrategyInitializer, SkyStrategyInitializerParams } from "../interfaces/IMapleSkyStrategyInitializer.sol";
+
 import {
     IERC4626Like,
     IGlobalsLike,
@@ -14,7 +15,7 @@ import { MapleSkyStrategyStorage } from "./MapleSkyStrategyStorage.sol";
 
 contract MapleSkyStrategyInitializer is IMapleSkyStrategyInitializer, MapleSkyStrategyStorage {
 
-    function _initialize(address strategyManager_, IMapleSkyStrategyInitializer.Parameters memory params_) internal {
+    function _initialize(address strategyManager_, SkyStrategyInitializerParams memory params_) internal {
         require(strategyManager_    != address(0), "MSSI:I:ZERO_STRATEGY_MANAGER");
         require(params_.savingsUsds != address(0), "MSSI:I:ZERO_SAVINGS_USDS");
         require(params_.psm         != address(0), "MSSI:I:ZERO_PSM");
@@ -55,8 +56,8 @@ contract MapleSkyStrategyInitializer is IMapleSkyStrategyInitializer, MapleSkySt
     }
 
     fallback() external {
-        address           strategyManager_ = abi.decode(msg.data[:32], (address));
-        Parameters memory params_          = abi.decode(msg.data[32:], (Parameters));
+        address                             strategyManager_ = abi.decode(msg.data[:32], (address));
+        SkyStrategyInitializerParams memory params_          = abi.decode(msg.data[32:], (SkyStrategyInitializerParams));
 
         _initialize(strategyManager_, params_);
     }
