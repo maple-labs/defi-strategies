@@ -32,10 +32,6 @@ contract MapleAaveV3StrategyHarness is MapleAaveV3Strategy {
         _locked = locked_;
     }
 
-    function __setReferralCode(uint16 referralCode_) external {
-        referralCode = referralCode_;
-    }
-
     function __setStrategyDelegateFeeRate(uint32 strategyDelegateFeeRate_) external {
         strategyDelegateFeeRate = strategyDelegateFeeRate_;
     }
@@ -78,10 +74,6 @@ contract MapleSkyStrategyHarness is MapleSkyStrategy {
 
     function __setLocked(uint256 locked_) external {
         _locked = locked_;
-    }
-
-    function __setReferralCode(uint16 referralCode_) external {
-        referralCode = referralCode_;
     }
 
     function __setStrategyDelegateFeeRate(uint32 strategyDelegateFeeRate_) external {

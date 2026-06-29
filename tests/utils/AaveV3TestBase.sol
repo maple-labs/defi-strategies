@@ -21,6 +21,8 @@ import {
 
 contract AaveV3TestBase is Test {
 
+    uint16 internal constant INITIAL_REFERRAL_CODE = 123;
+
     address aavePool         = address(new MockAavePool());
     address deployer         = makeAddr("deployer");
     address governor         = makeAddr("governor");
@@ -75,7 +77,7 @@ contract AaveV3TestBase is Test {
             aaveToken:               address(aaveToken),
             strategyDelegateFeeRate: 0.02e6,
             strategyProtocolFeeRate: 0.03e6,
-            referralCode:            123
+            referralCode:            INITIAL_REFERRAL_CODE
         });
 
         bytes memory arguments = initializationArguments();

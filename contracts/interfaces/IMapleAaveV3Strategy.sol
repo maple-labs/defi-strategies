@@ -45,6 +45,12 @@ interface IMapleAaveV3Strategy is IMapleAaveV3StrategyStorage, IMapleProxied {
     event RewardsClaimed(address indexed rewardToken, uint256 amount);
 
     /**
+     *  @dev   Emitted when the referral code used for future deposits is set.
+     *  @param referralCode Referral code used when depositing into Aave.
+     */
+    event ReferralCodeSet(uint16 referralCode);
+
+    /**
      *  @dev   Emitted when the strategy delegate fee rate is set.
      *  @param strategyDelegateFeeRate Percentage of yield collected by the strategy delegate, defined with 6 decimals
      *                                 of precision (1e6 == 100%).
@@ -128,6 +134,13 @@ interface IMapleAaveV3Strategy is IMapleAaveV3StrategyStorage, IMapleProxied {
      *         Callable only by protocol admins.
      */
     function recoverPosition() external;
+
+    /**
+     *  @dev   Sets the referral code used for future deposits into Aave.
+     *         Callable only by protocol admins.
+     *  @param referralCode Referral code used when depositing into Aave.
+     */
+    function setReferralCode(uint16 referralCode) external;
 
     /**
      *  @dev   Sets the percentage of yield collected by the strategy delegate.

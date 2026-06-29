@@ -44,6 +44,18 @@ interface IMapleSkyStrategy is IMapleSkyStrategyStorage, IMapleProxied {
     event PositionRecovered(uint256 shares);
 
     /**
+     *  @dev   Emitted when the PSM used for Sky conversions and withdrawals is set.
+     *  @param psm Address of the PSM.
+     */
+    event PsmSet(address indexed psm);
+
+    /**
+     *  @dev   Emitted when the referral code used for future deposits is set.
+     *  @param referralCode Referral code used when depositing into Sky.
+     */
+    event ReferralCodeSet(uint16 referralCode);
+
+    /**
      *  @dev   Emitted when the strategy delegate fee rate is set.
      *  @param strategyDelegateFeeRate Percentage of yield collected by the strategy delegate, defined with 6 decimals
      *                                 of precision (1e6 == 100%).
@@ -130,6 +142,20 @@ interface IMapleSkyStrategy is IMapleSkyStrategyStorage, IMapleProxied {
      *  @param fallbackTout PSM `tout` value used for valuation while the live `tout` is type(uint256).max.
      */
     function setFallbackTout(uint256 fallbackTout) external;
+
+    /**
+     *  @dev   Sets the PSM used for future Sky conversions and withdrawals.
+     *         Callable only by protocol admins.
+     *  @param newPsm Address of the new PSM.
+     */
+    function setPsm(address newPsm) external;
+
+    /**
+     *  @dev   Sets the referral code used for future deposits into Sky.
+     *         Callable only by protocol admins.
+     *  @param referralCode Referral code used when depositing into Sky.
+     */
+    function setReferralCode(uint16 referralCode) external;
 
     /**
      *  @dev   Sets the percentage of yield collected by the strategy delegate.

@@ -122,7 +122,8 @@ contract SkyFundUnderlyingStrategySuccessTests is SkyTestBase {
     function test_fundUnderlyingStrategy_success_forwardsReferralCode() external {
         uint16 referralCode = 42;
 
-        strategy.__setReferralCode(referralCode);
+        vm.prank(governor);
+        strategy.setReferralCode(referralCode);
 
         vm.expectCall(
             address(savingsUsds),

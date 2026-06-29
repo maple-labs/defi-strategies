@@ -20,6 +20,8 @@ import {
 
 contract SkyTestBase is Test {
 
+    uint16 internal constant INITIAL_REFERRAL_CODE = 123;
+
     address deployer         = makeAddr("deployer");
     address governor         = makeAddr("governor");
     address mapleTreasury    = makeAddr("mapleTreasury");
@@ -84,7 +86,7 @@ contract SkyTestBase is Test {
             savingsUsds:             address(savingsUsds),
             strategyDelegateFeeRate: 0.02e6,
             strategyProtocolFeeRate: 0.03e6,
-            referralCode:            123
+            referralCode:            INITIAL_REFERRAL_CODE
         });
 
         bytes memory arguments = initializationArguments();
