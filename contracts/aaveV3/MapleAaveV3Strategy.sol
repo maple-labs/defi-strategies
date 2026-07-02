@@ -131,6 +131,18 @@ contract MapleAaveV3Strategy is IMapleAaveV3Strategy, MapleAaveV3StrategyStorage
         emit Impaired(assets_);
     }
 
+    function multicall(bytes[] calldata data_) external override {
+        for (uint256 i = 0; i < data_.length; i++) {
+            ( bool success_, bytes memory returnData_ ) = address(this).delegatecall(data_[i]);
+
+            if (!success_) {
+                assembly ("memory-safe") {
+                    revert(add(32, returnData_), mload(returnData_))
+                }
+            }
+        }
+    }
+
     function removeImpairment(uint256 assets_) external override whenNotPaused nonReentrant onlyProtocolAdmins whenLossNotRecognized {
         require(assets_ > 0,               "MAV3S:RI:ZERO");
         require(assets_ <= impairedAssets, "MAV3S:RI:EXCEEDS_IMPAIRMENT");
@@ -201,10 +213,9 @@ contract MapleAaveV3Strategy is IMapleAaveV3Strategy, MapleAaveV3StrategyStorage
     }
 
     /**************************************************************************************************************************************/
-    /*** State-Changing Functions                                                                                                       ***/
+    /*** Management Functions                                                                                                           ***/
     /**************************************************************************************************************************************/
 
-    // TODO: Reconsider need for aum diff for deployedAssets_ return var
     function fundUnderlyingStrategy(
         uint256 assetsIn_,
         bytes calldata /* data_ */

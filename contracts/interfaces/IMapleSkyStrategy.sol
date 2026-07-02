@@ -117,6 +117,12 @@ interface IMapleSkyStrategy is IMapleSkyStrategyStorage, IMapleProxied {
     function impair(uint256 assets) external;
 
     /**
+     *  @dev   Allows EOAs to batch admin calls.
+     *  @param data Array of calldata.
+     */
+    function multicall(bytes[] calldata data) external;
+
+    /**
      *  @dev   Decreases the asset-denominated impairment recorded for the strategy.
      *         Callable only by protocol admins. Does not affect reported AUM or withdrawable assets.
      *  @param assets Funds-asset amount of impairment to remove from the strategy.
