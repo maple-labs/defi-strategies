@@ -9,7 +9,7 @@ contract SkySetReferralCodeFailureTests is SkyTestBase {
 
     uint16 referralCode = 42;
 
-    function test_setReferralCode_revert_protocolPaused() external {
+    function test_setReferralCode_revert_functionPaused() external {
         globals.__setIsFunctionPaused(IMapleSkyStrategy.setReferralCode.selector, true);
 
         vm.prank(governor);

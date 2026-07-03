@@ -12,7 +12,7 @@ contract SkyMigrateTests is SkyTestBase {
 
     bytes arguments = abi.encode(address(1337));
 
-    function test_migrate_revert_protocolPaused() external {
+    function test_migrate_revert_functionPaused() external {
         globals.__setIsFunctionPaused(MapleSkyStrategy.migrate.selector, true);
 
         vm.expectRevert("MSS:PAUSED");

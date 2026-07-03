@@ -35,7 +35,7 @@ contract AaveV3UpgradeTests is AaveV3TestBase {
         strategy.upgrade(200, arguments);
     }
 
-    function test_upgrade_revert_protocolPaused() external {
+    function test_upgrade_revert_functionPaused() external {
         globals.__setIsFunctionPaused(MapleAaveV3Strategy.upgrade.selector, true);
 
         vm.expectRevert("MAV3S:PAUSED");

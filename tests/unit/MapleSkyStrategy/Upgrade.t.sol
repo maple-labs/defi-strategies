@@ -24,7 +24,7 @@ contract SkyUpgradeTests is SkyTestBase {
         vm.stopPrank();
     }
 
-    function test_upgrade_revert_protocolPaused() external {
+    function test_upgrade_revert_functionPaused() external {
         globals.__setIsFunctionPaused(MapleSkyStrategy.upgrade.selector, true);
 
         vm.expectRevert("MSS:PAUSED");

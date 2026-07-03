@@ -20,7 +20,7 @@ contract AaveV3SetImplementationTests is AaveV3TestBase {
         strategy.setImplementation(newImplementation);
     }
 
-    function test_setImplementation_revert_protocolPaused() external {
+    function test_setImplementation_revert_functionPaused() external {
         globals.__setIsFunctionPaused(MapleAaveV3Strategy.setImplementation.selector, true);
 
         vm.expectRevert("MAV3S:PAUSED");

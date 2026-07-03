@@ -34,7 +34,7 @@ contract SkySetPsmTestsBase is SkyTestBase {
 
 contract SkySetPsmFailureTests is SkySetPsmTestsBase {
 
-    function test_setPsm_revert_protocolPaused() external {
+    function test_setPsm_revert_functionPaused() external {
         globals.__setIsFunctionPaused(MapleSkyStrategy.setPsm.selector, true);
 
         vm.prank(governor);

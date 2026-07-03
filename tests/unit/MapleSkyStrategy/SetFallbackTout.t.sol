@@ -9,7 +9,7 @@ import { SkyTestBase } from "../../utils/SkyTestBase.sol";
 
 contract SkySetFallbackToutFailureTests is SkyTestBase {
 
-    function test_setFallbackTout_revert_protocolPaused() external {
+    function test_setFallbackTout_revert_functionPaused() external {
         globals.__setIsFunctionPaused(MapleSkyStrategy.setFallbackTout.selector, true);
 
         vm.prank(governor);
@@ -104,6 +104,30 @@ contract SkySetFallbackToutSuccessTests is SkyTestBase {
         strategy.setFallbackTout(0);
 
         assertEq(strategy.fallbackTout(), 0);
+    }
+
+    function test_setFallbackTout_success_psmHaltThenUnhaltUnchangedAum() external {
+        uint256 tout = 0.25e18;
+        uint256 aum  = 80e6;
+
+        savingsUsds.__setSusdsRedeemExchangeRate(1e18);
+        strategy.__setLastRecordedTotalAssets(100e6);
+        savingsUsds.__setBalanceOf(address(strategy), 100e18);
+
+        psm.__setTout(tout);
+
+        vm.prank(governor);
+        strategy.setFallbackTout(tout);
+
+        assertEq(strategy.assetsUnderManagement(), aum);
+
+        psm.__setTout(type(uint256).max);
+
+        assertEq(strategy.assetsUnderManagement(), aum);
+
+        psm.__setTout(tout);
+
+        assertEq(strategy.assetsUnderManagement(), aum);
     }
 
 }

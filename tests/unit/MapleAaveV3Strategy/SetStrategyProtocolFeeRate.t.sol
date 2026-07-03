@@ -16,7 +16,7 @@ contract AaveV3SetStrategyProtocolFeeRateFailureTests is AaveV3TestBase {
         strategy.__setStrategyProtocolFeeRate(0);  // 0% protocol fee
     }
 
-    function test_setStrategyProtocolFeeRate_revert_protocolPaused() external {
+    function test_setStrategyProtocolFeeRate_revert_functionPaused() external {
         uint32 strategyProtocolFeeRate_ = 0.04e6;  // 4% protocol fee
 
         globals.__setIsFunctionPaused(MapleAaveV3Strategy.setStrategyProtocolFeeRate.selector, true);

@@ -15,7 +15,7 @@ contract SkySetImplementationTests is SkyTestBase {
         newImplementation = address(new MapleSkyStrategy());
     }
 
-    function test_setImplementation_revert_protocolPaused() external {
+    function test_setImplementation_revert_functionPaused() external {
         globals.__setIsFunctionPaused(MapleSkyStrategy.setImplementation.selector, true);
 
         vm.expectRevert("MSS:PAUSED");

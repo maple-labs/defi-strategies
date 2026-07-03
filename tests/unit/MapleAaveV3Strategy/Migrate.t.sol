@@ -23,7 +23,7 @@ contract AaveV3MigrateTests is AaveV3TestBase {
         strategy.migrate(migrator, arguments);
     }
 
-    function test_migrate_revert_protocolPaused() external {
+    function test_migrate_revert_functionPaused() external {
         globals.__setIsFunctionPaused(MapleAaveV3Strategy.migrate.selector, true);
 
         vm.expectRevert("MAV3S:PAUSED");
