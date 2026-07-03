@@ -18,7 +18,7 @@ contract SkyCreateInstanceTests is SkyTestBase {
         globals.__setCanDeploy(deployer, false);
 
         vm.prank(deployer);
-        vm.expectRevert("MTSF:CI:CANNOT_DEPLOY");
+        vm.expectRevert("MSSF:CI:CANNOT_DEPLOY");
         factory.createInstance(initializationArguments(), "");
     }
 

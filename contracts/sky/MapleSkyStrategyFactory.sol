@@ -15,7 +15,7 @@ contract MapleSkyStrategyFactory is MapleProxyFactory {
     )
         public override(MapleProxyFactory) returns (address instance_)
     {
-        require(IGlobalsLike(mapleGlobals).canDeploy(msg.sender), "MTSF:CI:CANNOT_DEPLOY");
+        require(IGlobalsLike(mapleGlobals).canDeploy(msg.sender), "MSSF:CI:CANNOT_DEPLOY");
 
         instance_ = super.createInstance(arguments_, salt_);
     }
