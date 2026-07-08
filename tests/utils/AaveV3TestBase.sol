@@ -74,10 +74,11 @@ contract AaveV3TestBase is Test {
         vm.stopPrank();
 
         params = AaveV3StrategyInitializerParams({
-            aaveToken:               address(aaveToken),
-            strategyDelegateFeeRate: 0.02e6,
-            strategyProtocolFeeRate: 0.03e6,
-            referralCode:            INITIAL_REFERRAL_CODE
+            aaveToken:                   address(aaveToken),
+            strategyDelegateFeeRate:     0.02e6,
+            strategyProtocolFeeRate:     0.03e6,
+            referralCode:                INITIAL_REFERRAL_CODE,
+            useVirtualUnderlyingBalance: true
         });
 
         bytes memory arguments = initializationArguments();
@@ -86,13 +87,6 @@ contract AaveV3TestBase is Test {
 
         vm.prank(deployer);
         strategy = MapleAaveV3StrategyHarness(factory.createInstance(arguments, "DEFAULT"));
-    }
-
-    function assertAaveV3Liquidity(uint256 liquidity) internal view {
-        assertEq(
-            uint256(MockAavePool(aavePool).getVirtualUnderlyingBalance(address(asset))),
-            liquidity
-        );
     }
 
     function assertAaveV3Strategy(

@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.0;
 
-import { AaveV3TestBase } from "../../utils/AaveV3TestBase.sol";
+import { AaveV3TestBase }  from "../../utils/AaveV3TestBase.sol";
+import { MockAavePool }    from "../../utils/Mocks.sol";
 
 contract AaveV3AvailableToWithdrawTests is AaveV3TestBase {
 
@@ -21,7 +22,7 @@ contract AaveV3AvailableToWithdrawTests is AaveV3TestBase {
             assetsUnderManagement:   assetsUnderManagement
         });
 
-        assertAaveV3Liquidity(aaveLiquidity);
+        assertEq(MockAavePool(aavePool).getVirtualUnderlyingBalance(address(asset)), aaveLiquidity);
 
         /**********************************************************************************************************************************/
         /*** Step 2: Assert available liquidity                                                                                         ***/
@@ -61,7 +62,7 @@ contract AaveV3AvailableToWithdrawTests is AaveV3TestBase {
             assetsUnderManagement:   assetsUnderManagement
         });
 
-        assertAaveV3Liquidity(aaveLiquidity);
+        assertEq(MockAavePool(aavePool).getVirtualUnderlyingBalance(address(asset)), aaveLiquidity);
 
         /**********************************************************************************************************************************/
         /*** Step 2: Assert available liquidity                                                                                         ***/
@@ -102,7 +103,7 @@ contract AaveV3AvailableToWithdrawTests is AaveV3TestBase {
             assetsUnderManagement:   assetsUnderManagement
         });
 
-        assertAaveV3Liquidity(aaveLiquidity);
+        assertEq(MockAavePool(aavePool).getVirtualUnderlyingBalance(address(asset)), aaveLiquidity);
 
         /**********************************************************************************************************************************/
         /*** Step 2: Assert available liquidity                                                                                         ***/
@@ -146,7 +147,7 @@ contract AaveV3AvailableToWithdrawTests is AaveV3TestBase {
             assetsUnderManagement:   assetsUnderManagement
         });
 
-        assertAaveV3Liquidity(aaveLiquidity);
+        assertEq(MockAavePool(aavePool).getVirtualUnderlyingBalance(address(asset)), aaveLiquidity);
         assertEq(asset.balanceOf(address(aaveToken)), aaveLiquidity + donatedUnderlying);
 
         /**********************************************************************************************************************************/
@@ -154,6 +155,102 @@ contract AaveV3AvailableToWithdrawTests is AaveV3TestBase {
         /**********************************************************************************************************************************/
 
         uint256 grossAvailable              = aaveLiquidity;  // min(200e6 strategy balance, 80e6 virtual Aave liquidity).
+        uint256 expectedAvailableToWithdraw = grossAvailable - expectedDelegateFee - expectedProtocolFee;
+
+        assertEq(strategy.availableToWithdraw(), expectedAvailableToWithdraw);
+    }
+
+    function test_availableToWithdraw_success_rawLiquidityModeIgnoresVirtualLiquidity() external {
+        /**********************************************************************************************************************************/
+        /*** Step 1: Pre-seed strategy state                                                                                            ***/
+        /**********************************************************************************************************************************/
+
+        strategy.__setUseVirtualUnderlyingBalance(false);
+        strategy.__setStrategyDelegateFeeRate(0.02e6);  // 2% delegate fee
+        strategy.__setStrategyProtocolFeeRate(0.03e6);  // 3% protocol fee
+
+        uint256 lastRecordedTotalAssets = 100e6;
+        uint256 yieldAccrued            = 100e6;
+        uint256 aaveTokenBalance        = lastRecordedTotalAssets + yieldAccrued;
+        uint256 expectedDelegateFee     = 2e6;    // 2% of 100e6 yield.
+        uint256 expectedProtocolFee     = 3e6;    // 3% of 100e6 yield.
+        uint256 assetsUnderManagement   = 195e6;  // 200e6 Aave balance - 2e6 delegate fee - 3e6 protocol fee.
+        uint256 virtualAaveLiquidity    = 20e6;   // Virtual liquidity should be ignored in raw-liquidity mode.
+        uint256 rawAaveLiquidity        = 80e6;   // Raw aToken underlying balance is the limiting side.
+
+        setAaveV3StrategyState({
+            lastRecordedTotalAssets_: lastRecordedTotalAssets,
+            aaveTokenBalance_:        aaveTokenBalance
+        });
+
+        setAaveV3Liquidity(virtualAaveLiquidity);
+
+        asset.mint(address(aaveToken), rawAaveLiquidity - virtualAaveLiquidity);
+
+        assertEq(strategy.useVirtualUnderlyingBalance(), false);
+
+        assertAaveV3Strategy({
+            aaveTokenBalance:        aaveTokenBalance,
+            lastRecordedTotalAssets: lastRecordedTotalAssets,
+            assetsUnderManagement:   assetsUnderManagement
+        });
+
+        assertEq(MockAavePool(aavePool).getVirtualUnderlyingBalance(address(asset)), virtualAaveLiquidity);
+        assertEq(asset.balanceOf(address(aaveToken)), rawAaveLiquidity);
+
+        /**********************************************************************************************************************************/
+        /*** Step 2: Assert available liquidity                                                                                         ***/
+        /**********************************************************************************************************************************/
+
+        uint256 grossAvailable              = rawAaveLiquidity;  // min(200e6 strategy balance, 80e6 raw Aave liquidity).
+        uint256 expectedAvailableToWithdraw = grossAvailable - expectedDelegateFee - expectedProtocolFee;
+
+        assertEq(strategy.availableToWithdraw(), expectedAvailableToWithdraw);
+    }
+
+    function test_availableToWithdraw_success_rawLiquidityModeReturnsAumNetOfFees() external {
+        /**********************************************************************************************************************************/
+        /*** Step 1: Pre-seed strategy state                                                                                            ***/
+        /**********************************************************************************************************************************/
+
+        strategy.__setUseVirtualUnderlyingBalance(false);
+        strategy.__setStrategyDelegateFeeRate(0.02e6);  // 2% delegate fee
+        strategy.__setStrategyProtocolFeeRate(0.03e6);  // 3% protocol fee
+
+        uint256 lastRecordedTotalAssets = 100e6;
+        uint256 yieldAccrued            = 100e6;
+        uint256 aaveTokenBalance        = lastRecordedTotalAssets + yieldAccrued;
+        uint256 expectedDelegateFee     = 2e6;    // 2% of 100e6 yield.
+        uint256 expectedProtocolFee     = 3e6;    // 3% of 100e6 yield.
+        uint256 assetsUnderManagement   = 195e6;  // 200e6 Aave balance - 2e6 delegate fee - 3e6 protocol fee.
+        uint256 virtualAaveLiquidity    = 20e6;   // Virtual liquidity should be ignored in raw-liquidity mode.
+        uint256 rawAaveLiquidity        = 300e6;  // Raw liquidity exceeds the strategy's 200e6 aToken balance.
+
+        setAaveV3StrategyState({
+            lastRecordedTotalAssets_: lastRecordedTotalAssets,
+            aaveTokenBalance_:        aaveTokenBalance
+        });
+
+        setAaveV3Liquidity(virtualAaveLiquidity);
+
+        asset.mint(address(aaveToken), rawAaveLiquidity - virtualAaveLiquidity);
+
+        assertEq(strategy.useVirtualUnderlyingBalance(), false);
+
+        assertAaveV3Strategy({
+            aaveTokenBalance:        aaveTokenBalance,
+            lastRecordedTotalAssets: lastRecordedTotalAssets,
+            assetsUnderManagement:   assetsUnderManagement
+        });
+
+        assertEq(MockAavePool(aavePool).getVirtualUnderlyingBalance(address(asset)), virtualAaveLiquidity);
+        assertEq(asset.balanceOf(address(aaveToken)), rawAaveLiquidity);
+
+        /**********************************************************************************************************************************/
+        /*** Step 2: Assert available liquidity                                                                                         ***/
+        /**********************************************************************************************************************************/
+
+        uint256 grossAvailable              = aaveTokenBalance;  // min(200e6 strategy balance, 300e6 raw Aave liquidity).
         uint256 expectedAvailableToWithdraw = grossAvailable - expectedDelegateFee - expectedProtocolFee;
 
         assertEq(strategy.availableToWithdraw(), expectedAvailableToWithdraw);
@@ -189,7 +286,7 @@ contract AaveV3AvailableToWithdrawTests is AaveV3TestBase {
             assetsUnderManagement:   assetsUnderManagement
         });
 
-        assertAaveV3Liquidity(aaveLiquidity);
+        assertEq(MockAavePool(aavePool).getVirtualUnderlyingBalance(address(asset)), aaveLiquidity);
 
         /**********************************************************************************************************************************/
         /*** Step 2: Assert available liquidity                                                                                         ***/
@@ -232,7 +329,7 @@ contract AaveV3AvailableToWithdrawTests is AaveV3TestBase {
             assetsUnderManagement:   assetsUnderManagement
         });
 
-        assertAaveV3Liquidity(aaveLiquidity);
+        assertEq(MockAavePool(aavePool).getVirtualUnderlyingBalance(address(asset)), aaveLiquidity);
 
         /**********************************************************************************************************************************/
         /*** Step 2: Assert available liquidity                                                                                         ***/
@@ -271,7 +368,7 @@ contract AaveV3AvailableToWithdrawTests is AaveV3TestBase {
             assetsUnderManagement:   noYieldAssetsUnderManagement
         });
 
-        assertAaveV3Liquidity(noYieldAaveLiquidity);
+        assertEq(MockAavePool(aavePool).getVirtualUnderlyingBalance(address(asset)), noYieldAaveLiquidity);
 
         /**********************************************************************************************************************************/
         /*** Step 2: Assert no-yield available liquidity                                                                                 ***/
@@ -304,7 +401,7 @@ contract AaveV3AvailableToWithdrawTests is AaveV3TestBase {
             assetsUnderManagement:   lossAssetsUnderManagement
         });
 
-        assertAaveV3Liquidity(lossAaveLiquidity);
+        assertEq(MockAavePool(aavePool).getVirtualUnderlyingBalance(address(asset)), lossAaveLiquidity);
 
         /**********************************************************************************************************************************/
         /*** Step 4: Assert loss available liquidity                                                                                     ***/
@@ -334,7 +431,7 @@ contract AaveV3AvailableToWithdrawTests is AaveV3TestBase {
             assetsUnderManagement:   currentTotalAssets
         });
 
-        assertAaveV3Liquidity(aaveLiquidity);
+        assertEq(MockAavePool(aavePool).getVirtualUnderlyingBalance(address(asset)), aaveLiquidity);
 
         vm.prank(governor);
         strategy.recognizeLoss();
@@ -351,7 +448,7 @@ contract AaveV3AvailableToWithdrawTests is AaveV3TestBase {
             assetsUnderManagement:   0
         });
 
-        assertAaveV3Liquidity(increasedAaveLiquidity);
+        assertEq(MockAavePool(aavePool).getVirtualUnderlyingBalance(address(asset)), increasedAaveLiquidity);
 
         assertEq(strategy.availableToWithdraw(), 0);
     }
@@ -385,7 +482,7 @@ contract AaveV3AvailableToWithdrawTests is AaveV3TestBase {
             assetsUnderManagement:   assetsUnderManagement
         });
 
-        assertAaveV3Liquidity(aaveLiquidity);
+        assertEq(MockAavePool(aavePool).getVirtualUnderlyingBalance(address(asset)), aaveLiquidity);
 
         /**********************************************************************************************************************************/
         /*** Step 2: Assert available liquidity                                                                                         ***/

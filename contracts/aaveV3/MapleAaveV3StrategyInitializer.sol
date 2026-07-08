@@ -40,6 +40,8 @@ contract MapleAaveV3StrategyInitializer is IMapleAaveV3StrategyInitializer, Mapl
         strategyProtocolFeeRate = params_.strategyProtocolFeeRate;
         referralCode            = params_.referralCode;
 
+        useVirtualUnderlyingBalance = params_.useVirtualUnderlyingBalance;
+
         _locked = 1;
 
         emit Initialized(strategyManager_, params_);

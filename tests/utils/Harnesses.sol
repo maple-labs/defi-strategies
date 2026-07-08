@@ -40,6 +40,10 @@ contract MapleAaveV3StrategyHarness is MapleAaveV3Strategy {
         strategyProtocolFeeRate = strategyProtocolFeeRate_;
     }
 
+    function __setUseVirtualUnderlyingBalance(bool useVirtualUnderlyingBalance_) external {
+        useVirtualUnderlyingBalance = useVirtualUnderlyingBalance_;
+    }
+
 }
 
 contract MapleAaveV3StrategyInitializerHarness is MapleAaveV3StrategyInitializer {

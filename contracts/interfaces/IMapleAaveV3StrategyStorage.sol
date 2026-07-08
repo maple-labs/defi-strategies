@@ -69,4 +69,11 @@ interface IMapleAaveV3StrategyStorage {
      */
     function strategyProtocolFeeRate() external view returns (uint32 strategyProtocolFeeRate);
 
+    /**
+     *  @dev    Returns whether available liquidity is queried using getVirtualUnderlyingBalance.
+     *          If false, available liquidity is queried using the funds-asset balance of the aToken.
+     *  @return useVirtualUnderlyingBalance Whether getVirtualUnderlyingBalance is used to query available liquidity.
+     */
+    function useVirtualUnderlyingBalance() external view returns (bool useVirtualUnderlyingBalance);
+
 }

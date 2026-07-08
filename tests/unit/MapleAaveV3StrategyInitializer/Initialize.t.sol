@@ -92,9 +92,31 @@ contract AaveV3InitializeTests is AaveV3TestBase {
         assertEq(proxy.aaveToken(),       address(aaveToken));
         assertEq(proxy.locked(),          1);
 
-        assertEq(proxy.strategyDelegateFeeRate(), 0.02e6);
-        assertEq(proxy.strategyProtocolFeeRate(), 0.03e6);
-        assertEq(proxy.referralCode(),            123);
+        assertEq(proxy.strategyDelegateFeeRate(),     0.02e6);
+        assertEq(proxy.strategyProtocolFeeRate(),     0.03e6);
+        assertEq(proxy.referralCode(),                123);
+        assertEq(proxy.useVirtualUnderlyingBalance(), true);
+    }
+
+    function test_initialize_success_useRawLiquidity() external {
+        params.useVirtualUnderlyingBalance = false;
+
+        vm.expectEmit();
+        emit IMapleAaveV3StrategyInitializer.Initialized(address(strategyManager), params);
+
+        vm.prank(address(factory));
+        proxy.__initialize(address(strategyManager), params);
+
+        assertEq(proxy.strategyManager(), address(strategyManager));
+        assertEq(proxy.fundsAsset(),      address(asset));
+        assertEq(proxy.aavePool(),        aavePool);
+        assertEq(proxy.aaveToken(),       address(aaveToken));
+        assertEq(proxy.locked(),          1);
+
+        assertEq(proxy.strategyDelegateFeeRate(),     0.02e6);
+        assertEq(proxy.strategyProtocolFeeRate(),     0.03e6);
+        assertEq(proxy.referralCode(),                123);
+        assertEq(proxy.useVirtualUnderlyingBalance(), false);
     }
 
 }

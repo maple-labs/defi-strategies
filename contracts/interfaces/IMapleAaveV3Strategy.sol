@@ -86,6 +86,12 @@ interface IMapleAaveV3Strategy is IMapleAaveV3StrategyStorage, IMapleProxied {
      */
     event StrategyWithdrawal(address indexed destination, uint256 assetsOut);
 
+    /**
+     *  @dev   Emitted when the liquidity query mode is set.
+     *  @param useVirtualUnderlyingBalance Whether available liquidity is queried using getVirtualUnderlyingBalance.
+     */
+    event UseVirtualUnderlyingBalanceSet(bool useVirtualUnderlyingBalance);
+
     /**************************************************************************************************************************************/
     /*** State-Changing Functions                                                                                                       ***/
     /**************************************************************************************************************************************/
@@ -167,6 +173,13 @@ interface IMapleAaveV3Strategy is IMapleAaveV3StrategyStorage, IMapleProxied {
      *                                 of precision (1e6 == 100%).
      */
     function setStrategyProtocolFeeRate(uint32 strategyProtocolFeeRate) external;
+
+    /**
+     *  @dev   Sets whether available liquidity is queried using getVirtualUnderlyingBalance.
+     *         Callable only by protocol admins.
+     *  @param useVirtualUnderlyingBalance Whether available liquidity is queried using getVirtualUnderlyingBalance.
+     */
+    function setUseVirtualUnderlyingBalance(bool useVirtualUnderlyingBalance) external;
 
     /**
      *  @dev   Redeems Aave aTokens back into funds asset and delivers the withdrawn assets to `destination`.

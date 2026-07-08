@@ -58,9 +58,10 @@ contract AaveV3CreateInstanceTests is AaveV3TestBase {
         assertEq(strategy.aaveToken(),       address(aaveToken));
         assertEq(strategy.locked(),          1);
 
-        assertEq(strategy.strategyDelegateFeeRate(), 0.02e6);
-        assertEq(strategy.strategyProtocolFeeRate(), 0.03e6);
-        assertEq(strategy.referralCode(),            123);
+        assertEq(strategy.strategyDelegateFeeRate(),     0.02e6);
+        assertEq(strategy.strategyProtocolFeeRate(),     0.03e6);
+        assertEq(strategy.referralCode(),                123);
+        assertEq(strategy.useVirtualUnderlyingBalance(), true);
     }
 
 }

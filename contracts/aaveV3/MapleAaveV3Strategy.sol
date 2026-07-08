@@ -11,6 +11,7 @@ import {
     IAavePoolLike,
     IAaveRewardsControllerLike,
     IAaveTokenLike,
+    IERC20Like,
     IGlobalsLike,
     IProxyFactoryLike,
     IStrategyManagerLike
@@ -212,6 +213,16 @@ contract MapleAaveV3Strategy is IMapleAaveV3Strategy, MapleAaveV3StrategyStorage
         emit StrategyProtocolFeeRateSet(strategyProtocolFeeRate_);
     }
 
+    function setUseVirtualUnderlyingBalance(bool useVirtualUnderlyingBalance_)
+        external override whenNotPaused nonReentrant onlyProtocolAdmins
+    {
+        require(useVirtualUnderlyingBalance_ != useVirtualUnderlyingBalance, "MAV3S:SUVUB:NO_CHANGE");
+
+        useVirtualUnderlyingBalance = useVirtualUnderlyingBalance_;
+
+        emit UseVirtualUnderlyingBalanceSet(useVirtualUnderlyingBalance_);
+    }
+
     /**************************************************************************************************************************************/
     /*** Management Functions                                                                                                           ***/
     /**************************************************************************************************************************************/
@@ -276,9 +287,14 @@ contract MapleAaveV3Strategy is IMapleAaveV3Strategy, MapleAaveV3StrategyStorage
     function availableToWithdraw() external view override returns (uint256 availableToWithdraw_) {
         if (isLossRecognized) return 0;
 
-        uint256 currentTotalAssets_ = _currentTotalAssets(aaveToken);
+        address aaveToken_  = aaveToken;
+
         // @AUDIT: To confirm preferred way to query AaveV3 liquidity
-        uint256 aaveLiquidity_      = IAavePoolLike(aavePool).getVirtualUnderlyingBalance(fundsAsset);
+        uint256 aaveLiquidity_ = useVirtualUnderlyingBalance
+            ? IAavePoolLike(aavePool).getVirtualUnderlyingBalance(fundsAsset)
+            : IERC20Like(fundsAsset).balanceOf(aaveToken_);
+
+        uint256 currentTotalAssets_ = _currentTotalAssets(aaveToken_);
         uint256 grossAvailable_     = currentTotalAssets_ < aaveLiquidity_ ? currentTotalAssets_ : aaveLiquidity_;
 
         ( uint256 delegateFee_, uint256 protocolFee_ ) = _currentAccruedFees(currentTotalAssets_);

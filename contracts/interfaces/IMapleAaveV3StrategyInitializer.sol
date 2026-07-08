@@ -4,16 +4,18 @@ pragma solidity ^0.8.0;
 /**
  *  @dev   Parameters required to initialize an Aave V3 strategy.
  *         Initializer arguments are encoded as abi.encode(strategyManager) || abi.encode(params).
- *  @param aaveToken               Address of the Aave token.
- *  @param strategyDelegateFeeRate Percentage of yield collected by the strategy delegate.
- *  @param strategyProtocolFeeRate Percentage of yield collected by the Maple treasury.
- *  @param referralCode            Referral code used when depositing into Aave.
+ *  @param aaveToken                   Address of the Aave token.
+ *  @param strategyDelegateFeeRate     Percentage of yield collected by the strategy delegate.
+ *  @param strategyProtocolFeeRate     Percentage of yield collected by the Maple treasury.
+ *  @param referralCode                Referral code used when depositing into Aave.
+ *  @param useVirtualUnderlyingBalance Whether to query liquidity using getVirtualUnderlyingBalance.
  */
 struct AaveV3StrategyInitializerParams {
     address aaveToken;
     uint32  strategyDelegateFeeRate;
     uint32  strategyProtocolFeeRate;
     uint16  referralCode;
+    bool    useVirtualUnderlyingBalance;
 }
 
 /**
