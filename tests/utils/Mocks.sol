@@ -117,11 +117,58 @@ contract MockAaveRewardsController {
 
 }
 
+contract MockAaveAddressesProvider {
+
+    address public dataProvider;
+
+    function __setDataProvider(address dataProvider_) external {
+        dataProvider = dataProvider_;
+    }
+
+    function getPoolDataProvider() external view returns (address dataProvider_) {
+        dataProvider_ = dataProvider;
+    }
+
+}
+
+contract MockAaveDataProvider {
+
+    mapping(address => bool) public isActive;
+    mapping(address => bool) public isPaused;
+
+    function __setActive(address asset_, bool active_) external {
+        isActive[asset_] = active_;
+    }
+
+    function __setPaused(address asset_, bool paused_) external {
+        isPaused[asset_] = paused_;
+    }
+
+    function getPaused(address asset_) external view returns (bool isPaused_) {
+        isPaused_ = isPaused[asset_];
+    }
+
+    function getReserveConfigurationData(address asset_)
+        external view
+        returns ( uint256, uint256, uint256, uint256, uint256, bool, bool, bool, bool, bool )
+    {
+        bool isActive_ = isActive[asset_];
+
+        return (0, 0, 0, 0, 0, false, false, false, isActive_, false);
+    }
+
+}
+
 contract MockAavePool {
 
     address public aaveToken;
+    address public aaveAddressesProvider;
 
     mapping(address => uint128) public virtualUnderlyingBalance;
+
+    function __setAaveAddressesProvider(address aaveAddressesProvider_) external {
+        aaveAddressesProvider = aaveAddressesProvider_;
+    }
 
     function __setAaveToken(address aaveToken_) external {
         aaveToken = aaveToken_;
@@ -143,6 +190,10 @@ contract MockAavePool {
         if (liquidity_ < currentLiquidity_) MockERC20(asset_).burn(aaveToken, currentLiquidity_ - liquidity_);
 
         virtualUnderlyingBalance[asset_] = uint128(liquidity_);
+    }
+
+    function ADDRESSES_PROVIDER() external view returns (address aaveAddressesProvider_) {
+        aaveAddressesProvider_ = aaveAddressesProvider;
     }
 
     function getVirtualUnderlyingBalance(address asset_) external view returns (uint128 balance_) {

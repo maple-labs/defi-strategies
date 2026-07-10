@@ -115,6 +115,86 @@ contract AaveV3AvailableToWithdrawTests is AaveV3TestBase {
         assertEq(strategy.availableToWithdraw(), expectedAvailableToWithdraw);
     }
 
+    function test_availableToWithdraw_success_pausedReserveReturnsZero() external {
+        /**********************************************************************************************************************************/
+        /*** Step 1: Pre-seed strategy state                                                                                            ***/
+        /**********************************************************************************************************************************/
+
+        uint256 lastRecordedTotalAssets = 100e6;
+        uint256 aaveTokenBalance        = 100e6;
+        uint256 aaveLiquidity           = 100e6;
+        uint256 assetsUnderManagement   = 100e6;
+
+        setAaveV3StrategyState({
+            lastRecordedTotalAssets_: lastRecordedTotalAssets,
+            aaveTokenBalance_:        aaveTokenBalance
+        });
+
+        setAaveV3Liquidity(aaveLiquidity);
+
+        assertAaveV3Strategy({
+            aaveTokenBalance:        aaveTokenBalance,
+            lastRecordedTotalAssets: lastRecordedTotalAssets,
+            assetsUnderManagement:   assetsUnderManagement
+        });
+
+        assertEq(strategy.availableToWithdraw(), aaveLiquidity);
+
+        /**********************************************************************************************************************************/
+        /*** Step 2: Pause Aave reserve and assert available liquidity                                                                  ***/
+        /**********************************************************************************************************************************/
+
+        aaveDataProvider.__setPaused(address(asset), true);
+
+        assertAaveV3Strategy({
+            aaveTokenBalance:        aaveTokenBalance,
+            lastRecordedTotalAssets: lastRecordedTotalAssets,
+            assetsUnderManagement:   assetsUnderManagement
+        });
+
+        assertEq(strategy.availableToWithdraw(), 0);
+    }
+
+    function test_availableToWithdraw_success_inactiveReserveReturnsZero() external {
+        /**********************************************************************************************************************************/
+        /*** Step 1: Pre-seed strategy state                                                                                            ***/
+        /**********************************************************************************************************************************/
+
+        uint256 lastRecordedTotalAssets = 100e6;
+        uint256 aaveTokenBalance        = 100e6;
+        uint256 aaveLiquidity           = 100e6;
+        uint256 assetsUnderManagement   = 100e6;
+
+        setAaveV3StrategyState({
+            lastRecordedTotalAssets_: lastRecordedTotalAssets,
+            aaveTokenBalance_:        aaveTokenBalance
+        });
+
+        setAaveV3Liquidity(aaveLiquidity);
+
+        assertAaveV3Strategy({
+            aaveTokenBalance:        aaveTokenBalance,
+            lastRecordedTotalAssets: lastRecordedTotalAssets,
+            assetsUnderManagement:   assetsUnderManagement
+        });
+
+        assertEq(strategy.availableToWithdraw(), aaveLiquidity);
+
+        /**********************************************************************************************************************************/
+        /*** Step 2: Deactivate Aave reserve and assert available liquidity                                                             ***/
+        /**********************************************************************************************************************************/
+
+        aaveDataProvider.__setActive(address(asset), false);
+
+        assertAaveV3Strategy({
+            aaveTokenBalance:        aaveTokenBalance,
+            lastRecordedTotalAssets: lastRecordedTotalAssets,
+            assetsUnderManagement:   assetsUnderManagement
+        });
+
+        assertEq(strategy.availableToWithdraw(), 0);
+    }
+
     function test_availableToWithdraw_success_usesVirtualLiquidityIgnoresDonatedUnderlying() external {
         /**********************************************************************************************************************************/
         /*** Step 1: Pre-seed strategy state                                                                                            ***/

@@ -44,7 +44,35 @@ interface IAaveRewardsControllerLike {
 
 }
 
+interface IAavePoolAddressesProviderLike {
+
+    function getPoolDataProvider() external view returns (address dataProvider);
+
+}
+
+interface IAavePoolDataProviderLike {
+
+    function getPaused(address asset) external view returns (bool isPaused);
+
+    function getReserveConfigurationData(address asset)
+        external view returns (
+            uint256 decimals,
+            uint256 ltv,
+            uint256 liquidationThreshold,
+            uint256 liquidationBonus,
+            uint256 reserveFactor,
+            bool    usageAsCollateralEnabled,
+            bool    borrowingEnabled,
+            bool    stableBorrowRateEnabled,
+            bool    isActive,
+            bool    isFrozen
+        );
+
+}
+
 interface IAavePoolLike {
+
+    function ADDRESSES_PROVIDER() external view returns (address addressesProvider);
 
     function getVirtualUnderlyingBalance(address asset) external view returns (uint128 balance);
 

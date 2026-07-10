@@ -8,6 +8,8 @@ import { MapleProxiedInternals } from "../../modules/proxy-factory/contracts/Map
 import { IMapleAaveV3Strategy } from "../interfaces/IMapleAaveV3Strategy.sol";
 
 import {
+    IAavePoolAddressesProviderLike,
+    IAavePoolDataProviderLike,
     IAavePoolLike,
     IAaveRewardsControllerLike,
     IAaveTokenLike,
@@ -287,12 +289,16 @@ contract MapleAaveV3Strategy is IMapleAaveV3Strategy, MapleAaveV3StrategyStorage
     function availableToWithdraw() external view override returns (uint256 availableToWithdraw_) {
         if (isLossRecognized) return 0;
 
+        address aavePool_   = aavePool;
         address aaveToken_  = aaveToken;
+        address fundsAsset_ = fundsAsset;
+
+        if (!_isAaveReserveWithdrawable(aavePool_, fundsAsset_)) return 0;
 
         // @AUDIT: To confirm preferred way to query AaveV3 liquidity
         uint256 aaveLiquidity_ = useVirtualUnderlyingBalance
-            ? IAavePoolLike(aavePool).getVirtualUnderlyingBalance(fundsAsset)
-            : IERC20Like(fundsAsset).balanceOf(aaveToken_);
+            ? IAavePoolLike(aavePool_).getVirtualUnderlyingBalance(fundsAsset_)
+            : IERC20Like(fundsAsset_).balanceOf(aaveToken_);
 
         uint256 currentTotalAssets_ = _currentTotalAssets(aaveToken_);
         uint256 grossAvailable_     = currentTotalAssets_ < aaveLiquidity_ ? currentTotalAssets_ : aaveLiquidity_;
@@ -376,6 +382,20 @@ contract MapleAaveV3Strategy is IMapleAaveV3Strategy, MapleAaveV3StrategyStorage
         if (isLossRecognized) return 0;
 
         currentTotalAssets_ = IAaveTokenLike(aaveToken_).balanceOf(address(this));
+    }
+
+    // @AUDIT: To confirm Aave V3 and Spark validateWithdraw logic is the same
+    function _isAaveReserveWithdrawable(address aavePool_, address fundsAsset_) internal view returns (bool isWithdrawable_) {
+        address addressesProvider_ = IAavePoolLike(aavePool_).ADDRESSES_PROVIDER();
+        address poolDataProvider_  = IAavePoolAddressesProviderLike(addressesProvider_).getPoolDataProvider();
+
+        IAavePoolDataProviderLike poolDataProviderContract_ = IAavePoolDataProviderLike(poolDataProvider_);
+
+        ( , , , , , , , , bool isActive_, ) = poolDataProviderContract_.getReserveConfigurationData(fundsAsset_);
+
+        bool isPaused_ = poolDataProviderContract_.getPaused(fundsAsset_);
+
+        isWithdrawable_ = isActive_ && !isPaused_;
     }
 
     function _min(uint256 x_, uint256 y_) internal pure returns (uint256 min_) {

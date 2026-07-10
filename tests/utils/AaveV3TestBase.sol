@@ -10,6 +10,8 @@ import { MapleAaveV3StrategyFactory } from "../../contracts/aaveV3/MapleAaveV3St
 import { MapleAaveV3StrategyHarness, MapleAaveV3StrategyInitializerHarness } from "./Harnesses.sol";
 
 import {
+    MockAaveAddressesProvider,
+    MockAaveDataProvider,
     MockAavePool,
     MockAaveRewardsController,
     MockAaveToken,
@@ -36,12 +38,14 @@ contract AaveV3TestBase is Test {
 
     AaveV3StrategyInitializerParams params;
 
-    MockAsset                 asset             = new MockAsset();
-    MockAaveRewardsController rewardsController = new MockAaveRewardsController();
-    MockAaveToken             aaveToken         = new MockAaveToken();
-    MockGlobals               globals           = new MockGlobals();
-    MockManager               strategyManager   = new MockManager();
-    MockFactory               managerFactory    = new MockFactory();
+    MockAsset                 asset                 = new MockAsset();
+    MockAaveAddressesProvider aaveAddressesProvider = new MockAaveAddressesProvider();
+    MockAaveDataProvider      aaveDataProvider      = new MockAaveDataProvider();
+    MockAaveRewardsController rewardsController     = new MockAaveRewardsController();
+    MockAaveToken             aaveToken             = new MockAaveToken();
+    MockFactory               managerFactory        = new MockFactory();
+    MockGlobals               globals               = new MockGlobals();
+    MockManager               strategyManager       = new MockManager();
 
     MapleAaveV3StrategyFactory factory;
     MapleAaveV3StrategyHarness strategy;
@@ -51,7 +55,12 @@ contract AaveV3TestBase is Test {
         aaveToken.__setPool(aavePool);
         aaveToken.__setUnderlyingAsset(address(asset));
 
+        aaveAddressesProvider.__setDataProvider(address(aaveDataProvider));
+
         MockAavePool(aavePool).__setAaveToken(address(aaveToken));
+        MockAavePool(aavePool).__setAaveAddressesProvider(address(aaveAddressesProvider));
+
+        aaveDataProvider.__setActive(address(asset), true);
 
         globals.__setCanDeploy(deployer, true);
         globals.__setGovernor(governor);
