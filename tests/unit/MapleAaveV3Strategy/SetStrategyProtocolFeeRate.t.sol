@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.0;
 
-import { IMapleAaveV3Strategy } from "../../../contracts/interfaces/IMapleAaveV3Strategy.sol";
-
 import { MapleAaveV3Strategy } from "../../../contracts/aaveV3/MapleAaveV3Strategy.sol";
+
+import { IAavePoolLike }        from "../../../contracts/interfaces/Interfaces.sol";
+import { IMapleAaveV3Strategy } from "../../../contracts/interfaces/IMapleAaveV3Strategy.sol";
 
 import { AaveV3TestBase } from "../../utils/AaveV3TestBase.sol";
 
@@ -313,6 +314,12 @@ contract AaveV3SetStrategyProtocolFeeRateSuccessTests is AaveV3TestBase {
         uint256 expectedProtocolFee               = 3e6;    // 100e6 yield * 3% protocol fee.
         uint256 expectedATokenBalanceAfterRateSet = 195e6;  // 200e6 - 5e6 fees.
         uint256 expectedLastRecordedAfterRateSet  = 195e6;  // 200e6 current assets - 5e6 fees.
+
+        vm.expectCall(
+            aavePool,
+            abi.encodeCall(IAavePoolLike.withdraw, (address(asset), expectedDelegateFee + expectedProtocolFee, address(strategy))),
+            1
+        );
 
         vm.expectEmit();
         emit IMapleAaveV3Strategy.StrategyFeesCollected(expectedDelegateFee, expectedProtocolFee);

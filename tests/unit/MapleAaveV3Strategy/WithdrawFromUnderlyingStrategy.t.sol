@@ -3,6 +3,7 @@ pragma solidity ^0.8.0;
 
 import { MapleAaveV3Strategy } from "../../../contracts/aaveV3/MapleAaveV3Strategy.sol";
 
+import { IAavePoolLike }        from "../../../contracts/interfaces/Interfaces.sol";
 import { IMapleAaveV3Strategy } from "../../../contracts/interfaces/IMapleAaveV3Strategy.sol";
 
 import { AaveV3TestBase } from "../../utils/AaveV3TestBase.sol";
@@ -48,6 +49,54 @@ contract AaveV3WithdrawFromUnderlyingStrategyFailureTests is AaveV3TestBase {
         vm.prank(address(strategyManager));
         vm.expectRevert("MAV3S:WFUS:ZERO_ASSETS");
         strategy.withdrawFromUnderlyingStrategy(makeAddr("destination"), 0, "");
+    }
+
+    function test_withdrawFromUnderlyingStrategy_revert_delegateTransferFailure() external {
+        strategy.__setStrategyDelegateFeeRate(0.02e6);
+        strategy.__setStrategyProtocolFeeRate(0);
+
+        setAaveV3StrategyState({
+            lastRecordedTotalAssets_: 100e6,
+            aaveTokenBalance_:        200e6
+        });
+
+        asset.__setTransferReverts(true);
+
+        vm.prank(address(strategyManager));
+        vm.expectRevert("MAV3S:HAW:DELEGATE_TRANSFER_FAIL");
+        strategy.withdrawFromUnderlyingStrategy(makeAddr("destination"), 50e6, "");
+    }
+
+    function test_withdrawFromUnderlyingStrategy_revert_protocolTransferFailure() external {
+        strategy.__setStrategyDelegateFeeRate(0);
+        strategy.__setStrategyProtocolFeeRate(0.03e6);
+
+        setAaveV3StrategyState({
+            lastRecordedTotalAssets_: 100e6,
+            aaveTokenBalance_:        200e6
+        });
+
+        asset.__setTransferReverts(true);
+
+        vm.prank(address(strategyManager));
+        vm.expectRevert("MAV3S:HAW:PROTOCOL_TRANSFER_FAIL");
+        strategy.withdrawFromUnderlyingStrategy(makeAddr("destination"), 50e6, "");
+    }
+
+    function test_withdrawFromUnderlyingStrategy_revert_assetTransferFailure() external {
+        strategy.__setStrategyDelegateFeeRate(0);
+        strategy.__setStrategyProtocolFeeRate(0);
+
+        setAaveV3StrategyState({
+            lastRecordedTotalAssets_: 100e6,
+            aaveTokenBalance_:        200e6
+        });
+
+        asset.__setTransferReverts(true);
+
+        vm.prank(address(strategyManager));
+        vm.expectRevert("MAV3S:HAW:ASSET_TRANSFER_FAIL");
+        strategy.withdrawFromUnderlyingStrategy(makeAddr("destination"), 50e6, "");
     }
 
     function test_withdrawFromUnderlyingStrategy_revert_fullWithdrawal_strategyHasYield_withProtocolFees_overWithdrawal() external {
@@ -366,8 +415,15 @@ contract AaveV3WithdrawFromUnderlyingStrategySuccessTests is AaveV3TestBase {
         uint256 withdrawAssets                        = 50e6;
         uint256 expectedDelegateFee                   = 2e6;
         uint256 expectedProtocolFee                   = 3e6;
+        uint256 expectedTotalToWithdraw               = 55e6;
         uint256 expectedAaveTokenBalanceAfterWithdraw = 145e6;
         uint256 expectedLastRecordedAfterWithdraw     = 145e6;
+
+        vm.expectCall(
+            aavePool,
+            abi.encodeCall(IAavePoolLike.withdraw, (address(asset), expectedTotalToWithdraw, address(strategy))),
+            1
+        );
 
         vm.expectEmit();
         emit IMapleAaveV3Strategy.StrategyFeesCollected(expectedDelegateFee, expectedProtocolFee);
@@ -427,9 +483,16 @@ contract AaveV3WithdrawFromUnderlyingStrategySuccessTests is AaveV3TestBase {
         /*** Step 2: Execute and assert                                                                                                 ***/
         /**********************************************************************************************************************************/
 
-        uint256 withdrawAssets      = 195e6;
-        uint256 expectedDelegateFee = 2e6;
-        uint256 expectedProtocolFee = 3e6;
+        uint256 withdrawAssets          = 195e6;
+        uint256 expectedDelegateFee     = 2e6;
+        uint256 expectedProtocolFee     = 3e6;
+        uint256 expectedTotalToWithdraw = 200e6;
+
+        vm.expectCall(
+            aavePool,
+            abi.encodeCall(IAavePoolLike.withdraw, (address(asset), expectedTotalToWithdraw, address(strategy))),
+            1
+        );
 
         vm.expectEmit();
         emit IMapleAaveV3Strategy.StrategyFeesCollected(expectedDelegateFee, expectedProtocolFee);

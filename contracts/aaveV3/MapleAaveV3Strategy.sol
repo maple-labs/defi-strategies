@@ -188,11 +188,9 @@ contract MapleAaveV3Strategy is IMapleAaveV3Strategy, MapleAaveV3StrategyStorage
         require(strategyDelegateFeeRate_ <= HUNDRED_PERCENT,                           "MAV3S:SSDFR:INVALID_FEE_RATE");
         require(strategyDelegateFeeRate_ + strategyProtocolFeeRate <= HUNDRED_PERCENT, "MAV3S:SSDFR:INVALID_SUM_FEE_RATE");
 
-        address aaveToken_ = aaveToken;
+        _harvestAndWithdraw(0, address(0));
 
-        _accrueFees(aavePool, aaveToken_, fundsAsset);
-
-        lastRecordedTotalAssets = _currentTotalAssets(aaveToken_);
+        lastRecordedTotalAssets = _currentTotalAssets(aaveToken);
 
         strategyDelegateFeeRate = strategyDelegateFeeRate_;
 
@@ -204,11 +202,9 @@ contract MapleAaveV3Strategy is IMapleAaveV3Strategy, MapleAaveV3StrategyStorage
         require(strategyProtocolFeeRate_ <= HUNDRED_PERCENT,                           "MAV3S:SSPFR:INVALID_FEE_RATE");
         require(strategyDelegateFeeRate + strategyProtocolFeeRate_ <= HUNDRED_PERCENT, "MAV3S:SSPFR:INVALID_SUM_FEE_RATE");
 
-        address aaveToken_ = aaveToken;
+        _harvestAndWithdraw(0, address(0));
 
-        _accrueFees(aavePool, aaveToken_, fundsAsset);
-
-        lastRecordedTotalAssets = _currentTotalAssets(aaveToken_);
+        lastRecordedTotalAssets = _currentTotalAssets(aaveToken);
 
         strategyProtocolFeeRate = strategyProtocolFeeRate_;
 
@@ -243,7 +239,7 @@ contract MapleAaveV3Strategy is IMapleAaveV3Strategy, MapleAaveV3StrategyStorage
 
         require(IGlobalsLike(globals()).isInstanceOf("STRATEGY_VAULT", aaveToken_), "MAV3S:FUS:INVALID_STRATEGY_VAULT");
 
-        _accrueFees(aavePool_, aaveToken_, fundsAsset_);
+        _harvestAndWithdraw(0, address(0));
 
         uint256 aumBefore_ = _currentTotalAssets(aaveToken_);
 
@@ -269,17 +265,11 @@ contract MapleAaveV3Strategy is IMapleAaveV3Strategy, MapleAaveV3StrategyStorage
         require(destination_ != address(0), "MAV3S:WFUS:ZERO_DESTINATION");
         require(assets_       > 0,          "MAV3S:WFUS:ZERO_ASSETS");
 
-        address aavePool_   = aavePool;
-        address aaveToken_  = aaveToken;
-        address fundsAsset_ = fundsAsset;
+        _harvestAndWithdraw(assets_, destination_);
 
-        _accrueFees(aavePool_, aaveToken_, fundsAsset_);
+        lastRecordedTotalAssets = _currentTotalAssets(aaveToken);
 
-        uint256 assetsOut_ = IAavePoolLike(aavePool_).withdraw(fundsAsset_, assets_, destination_);
-
-        lastRecordedTotalAssets = _currentTotalAssets(aaveToken_);
-
-        emit StrategyWithdrawal(destination_, assetsOut_);
+        emit StrategyWithdrawal(destination_, assets_);
     }
 
     /**************************************************************************************************************************************/
@@ -352,15 +342,28 @@ contract MapleAaveV3Strategy is IMapleAaveV3Strategy, MapleAaveV3StrategyStorage
     /*** Internal Functions                                                                                                             ***/
     /**************************************************************************************************************************************/
 
-    function _accrueFees(address aavePool_, address aaveToken_, address fundsAsset_) internal {
-        uint256 currentTotalAssets_ = _currentTotalAssets(aaveToken_);
+    function _harvestAndWithdraw(uint256 assets_, address destination_) internal {
+        address fundsAsset_ = fundsAsset;
 
-        ( uint256 delegateFee_, uint256 protocolFee_ ) = _currentAccruedFees(currentTotalAssets_);
+        ( uint256 delegateFee_, uint256 protocolFee_ ) = _currentAccruedFees(_currentTotalAssets(aaveToken));
 
-        if (delegateFee_ != 0) IAavePoolLike(aavePool_).withdraw(fundsAsset_, delegateFee_, strategyDelegate());
-        if (protocolFee_ != 0) IAavePoolLike(aavePool_).withdraw(fundsAsset_, protocolFee_, mapleTreasury());
+        uint256 totalToWithdraw_ = assets_ + delegateFee_ + protocolFee_;
+
+        if (totalToWithdraw_ != 0) IAavePoolLike(aavePool).withdraw(fundsAsset_, totalToWithdraw_, address(this));
+
+        if (delegateFee_ != 0) {
+            require(ERC20Helper.transfer(fundsAsset_, strategyDelegate(), delegateFee_), "MAV3S:HAW:DELEGATE_TRANSFER_FAIL");
+        }
+
+        if (protocolFee_ != 0) {
+            require(ERC20Helper.transfer(fundsAsset_, mapleTreasury(), protocolFee_), "MAV3S:HAW:PROTOCOL_TRANSFER_FAIL");
+        }
 
         emit StrategyFeesCollected(delegateFee_, protocolFee_);
+
+        if (assets_ != 0 && destination_ != address(0)) {
+            require(ERC20Helper.transfer(fundsAsset_, destination_, assets_), "MAV3S:HAW:ASSET_TRANSFER_FAIL");
+        }
     }
 
     /**************************************************************************************************************************************/

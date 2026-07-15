@@ -183,6 +183,12 @@ contract AaveV3FundUnderlyingStrategySuccessTests is AaveV3TestBase {
         uint256 expectedProtocolFee           = 1.2e6;  // 40e6 yield * 3% protocol fee.
         uint256 expectedLastRecordedAfterFund = 238e6;  // 140e6 Aave balance - 2e6 fees + 100e6 second deposit.
 
+        vm.expectCall(
+            aavePool,
+            abi.encodeCall(IAavePoolLike.withdraw, (address(asset), expectedDelegateFee + expectedProtocolFee, address(strategy))),
+            1
+        );
+
         vm.expectEmit();
         emit IMapleAaveV3Strategy.StrategyFeesCollected(expectedDelegateFee, expectedProtocolFee);
 
