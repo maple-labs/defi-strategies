@@ -49,6 +49,7 @@ contract MapleSkyStrategyInitializer is IMapleSkyStrategyInitializer, MapleSkySt
         strategyDelegateFeeRate = params_.strategyDelegateFeeRate;
         strategyProtocolFeeRate = params_.strategyProtocolFeeRate;
         referralCode            = params_.referralCode;
+        strategyMetadata        = params_.strategyMetadata;
 
         _locked = 1;
 

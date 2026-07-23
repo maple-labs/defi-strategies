@@ -25,6 +25,8 @@ contract AaveV3TestBase is Test {
 
     uint16 internal constant INITIAL_REFERRAL_CODE = 123;
 
+    string constant INITIAL_STRATEGY_METADATA = "Aave V3 strategy metadata";
+
     address aavePool         = address(new MockAavePool());
     address deployer         = makeAddr("deployer");
     address governor         = makeAddr("governor");
@@ -84,6 +86,7 @@ contract AaveV3TestBase is Test {
 
         params = AaveV3StrategyInitializerParams({
             aaveToken:                   address(aaveToken),
+            strategyMetadata:            INITIAL_STRATEGY_METADATA,
             strategyDelegateFeeRate:     0.02e6,
             strategyProtocolFeeRate:     0.03e6,
             referralCode:                INITIAL_REFERRAL_CODE,

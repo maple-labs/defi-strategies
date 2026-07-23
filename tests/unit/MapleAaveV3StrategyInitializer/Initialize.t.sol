@@ -94,6 +94,7 @@ contract AaveV3InitializeTests is AaveV3TestBase {
 
         assertEq(proxy.strategyDelegateFeeRate(),     0.02e6);
         assertEq(proxy.strategyProtocolFeeRate(),     0.03e6);
+        assertEq(proxy.strategyMetadata(),            INITIAL_STRATEGY_METADATA);
         assertEq(proxy.referralCode(),                123);
         assertEq(proxy.useVirtualUnderlyingBalance(), true);
     }
@@ -115,6 +116,7 @@ contract AaveV3InitializeTests is AaveV3TestBase {
 
         assertEq(proxy.strategyDelegateFeeRate(),     0.02e6);
         assertEq(proxy.strategyProtocolFeeRate(),     0.03e6);
+        assertEq(proxy.strategyMetadata(),            INITIAL_STRATEGY_METADATA);
         assertEq(proxy.referralCode(),                123);
         assertEq(proxy.useVirtualUnderlyingBalance(), false);
     }

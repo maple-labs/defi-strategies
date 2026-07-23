@@ -170,6 +170,14 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
         emit FallbackToutSet(fallbackTout_);
     }
 
+    function setMetadata(string calldata metadata_) external override whenNotPaused nonReentrant onlyProtocolAdmins {
+        require(keccak256(bytes(metadata_)) != keccak256(bytes(strategyMetadata)), "MSS:SM:NO_CHANGE");
+
+        strategyMetadata = metadata_;
+
+        emit StrategyMetadataSet(metadata_);
+    }
+
     function setPsm(address newPsm_) external override whenNotPaused nonReentrant onlyProtocolAdmins {
         require(newPsm_ != psm,                                       "MSS:SP:NO_CHANGE");
         require(IGlobalsLike(globals()).isInstanceOf("PSM", newPsm_), "MSS:SP:INVALID_PSM");

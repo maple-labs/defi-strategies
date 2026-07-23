@@ -175,6 +175,14 @@ contract MapleAaveV3Strategy is IMapleAaveV3Strategy, MapleAaveV3StrategyStorage
         emit PositionRecovered(balance_);
     }
 
+    function setMetadata(string calldata metadata_) external override whenNotPaused nonReentrant onlyProtocolAdmins {
+        require(keccak256(bytes(metadata_)) != keccak256(bytes(strategyMetadata)), "MAV3S:SM:NO_CHANGE");
+
+        strategyMetadata = metadata_;
+
+        emit StrategyMetadataSet(metadata_);
+    }
+
     function setReferralCode(uint16 referralCode_) external override whenNotPaused nonReentrant onlyProtocolAdmins {
         require(referralCode_ != referralCode, "MAV3S:SRC:NO_CHANGE");
 

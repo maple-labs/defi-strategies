@@ -23,4 +23,6 @@ contract MapleAaveV3StrategyStorage is IMapleAaveV3StrategyStorage {
 
     uint16 public override referralCode;
 
+    string public override strategyMetadata;
+
 }

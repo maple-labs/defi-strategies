@@ -22,6 +22,8 @@ contract SkyTestBase is Test {
 
     uint16 internal constant INITIAL_REFERRAL_CODE = 123;
 
+    string constant INITIAL_STRATEGY_METADATA = "Sky strategy metadata";
+
     address deployer         = makeAddr("deployer");
     address governor         = makeAddr("governor");
     address mapleTreasury    = makeAddr("mapleTreasury");
@@ -84,6 +86,7 @@ contract SkyTestBase is Test {
             fundsAsset:              address(asset),
             psm:                     address(psm),
             savingsUsds:             address(savingsUsds),
+            strategyMetadata:        INITIAL_STRATEGY_METADATA,
             strategyDelegateFeeRate: 0.02e6,
             strategyProtocolFeeRate: 0.03e6,
             referralCode:            INITIAL_REFERRAL_CODE

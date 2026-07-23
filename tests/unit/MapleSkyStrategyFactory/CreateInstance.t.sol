@@ -61,6 +61,7 @@ contract SkyCreateInstanceTests is SkyTestBase {
 
         assertEq(strategy.strategyDelegateFeeRate(), 0.02e6);
         assertEq(strategy.strategyProtocolFeeRate(), 0.03e6);
+        assertEq(strategy.strategyMetadata(),        INITIAL_STRATEGY_METADATA);
         assertEq(strategy.referralCode(),            123);
     }
 

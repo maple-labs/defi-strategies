@@ -73,6 +73,12 @@ interface IMapleAaveV3Strategy is IMapleAaveV3StrategyStorage, IMapleProxied {
     event StrategyFeesCollected(uint256 delegateFee, uint256 protocolFee);
 
     /**
+     *  @dev   Emitted when the strategy metadata is set.
+     *  @param strategyMetadata Optional metadata associated with the strategy.
+     */
+    event StrategyMetadataSet(string strategyMetadata);
+
+    /**
      *  @dev   Emitted when the strategy protocol fee rate is set.
      *  @param strategyProtocolFeeRate Percentage of yield collected by the Maple treasury, defined with 6 decimals
      *                                 of precision (1e6 == 100%).
@@ -146,6 +152,13 @@ interface IMapleAaveV3Strategy is IMapleAaveV3StrategyStorage, IMapleProxied {
      *         Callable only by protocol admins.
      */
     function recoverPosition() external;
+
+    /**
+     *  @dev   Updates the metadata of the Aave V3 strategy.
+     *         Callable only by protocol admins.
+     *  @param metadata Optional metadata associated with the strategy.
+     */
+    function setMetadata(string calldata metadata) external;
 
     /**
      *  @dev   Sets the referral code used for future deposits into Aave.

@@ -24,4 +24,6 @@ contract MapleSkyStrategyStorage is IMapleSkyStrategyStorage {
 
     uint16 public override referralCode;
 
+    string public override strategyMetadata;
+
 }

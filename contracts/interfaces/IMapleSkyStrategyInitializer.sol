@@ -10,6 +10,7 @@ pragma solidity ^0.8.0;
  *  @param strategyDelegateFeeRate Percentage of yield collected by the strategy delegate.
  *  @param strategyProtocolFeeRate Percentage of yield collected by the Maple treasury.
  *  @param referralCode            Referral code used when depositing into Sky.
+ *  @param strategyMetadata        Optional metadata associated with the Sky strategy.
  */
 struct SkyStrategyInitializerParams {
     address fundsAsset;
@@ -18,6 +19,7 @@ struct SkyStrategyInitializerParams {
     uint32  strategyDelegateFeeRate;
     uint32  strategyProtocolFeeRate;
     uint16  referralCode;
+    string  strategyMetadata;
 }
 
 /**

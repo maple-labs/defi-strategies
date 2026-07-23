@@ -64,6 +64,12 @@ interface IMapleSkyStrategyStorage {
     function strategyManager() external view returns (address strategyManager);
 
     /**
+     *  @dev    Returns arbitrary metadata associated with this instance of the Sky strategy.
+     *  @return strategyMetadata Optional metadata associated with the strategy.
+     */
+    function strategyMetadata() external view returns (string memory strategyMetadata);
+
+    /**
      *  @dev    Returns the percentage of yield collected by the Maple treasury.
      *          Defined with 6 decimals of precision (1e6 == 100%).
      *  @return strategyProtocolFeeRate Percentage of yield collected by the Maple treasury.

@@ -9,6 +9,7 @@ pragma solidity ^0.8.0;
  *  @param strategyProtocolFeeRate     Percentage of yield collected by the Maple treasury.
  *  @param referralCode                Referral code used when depositing into Aave.
  *  @param useVirtualUnderlyingBalance Whether to query liquidity using getVirtualUnderlyingBalance.
+ *  @param strategyMetadata            Optional metadata associated with the Aave V3 strategy.
  */
 struct AaveV3StrategyInitializerParams {
     address aaveToken;
@@ -16,6 +17,7 @@ struct AaveV3StrategyInitializerParams {
     uint32  strategyProtocolFeeRate;
     uint16  referralCode;
     bool    useVirtualUnderlyingBalance;
+    string  strategyMetadata;
 }
 
 /**
