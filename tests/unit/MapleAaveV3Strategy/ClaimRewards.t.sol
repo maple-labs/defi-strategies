@@ -28,7 +28,7 @@ contract AaveV3ClaimRewardsFailureTests is AaveV3TestBase {
     function test_claimRewards_revert_paused() external {
         globals.__setIsFunctionPaused(MapleAaveV3Strategy.claimRewards.selector, true);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         vm.expectRevert("MAV3S:PAUSED");
         strategy.claimRewards(assets, rewardAmount, rewardToken);
     }
@@ -36,13 +36,14 @@ contract AaveV3ClaimRewardsFailureTests is AaveV3TestBase {
     function test_claimRewards_revert_reentrancy() external {
         strategy.__setLocked(2);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         vm.expectRevert("MAV3S:LOCKED");
         strategy.claimRewards(assets, rewardAmount, rewardToken);
     }
 
-    function test_claimRewards_revert_notAdmin() external {
-        vm.expectRevert("MAV3S:NOT_ADMIN");
+    function test_claimRewards_revert_notAuthorized() external {
+        vm.prank(governor);
+        vm.expectRevert("MAV3S:NOT_AUTHORIZED");
         strategy.claimRewards(assets, rewardAmount, rewardToken);
     }
 
@@ -69,7 +70,7 @@ contract AaveV3ClaimRewardsSuccessTests is AaveV3TestBase {
         });
     }
 
-    function test_claimRewards_success_governor() external {
+    function test_claimRewards_success_strategyDelegate() external {
         assertAaveV3Strategy({
             aaveTokenBalance:        100e6,
             lastRecordedTotalAssets: 100e6,
@@ -88,7 +89,7 @@ contract AaveV3ClaimRewardsSuccessTests is AaveV3TestBase {
         vm.expectEmit();
         emit IMapleAaveV3Strategy.RewardsClaimed(address(rewardToken), rewardAmount);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         strategy.claimRewards(assets, rewardAmount, address(rewardToken));
 
         assertAaveV3Strategy({

@@ -117,7 +117,7 @@ interface IMapleSkyStrategy is IMapleSkyStrategyStorage, IMapleProxied {
 
     /**
      *  @dev   Increases the asset-denominated impairment recorded for the strategy.
-     *         Callable only by protocol admins. Does not affect reported AUM or withdrawable assets.
+     *         Callable only by the strategy delegate or operational admin. Does not affect reported AUM or withdrawable assets.
      *  @param assets Funds-asset amount of impairment to add to the strategy.
      */
     function impair(uint256 assets) external;
@@ -130,27 +130,28 @@ interface IMapleSkyStrategy is IMapleSkyStrategyStorage, IMapleProxied {
 
     /**
      *  @dev   Decreases the asset-denominated impairment recorded for the strategy.
-     *         Callable only by protocol admins. Does not affect reported AUM or withdrawable assets.
+     *         Callable only by the strategy delegate or operational admin. Does not affect reported AUM or withdrawable assets.
      *  @param assets Funds-asset amount of impairment to remove from the strategy.
      */
     function removeImpairment(uint256 assets) external;
 
     /**
      *  @dev   Marks the strategy as shut down after all reasonably recoverable assets have been withdrawn.
-     *         Callable only by protocol admins. This is final and causes reported AUM and availability to be zero.
+     *         Callable only by the strategy delegate or operational admin.
+     *         This is final and causes reported AUM and availability to be zero.
      */
     function recognizeLoss() external;
 
     /**
      *  @dev   Recovers the remaining underlying position to the Maple treasury after final loss recognition.
-     *         Callable only by protocol admins.
+     *         Callable only by the strategy delegate or operational admin.
      */
     function recoverPosition() external;
 
     /**
      *  @dev   Sets the fallback PSM `tout` used to value the position while Sky halts the PSM `buyGem` path
-     *         by setting the live `tout` to type(uint256).max. Callable only by protocol admins. Must mirror
-     *         Sky's live `tout` and cannot itself be type(uint256).max.
+     *         by setting the live `tout` to type(uint256).max. Callable only by the strategy delegate or operational
+     *         admin. Operationally managed to mirror the PSM `tout` prior to any halt; cannot itself be type(uint256).max.
      *  @param fallbackTout PSM `tout` value used for valuation while the live `tout` is type(uint256).max.
      */
     function setFallbackTout(uint256 fallbackTout) external;
@@ -164,14 +165,14 @@ interface IMapleSkyStrategy is IMapleSkyStrategyStorage, IMapleProxied {
 
     /**
      *  @dev   Sets the PSM used for future Sky conversions and withdrawals.
-     *         Callable only by protocol admins.
+     *         Callable only by the strategy delegate or operational admin.
      *  @param newPsm Address of the new PSM.
      */
     function setPsm(address newPsm) external;
 
     /**
      *  @dev   Sets the referral code used for future deposits into Sky.
-     *         Callable only by protocol admins.
+     *         Callable only by the strategy delegate or operational admin.
      *  @param referralCode Referral code used when depositing into Sky.
      */
     function setReferralCode(uint16 referralCode) external;

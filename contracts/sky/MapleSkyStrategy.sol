@@ -44,6 +44,16 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
         _locked = 1;
     }
 
+    modifier onlyAdmin() {
+        require(
+            msg.sender == strategyDelegate() ||
+            msg.sender == IGlobalsLike(globals()).operationalAdmin(),
+            "MSS:NOT_AUTHORIZED"
+        );
+
+        _;
+    }
+
     modifier onlyFactory() {
         require(msg.sender == _factory(), "MSS:NOT_FACTORY");
 
@@ -110,7 +120,7 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
     /*** Admin Functions                                                                                                                ***/
     /**************************************************************************************************************************************/
 
-    function impair(uint256 assets_) external override whenNotPaused nonReentrant onlyProtocolAdmins whenLossNotRecognized {
+    function impair(uint256 assets_) external override whenNotPaused nonReentrant onlyAdmin whenLossNotRecognized {
         require(assets_ > 0, "MSS:I:ZERO");
 
         impairedAssets += assets_;
@@ -131,7 +141,7 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
     }
 
     function removeImpairment(uint256 assets_)
-        external override whenNotPaused nonReentrant onlyProtocolAdmins whenLossNotRecognized
+        external override whenNotPaused nonReentrant onlyAdmin whenLossNotRecognized
     {
         require(assets_ > 0,               "MSS:RI:ZERO");
         require(assets_ <= impairedAssets, "MSS:RI:EXCEEDS_IMPAIRMENT");
@@ -141,7 +151,7 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
         emit ImpairmentRemoved(assets_);
     }
 
-    function recognizeLoss() external override whenNotPaused nonReentrant onlyProtocolAdmins whenLossNotRecognized {
+    function recognizeLoss() external override whenNotPaused nonReentrant onlyAdmin whenLossNotRecognized {
         isLossRecognized        = true;
         lastRecordedTotalAssets = 0;
         impairedAssets          = 0;
@@ -149,7 +159,7 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
         emit LossRecognized();
     }
 
-    function recoverPosition() external override whenNotPaused nonReentrant onlyProtocolAdmins {
+    function recoverPosition() external override whenNotPaused nonReentrant onlyAdmin {
         require(isLossRecognized, "MSS:RP:LOSS_NOT_RECOGNIZED");
 
         address savingsUsds_ = savingsUsds;
@@ -161,7 +171,7 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
         emit PositionRecovered(balance_);
     }
 
-    function setFallbackTout(uint256 fallbackTout_) external override whenNotPaused nonReentrant onlyProtocolAdmins whenLossNotRecognized {
+    function setFallbackTout(uint256 fallbackTout_) external override whenNotPaused nonReentrant onlyAdmin whenLossNotRecognized {
         require(fallbackTout_ != fallbackTout,      "MSS:SFT:NO_CHANGE");
         require(fallbackTout_ != type(uint256).max, "MSS:SFT:INVALID_TOUT");
 
@@ -178,7 +188,7 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
         emit StrategyMetadataSet(metadata_);
     }
 
-    function setPsm(address newPsm_) external override whenNotPaused nonReentrant onlyProtocolAdmins whenLossNotRecognized {
+    function setPsm(address newPsm_) external override whenNotPaused nonReentrant onlyAdmin whenLossNotRecognized {
         require(newPsm_ != psm,                                       "MSS:SP:NO_CHANGE");
         require(IGlobalsLike(globals()).isInstanceOf("PSM", newPsm_), "MSS:SP:INVALID_PSM");
         require(IPSMLike(newPsm_).gem() == fundsAsset,                "MSS:SP:INVALID_GEM_PSM");
@@ -190,7 +200,7 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
         emit PsmSet(newPsm_);
     }
 
-    function setReferralCode(uint16 referralCode_) external override whenNotPaused nonReentrant onlyProtocolAdmins whenLossNotRecognized {
+    function setReferralCode(uint16 referralCode_) external override whenNotPaused nonReentrant onlyAdmin whenLossNotRecognized {
         require(referralCode_ != referralCode, "MSS:SRC:NO_CHANGE");
 
         referralCode = referralCode_;

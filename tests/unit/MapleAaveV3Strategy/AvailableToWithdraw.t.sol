@@ -513,7 +513,7 @@ contract AaveV3AvailableToWithdrawTests is AaveV3TestBase {
 
         assertEq(MockAavePool(aavePool).getVirtualUnderlyingBalance(address(asset)), aaveLiquidity);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         strategy.recognizeLoss();
 
         uint256 increasedATokenBalance = 200e6; // Raw Aave position grows after final loss recognition.

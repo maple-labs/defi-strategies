@@ -12,7 +12,7 @@ contract AaveV3SetReferralCodeFailureTests is AaveV3TestBase {
     function test_setReferralCode_revert_functionPaused() external {
         globals.__setIsFunctionPaused(IMapleAaveV3Strategy.setReferralCode.selector, true);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         vm.expectRevert("MAV3S:PAUSED");
         strategy.setReferralCode(referralCode);
     }
@@ -20,26 +20,27 @@ contract AaveV3SetReferralCodeFailureTests is AaveV3TestBase {
     function test_setReferralCode_revert_reentrancy() external {
         strategy.__setLocked(2);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         vm.expectRevert("MAV3S:LOCKED");
         strategy.setReferralCode(referralCode);
     }
 
-    function test_setReferralCode_revert_notAdmin() external {
-        vm.expectRevert("MAV3S:NOT_ADMIN");
+    function test_setReferralCode_revert_notAuthorized() external {
+        vm.prank(governor);
+        vm.expectRevert("MAV3S:NOT_AUTHORIZED");
         strategy.setReferralCode(referralCode);
     }
 
     function test_setReferralCode_revert_lossRecognized() external {
         strategy.__setIsLossRecognized(true);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         vm.expectRevert("MAV3S:LOSS_RECOGNIZED");
         strategy.setReferralCode(referralCode);
     }
 
     function test_setReferralCode_revert_noChange() external {
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         vm.expectRevert("MAV3S:SRC:NO_CHANGE");
         strategy.setReferralCode(INITIAL_REFERRAL_CODE);
     }
@@ -50,7 +51,7 @@ contract AaveV3SetReferralCodeSuccessTests is AaveV3TestBase {
 
     uint16 referralCode = 42;
 
-    function test_setReferralCode_success_governor() external {
+    function test_setReferralCode_success_strategyDelegate() external {
         assertEq(strategy.referralCode(), INITIAL_REFERRAL_CODE);
 
         assertAaveV3Strategy({
@@ -62,7 +63,7 @@ contract AaveV3SetReferralCodeSuccessTests is AaveV3TestBase {
         vm.expectEmit();
         emit IMapleAaveV3Strategy.ReferralCodeSet(referralCode);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         strategy.setReferralCode(referralCode);
 
         assertEq(strategy.referralCode(), referralCode);
@@ -110,7 +111,7 @@ contract AaveV3SetReferralCodeSuccessTests is AaveV3TestBase {
         vm.expectEmit();
         emit IMapleAaveV3Strategy.ReferralCodeSet(0);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         strategy.setReferralCode(0);
 
         assertEq(strategy.referralCode(), 0);
@@ -136,7 +137,7 @@ contract AaveV3SetReferralCodeSuccessTests is AaveV3TestBase {
         vm.expectEmit();
         emit IMapleAaveV3Strategy.ReferralCodeSet(referralCode_);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         strategy.setReferralCode(referralCode_);
 
         assertEq(strategy.referralCode(), referralCode_);

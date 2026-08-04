@@ -45,6 +45,16 @@ contract MapleAaveV3Strategy is IMapleAaveV3Strategy, MapleAaveV3StrategyStorage
         _locked = 1;
     }
 
+    modifier onlyAdmin() {
+        require(
+            msg.sender == strategyDelegate() ||
+            msg.sender == IGlobalsLike(globals()).operationalAdmin(),
+            "MAV3S:NOT_AUTHORIZED"
+        );
+
+        _;
+    }
+
     modifier onlyFactory() {
         require(msg.sender == _factory(), "MAV3S:NOT_FACTORY");
 
@@ -112,7 +122,7 @@ contract MapleAaveV3Strategy is IMapleAaveV3Strategy, MapleAaveV3StrategyStorage
     /**************************************************************************************************************************************/
 
     function claimRewards(address[] calldata assets_, uint256 amount_, address rewardToken_)
-        external override whenNotPaused nonReentrant onlyProtocolAdmins
+        external override whenNotPaused nonReentrant onlyAdmin
     {
         address rewardsController_ = IAaveTokenLike(aaveToken).getIncentivesController();
 
@@ -126,7 +136,7 @@ contract MapleAaveV3Strategy is IMapleAaveV3Strategy, MapleAaveV3StrategyStorage
         emit RewardsClaimed(rewardToken_, rewardAmount_);
     }
 
-    function impair(uint256 assets_) external override whenNotPaused nonReentrant onlyProtocolAdmins whenLossNotRecognized {
+    function impair(uint256 assets_) external override whenNotPaused nonReentrant onlyAdmin whenLossNotRecognized {
         require(assets_ > 0, "MAV3S:I:ZERO");
 
         impairedAssets += assets_;
@@ -146,7 +156,7 @@ contract MapleAaveV3Strategy is IMapleAaveV3Strategy, MapleAaveV3StrategyStorage
         }
     }
 
-    function removeImpairment(uint256 assets_) external override whenNotPaused nonReentrant onlyProtocolAdmins whenLossNotRecognized {
+    function removeImpairment(uint256 assets_) external override whenNotPaused nonReentrant onlyAdmin whenLossNotRecognized {
         require(assets_ > 0,               "MAV3S:RI:ZERO");
         require(assets_ <= impairedAssets, "MAV3S:RI:EXCEEDS_IMPAIRMENT");
 
@@ -155,7 +165,7 @@ contract MapleAaveV3Strategy is IMapleAaveV3Strategy, MapleAaveV3StrategyStorage
         emit ImpairmentRemoved(assets_);
     }
 
-    function recognizeLoss() external override whenNotPaused nonReentrant onlyProtocolAdmins whenLossNotRecognized {
+    function recognizeLoss() external override whenNotPaused nonReentrant onlyAdmin whenLossNotRecognized {
         isLossRecognized        = true;
         lastRecordedTotalAssets = 0;
         impairedAssets          = 0;
@@ -163,7 +173,7 @@ contract MapleAaveV3Strategy is IMapleAaveV3Strategy, MapleAaveV3StrategyStorage
         emit LossRecognized();
     }
 
-    function recoverPosition() external override whenNotPaused nonReentrant onlyProtocolAdmins {
+    function recoverPosition() external override whenNotPaused nonReentrant onlyAdmin {
         require(isLossRecognized, "MAV3S:RP:LOSS_NOT_RECOGNIZED");
 
         address aaveToken_ = aaveToken;
@@ -183,7 +193,7 @@ contract MapleAaveV3Strategy is IMapleAaveV3Strategy, MapleAaveV3StrategyStorage
         emit StrategyMetadataSet(metadata_);
     }
 
-    function setReferralCode(uint16 referralCode_) external override whenNotPaused nonReentrant onlyProtocolAdmins whenLossNotRecognized {
+    function setReferralCode(uint16 referralCode_) external override whenNotPaused nonReentrant onlyAdmin whenLossNotRecognized {
         require(referralCode_ != referralCode, "MAV3S:SRC:NO_CHANGE");
 
         referralCode = referralCode_;

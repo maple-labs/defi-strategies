@@ -104,6 +104,7 @@ interface IMapleAaveV3Strategy is IMapleAaveV3StrategyStorage, IMapleProxied {
 
     /**
      *  @dev   Claims rewards from the Aave Incentives Controller to the Maple treasury.
+     *         Callable only by the strategy delegate or operational admin.
      *  @param assets      The list of assets to check eligible distributions before claiming rewards.
      *  @param amount      The amount of rewards to claim. Pass max uint256 to claim the full unclaimed reward balance.
      *  @param rewardToken The address of the reward token.
@@ -123,7 +124,7 @@ interface IMapleAaveV3Strategy is IMapleAaveV3StrategyStorage, IMapleProxied {
 
     /**
      *  @dev   Increases the asset-denominated impairment recorded for the strategy.
-     *         Callable only by protocol admins. Does not affect reported AUM or withdrawable assets.
+     *         Callable only by the strategy delegate or operational admin. Does not affect reported AUM or withdrawable assets.
      *  @param assets Funds-asset amount of impairment to add to the strategy.
      */
     function impair(uint256 assets) external;
@@ -136,20 +137,21 @@ interface IMapleAaveV3Strategy is IMapleAaveV3StrategyStorage, IMapleProxied {
 
     /**
      *  @dev   Decreases the asset-denominated impairment recorded for the strategy.
-     *         Callable only by protocol admins. Does not affect reported AUM or withdrawable assets.
+     *         Callable only by the strategy delegate or operational admin. Does not affect reported AUM or withdrawable assets.
      *  @param assets Funds-asset amount of impairment to remove from the strategy.
      */
     function removeImpairment(uint256 assets) external;
 
     /**
      *  @dev   Marks the strategy as shut down after all reasonably recoverable assets have been withdrawn.
-     *         Callable only by protocol admins. This is final and causes reported AUM and availability to be zero.
+     *         Callable only by the strategy delegate or operational admin.
+     *         This is final and causes reported AUM and availability to be zero.
      */
     function recognizeLoss() external;
 
     /**
      *  @dev   Recovers the remaining underlying position to the Maple treasury after final loss recognition.
-     *         Callable only by protocol admins.
+     *         Callable only by the strategy delegate or operational admin.
      */
     function recoverPosition() external;
 
@@ -162,7 +164,7 @@ interface IMapleAaveV3Strategy is IMapleAaveV3StrategyStorage, IMapleProxied {
 
     /**
      *  @dev   Sets the referral code used for future deposits into Aave.
-     *         Callable only by protocol admins.
+     *         Callable only by the strategy delegate or operational admin.
      *  @param referralCode Referral code used when depositing into Aave.
      */
     function setReferralCode(uint16 referralCode) external;

@@ -37,7 +37,7 @@ contract SkySetPsmFailureTests is SkySetPsmTestsBase {
     function test_setPsm_revert_functionPaused() external {
         globals.__setIsFunctionPaused(MapleSkyStrategy.setPsm.selector, true);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         vm.expectRevert("MSS:PAUSED");
         strategy.setPsm(address(newPsm));
     }
@@ -45,26 +45,27 @@ contract SkySetPsmFailureTests is SkySetPsmTestsBase {
     function test_setPsm_revert_reentrancy() external {
         strategy.__setLocked(2);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         vm.expectRevert("MSS:LOCKED");
         strategy.setPsm(address(newPsm));
     }
 
-    function test_setPsm_revert_notAdmin() external {
-        vm.expectRevert("MSS:NOT_ADMIN");
+    function test_setPsm_revert_notAuthorized() external {
+        vm.prank(governor);
+        vm.expectRevert("MSS:NOT_AUTHORIZED");
         strategy.setPsm(address(newPsm));
     }
 
     function test_setPsm_revert_lossRecognized() external {
         strategy.__setIsLossRecognized(true);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         vm.expectRevert("MSS:LOSS_RECOGNIZED");
         strategy.setPsm(address(newPsm));
     }
 
     function test_setPsm_revert_noChange() external {
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         vm.expectRevert("MSS:SP:NO_CHANGE");
         strategy.setPsm(address(psm));
     }
@@ -72,7 +73,7 @@ contract SkySetPsmFailureTests is SkySetPsmTestsBase {
     function test_setPsm_revert_invalidPsm() external {
         globals.__setIsInstanceOf("PSM", address(newPsm), false);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         vm.expectRevert("MSS:SP:INVALID_PSM");
         strategy.setPsm(address(newPsm));
     }
@@ -80,7 +81,7 @@ contract SkySetPsmFailureTests is SkySetPsmTestsBase {
     function test_setPsm_revert_invalidGemPsm() external {
         newPsm.__setGem(makeAddr("invalidGem"));
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         vm.expectRevert("MSS:SP:INVALID_GEM_PSM");
         strategy.setPsm(address(newPsm));
     }
@@ -88,7 +89,7 @@ contract SkySetPsmFailureTests is SkySetPsmTestsBase {
     function test_setPsm_revert_invalidUsdsPsm() external {
         newPsm.__setUsds(makeAddr("invalidUsds"));
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         vm.expectRevert("MSS:SP:INVALID_USDS_PSM");
         strategy.setPsm(address(newPsm));
     }
@@ -96,7 +97,7 @@ contract SkySetPsmFailureTests is SkySetPsmTestsBase {
     function test_setPsm_revert_invalidPocketPsm() external {
         newPsm.__setPocket(address(0));
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         vm.expectRevert("MSS:SP:INVALID_POCKET_PSM");
         strategy.setPsm(address(newPsm));
     }
@@ -105,7 +106,7 @@ contract SkySetPsmFailureTests is SkySetPsmTestsBase {
 
 contract SkySetPsmSuccessTests is SkySetPsmTestsBase {
 
-    function test_setPsm_success_governor() external {
+    function test_setPsm_success_strategyDelegate() external {
         assertEq(strategy.psm(), address(psm));
 
         assertSkyStrategy({
@@ -117,7 +118,7 @@ contract SkySetPsmSuccessTests is SkySetPsmTestsBase {
         vm.expectEmit();
         emit IMapleSkyStrategy.PsmSet(address(newPsm));
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         strategy.setPsm(address(newPsm));
 
         assertEq(strategy.psm(), address(newPsm));
@@ -181,7 +182,7 @@ contract SkySetPsmSuccessTests is SkySetPsmTestsBase {
         vm.expectEmit();
         emit IMapleSkyStrategy.PsmSet(address(newPsm));
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         strategy.setPsm(address(newPsm));
 
         assertEq(strategy.psm(), address(newPsm));
@@ -228,7 +229,7 @@ contract SkySetPsmSuccessTests is SkySetPsmTestsBase {
             assetsUnderManagement:   oldPsmAum_
         });
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         strategy.setPsm(address(newPsm));
 
         assertEq(strategy.psm(),                 address(newPsm));

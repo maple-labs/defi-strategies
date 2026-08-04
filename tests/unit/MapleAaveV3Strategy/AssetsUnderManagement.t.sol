@@ -150,7 +150,7 @@ contract AaveV3AssetsUnderManagementTests is AaveV3TestBase {
             assetsUnderManagement:   currentTotalAssets
         });
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         strategy.recognizeLoss();
 
         uint256 increasedATokenBalance = 200e6; // Raw Aave position grows after final loss recognition.

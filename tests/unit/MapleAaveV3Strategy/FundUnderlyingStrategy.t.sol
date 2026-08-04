@@ -84,7 +84,7 @@ contract AaveV3FundUnderlyingStrategySuccessTests is AaveV3TestBase {
         uint16 referralCode = 42;
         uint256 assets      = 100e6;
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         strategy.setReferralCode(referralCode);
 
         vm.expectCall(

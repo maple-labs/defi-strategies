@@ -12,7 +12,7 @@ contract AaveV3RecoverPositionFailureTests is AaveV3TestBase {
     function test_recoverPosition_revert_functionPaused() external {
         globals.__setIsFunctionPaused(MapleAaveV3Strategy.recoverPosition.selector, true);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         vm.expectRevert("MAV3S:PAUSED");
         strategy.recoverPosition();
     }
@@ -20,19 +20,19 @@ contract AaveV3RecoverPositionFailureTests is AaveV3TestBase {
     function test_recoverPosition_revert_reentrancy() external {
         strategy.__setLocked(2);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         vm.expectRevert("MAV3S:LOCKED");
         strategy.recoverPosition();
     }
 
-    function test_recoverPosition_revert_notAdmin() external {
-        vm.prank(strategyDelegate);
-        vm.expectRevert("MAV3S:NOT_ADMIN");
+    function test_recoverPosition_revert_notAuthorized() external {
+        vm.prank(governor);
+        vm.expectRevert("MAV3S:NOT_AUTHORIZED");
         strategy.recoverPosition();
     }
 
     function test_recoverPosition_revert_lossNotRecognized() external {
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         vm.expectRevert("MAV3S:RP:LOSS_NOT_RECOGNIZED");
         strategy.recoverPosition();
     }
@@ -40,7 +40,7 @@ contract AaveV3RecoverPositionFailureTests is AaveV3TestBase {
     function test_recoverPosition_revert_zeroBalance() external {
         strategy.__setIsLossRecognized(true);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         vm.expectRevert("MAV3S:RP:ZERO_BALANCE");
         strategy.recoverPosition();
     }
@@ -52,7 +52,7 @@ contract AaveV3RecoverPositionFailureTests is AaveV3TestBase {
         setStrategyATokenBalance(aaveTokenBalance);
         aaveToken.__setTransferReverts(true);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         vm.expectRevert("MAV3S:RP:TRANSFER_FAILED");
         strategy.recoverPosition();
     }
@@ -61,12 +61,12 @@ contract AaveV3RecoverPositionFailureTests is AaveV3TestBase {
 
 contract AaveV3RecoverPositionSuccessTests is AaveV3TestBase {
 
-    function test_recoverPosition_success_governor() external {
+    function test_recoverPosition_success_strategyDelegate() external {
         uint256 aaveTokenBalance = 100e6; // Strategy holds 100 aTokens after final loss recognition.
 
         setStrategyATokenBalance(aaveTokenBalance);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         strategy.recognizeLoss();
 
         assertEq(aaveToken.balanceOf(mapleTreasury), 0);
@@ -74,7 +74,7 @@ contract AaveV3RecoverPositionSuccessTests is AaveV3TestBase {
         vm.expectEmit();
         emit IMapleAaveV3Strategy.PositionRecovered(aaveTokenBalance);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         strategy.recoverPosition();
 
         assertEq(strategy.isLossRecognized(),        true);

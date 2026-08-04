@@ -12,7 +12,7 @@ contract AaveV3ImpairFailureTests is AaveV3TestBase {
     function test_impair_revert_functionPaused() external {
         globals.__setIsFunctionPaused(MapleAaveV3Strategy.impair.selector, true);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         vm.expectRevert("MAV3S:PAUSED");
         strategy.impair(1);
     }
@@ -20,27 +20,27 @@ contract AaveV3ImpairFailureTests is AaveV3TestBase {
     function test_impair_revert_reentrancy() external {
         strategy.__setLocked(2);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         vm.expectRevert("MAV3S:LOCKED");
         strategy.impair(1);
     }
 
-    function test_impair_revert_notAdmin() external {
-        vm.prank(strategyDelegate);
-        vm.expectRevert("MAV3S:NOT_ADMIN");
+    function test_impair_revert_notAuthorized() external {
+        vm.prank(governor);
+        vm.expectRevert("MAV3S:NOT_AUTHORIZED");
         strategy.impair(1);
     }
 
     function test_impair_revert_lossRecognized() external {
         strategy.__setIsLossRecognized(true);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         vm.expectRevert("MAV3S:LOSS_RECOGNIZED");
         strategy.impair(1);
     }
 
     function test_impair_revert_zeroUnrealizedLosses() external {
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         vm.expectRevert("MAV3S:I:ZERO");
         strategy.impair(0);
     }
@@ -49,7 +49,7 @@ contract AaveV3ImpairFailureTests is AaveV3TestBase {
 
 contract AaveV3ImpairSuccessTests is AaveV3TestBase {
 
-    function test_impair_success_governor() external {
+    function test_impair_success_strategyDelegate() external {
         uint256 currentTotalAssets = 100e6; // Strategy holds 100 aTokens worth 100 assets.
         uint256 aaveTokenBalance   = 100e6; // Strategy holds 100 aTokens.
         uint256 unrealizedLosses   = 20e6;  // Admin records 20 assets of unrealized losses.
@@ -65,7 +65,7 @@ contract AaveV3ImpairSuccessTests is AaveV3TestBase {
         vm.expectEmit();
         emit IMapleAaveV3Strategy.Impaired(unrealizedLosses);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         strategy.impair(unrealizedLosses);
 
         assertEq(strategy.impairedAssets(),   unrealizedLosses);
@@ -115,7 +115,7 @@ contract AaveV3ImpairSuccessTests is AaveV3TestBase {
         vm.expectEmit();
         emit IMapleAaveV3Strategy.Impaired(additionalUnrealizedLosses);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         strategy.impair(additionalUnrealizedLosses);
 
         assertEq(strategy.impairedAssets(),   expectedUnrealizedLosses);
@@ -143,7 +143,7 @@ contract AaveV3ImpairSuccessTests is AaveV3TestBase {
         vm.expectEmit();
         emit IMapleAaveV3Strategy.Impaired(additionalUnrealizedLosses);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         strategy.impair(additionalUnrealizedLosses);
 
         assertEq(strategy.impairedAssets(),   expectedUnrealizedLosses);
@@ -169,13 +169,13 @@ contract AaveV3ImpairSuccessTests is AaveV3TestBase {
         vm.expectEmit();
         emit IMapleAaveV3Strategy.Impaired(unrealizedLosses);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         strategy.impair(unrealizedLosses);
 
         assertEq(strategy.impairedAssets(),   unrealizedLosses);
         assertEq(strategy.unrealizedLosses(), expectedUnrealizedLosses);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         strategy.removeImpairment(excessUnrealizedLosses);
 
         assertEq(strategy.impairedAssets(),   expectedUnrealizedLosses);
@@ -209,7 +209,7 @@ contract AaveV3ImpairSuccessTests is AaveV3TestBase {
         vm.expectEmit();
         emit IMapleAaveV3Strategy.Impaired(unrealizedLosses);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         strategy.impair(unrealizedLosses);
 
         assertEq(strategy.impairedAssets(),      unrealizedLosses);
@@ -243,7 +243,7 @@ contract AaveV3ImpairSuccessTests is AaveV3TestBase {
         assertEq(strategy.impairedAssets(),   0);
         assertEq(strategy.unrealizedLosses(), 0);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         strategy.impair(unrealizedLosses);
 
         assertEq(strategy.impairedAssets(),   unrealizedLosses);

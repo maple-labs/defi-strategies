@@ -12,7 +12,7 @@ contract SkyRecognizeLossFailureTests is SkyTestBase {
     function test_recognizeLoss_revert_functionPaused() external {
         globals.__setIsFunctionPaused(MapleSkyStrategy.recognizeLoss.selector, true);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         vm.expectRevert("MSS:PAUSED");
         strategy.recognizeLoss();
     }
@@ -20,22 +20,22 @@ contract SkyRecognizeLossFailureTests is SkyTestBase {
     function test_recognizeLoss_revert_reentrancy() external {
         strategy.__setLocked(2);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         vm.expectRevert("MSS:LOCKED");
         strategy.recognizeLoss();
     }
 
-    function test_recognizeLoss_revert_notAdmin() external {
-        vm.prank(strategyDelegate);
-        vm.expectRevert("MSS:NOT_ADMIN");
+    function test_recognizeLoss_revert_notAuthorized() external {
+        vm.prank(governor);
+        vm.expectRevert("MSS:NOT_AUTHORIZED");
         strategy.recognizeLoss();
     }
 
     function test_recognizeLoss_revert_lossRecognized() external {
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         strategy.recognizeLoss();
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         vm.expectRevert("MSS:LOSS_RECOGNIZED");
         strategy.recognizeLoss();
     }
@@ -53,7 +53,7 @@ contract SkyRecognizeLossSuccessTests is SkyTestBase {
         savingsUsds.__setSusdsRedeemExchangeRate(1e18);  // 1 sUSDS -> 1 USDS
     }
 
-    function test_recognizeLoss_success_governor() external {
+    function test_recognizeLoss_success_strategyDelegate() external {
         uint256 currentTotalAssets = 100e6;  // Strategy holds 100 sUSDS worth 100 assets.
         uint256 susdsBalance       = 100e18; // Strategy holds 100 sUSDS.
         uint256 unrealizedLosses   = 20e6;   // Strategy has 20 assets of unrealized losses recorded.
@@ -81,7 +81,7 @@ contract SkyRecognizeLossSuccessTests is SkyTestBase {
         vm.expectEmit();
         emit IMapleSkyStrategy.LossRecognized();
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         strategy.recognizeLoss();
 
         assertEq(strategy.isLossRecognized(), true);

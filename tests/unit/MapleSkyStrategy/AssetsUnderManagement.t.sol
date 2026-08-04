@@ -166,7 +166,7 @@ contract SkyAssetsUnderManagementTests is SkyTestBase {
             assetsUnderManagement:   currentTotalAssets
         });
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         strategy.recognizeLoss();
 
         savingsUsds.__setSusdsRedeemExchangeRate(2e18); // Raw Sky position grows to 200 assets after final loss recognition.

@@ -195,7 +195,7 @@ contract SkyAvailableToWithdrawTests is SkyTestBase {
 
         assertEq(asset.balanceOf(psmPocket), psmPocketLiquidity);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         strategy.recognizeLoss();
 
         savingsUsds.__setSusdsRedeemExchangeRate(2e18); // Raw Sky position grows to 200 assets after final loss recognition.
@@ -223,7 +223,7 @@ contract SkyAvailableToWithdrawTests is SkyTestBase {
             susdsBalance_:            susdsBalance
         });
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         strategy.recognizeLoss();
 
         // Sky's PSM uses type(uint256).max `tout` to halt the `buyGem` path.

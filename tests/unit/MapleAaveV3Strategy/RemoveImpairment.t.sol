@@ -12,7 +12,7 @@ contract AaveV3RemoveImpairmentFailureTests is AaveV3TestBase {
     function test_removeImpairment_revert_functionPaused() external {
         globals.__setIsFunctionPaused(MapleAaveV3Strategy.removeImpairment.selector, true);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         vm.expectRevert("MAV3S:PAUSED");
         strategy.removeImpairment(1);
     }
@@ -20,27 +20,27 @@ contract AaveV3RemoveImpairmentFailureTests is AaveV3TestBase {
     function test_removeImpairment_revert_reentrancy() external {
         strategy.__setLocked(2);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         vm.expectRevert("MAV3S:LOCKED");
         strategy.removeImpairment(1);
     }
 
-    function test_removeImpairment_revert_notAdmin() external {
-        vm.prank(strategyDelegate);
-        vm.expectRevert("MAV3S:NOT_ADMIN");
+    function test_removeImpairment_revert_notAuthorized() external {
+        vm.prank(governor);
+        vm.expectRevert("MAV3S:NOT_AUTHORIZED");
         strategy.removeImpairment(1);
     }
 
     function test_removeImpairment_revert_lossRecognized() external {
         strategy.__setIsLossRecognized(true);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         vm.expectRevert("MAV3S:LOSS_RECOGNIZED");
         strategy.removeImpairment(1);
     }
 
     function test_removeImpairment_revert_zeroUnrealizedLosses() external {
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         vm.expectRevert("MAV3S:RI:ZERO");
         strategy.removeImpairment(0);
     }
@@ -53,7 +53,7 @@ contract AaveV3RemoveImpairmentFailureTests is AaveV3TestBase {
 
         assertEq(strategy.impairedAssets(), unrealizedLosses);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         vm.expectRevert("MAV3S:RI:EXCEEDS_IMPAIRMENT");
         strategy.removeImpairment(impairmentRemoved);
     }
@@ -62,7 +62,7 @@ contract AaveV3RemoveImpairmentFailureTests is AaveV3TestBase {
 
 contract AaveV3RemoveImpairmentSuccessTests is AaveV3TestBase {
 
-    function test_removeImpairment_success_governor() external {
+    function test_removeImpairment_success_strategyDelegate() external {
         uint256 currentTotalAssets       = 100e6; // Strategy holds 100 aTokens worth 100 assets.
         uint256 aaveTokenBalance         = 100e6; // Strategy holds 100 aTokens.
         uint256 initialUnrealizedLosses  = 20e6;  // Existing unrealized losses are 20 assets.
@@ -82,7 +82,7 @@ contract AaveV3RemoveImpairmentSuccessTests is AaveV3TestBase {
         vm.expectEmit();
         emit IMapleAaveV3Strategy.ImpairmentRemoved(impairmentRemoved);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         strategy.removeImpairment(impairmentRemoved);
 
         assertEq(strategy.impairedAssets(),   expectedUnrealizedLosses);
@@ -134,7 +134,7 @@ contract AaveV3RemoveImpairmentSuccessTests is AaveV3TestBase {
         vm.expectEmit();
         emit IMapleAaveV3Strategy.ImpairmentRemoved(unrealizedLosses);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         strategy.removeImpairment(unrealizedLosses);
 
         assertEq(strategy.impairedAssets(),   0);
@@ -171,7 +171,7 @@ contract AaveV3RemoveImpairmentSuccessTests is AaveV3TestBase {
         vm.expectEmit();
         emit IMapleAaveV3Strategy.ImpairmentRemoved(impairmentRemoved);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         strategy.removeImpairment(impairmentRemoved);
 
         assertEq(strategy.impairedAssets(),      expectedUnrealizedLosses);

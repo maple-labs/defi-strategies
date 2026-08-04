@@ -12,7 +12,7 @@ contract SkyRemoveImpairmentFailureTests is SkyTestBase {
     function test_removeImpairment_revert_functionPaused() external {
         globals.__setIsFunctionPaused(MapleSkyStrategy.removeImpairment.selector, true);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         vm.expectRevert("MSS:PAUSED");
         strategy.removeImpairment(1);
     }
@@ -20,27 +20,27 @@ contract SkyRemoveImpairmentFailureTests is SkyTestBase {
     function test_removeImpairment_revert_reentrancy() external {
         strategy.__setLocked(2);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         vm.expectRevert("MSS:LOCKED");
         strategy.removeImpairment(1);
     }
 
-    function test_removeImpairment_revert_notAdmin() external {
-        vm.prank(strategyDelegate);
-        vm.expectRevert("MSS:NOT_ADMIN");
+    function test_removeImpairment_revert_notAuthorized() external {
+        vm.prank(governor);
+        vm.expectRevert("MSS:NOT_AUTHORIZED");
         strategy.removeImpairment(1);
     }
 
     function test_removeImpairment_revert_lossRecognized() external {
         strategy.__setIsLossRecognized(true);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         vm.expectRevert("MSS:LOSS_RECOGNIZED");
         strategy.removeImpairment(1);
     }
 
     function test_removeImpairment_revert_zeroUnrealizedLosses() external {
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         vm.expectRevert("MSS:RI:ZERO");
         strategy.removeImpairment(0);
     }
@@ -53,7 +53,7 @@ contract SkyRemoveImpairmentFailureTests is SkyTestBase {
 
         assertEq(strategy.impairedAssets(), unrealizedLosses);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         vm.expectRevert("MSS:RI:EXCEEDS_IMPAIRMENT");
         strategy.removeImpairment(impairmentRemoved);
     }
@@ -71,7 +71,7 @@ contract SkyRemoveImpairmentSuccessTests is SkyTestBase {
         savingsUsds.__setSusdsRedeemExchangeRate(1e18);  // 1 sUSDS -> 1 USDS
     }
 
-    function test_removeImpairment_success_governor() external {
+    function test_removeImpairment_success_strategyDelegate() external {
         uint256 currentTotalAssets       = 100e6;  // Strategy holds 100 sUSDS worth 100 assets.
         uint256 susdsBalance             = 100e18; // Strategy holds 100 sUSDS.
         uint256 initialUnrealizedLosses  = 20e6;   // Existing unrealized losses are 20 assets.
@@ -91,7 +91,7 @@ contract SkyRemoveImpairmentSuccessTests is SkyTestBase {
         vm.expectEmit();
         emit IMapleSkyStrategy.ImpairmentRemoved(impairmentRemoved);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         strategy.removeImpairment(impairmentRemoved);
 
         assertEq(strategy.impairedAssets(),   expectedUnrealizedLosses);
@@ -143,7 +143,7 @@ contract SkyRemoveImpairmentSuccessTests is SkyTestBase {
         vm.expectEmit();
         emit IMapleSkyStrategy.ImpairmentRemoved(unrealizedLosses);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         strategy.removeImpairment(unrealizedLosses);
 
         assertEq(strategy.impairedAssets(),   0);
@@ -182,7 +182,7 @@ contract SkyRemoveImpairmentSuccessTests is SkyTestBase {
         vm.expectEmit();
         emit IMapleSkyStrategy.ImpairmentRemoved(impairmentRemoved);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         strategy.removeImpairment(impairmentRemoved);
 
         assertEq(strategy.impairedAssets(),      expectedUnrealizedLosses);

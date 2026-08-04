@@ -12,7 +12,7 @@ contract SkySetReferralCodeFailureTests is SkyTestBase {
     function test_setReferralCode_revert_functionPaused() external {
         globals.__setIsFunctionPaused(IMapleSkyStrategy.setReferralCode.selector, true);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         vm.expectRevert("MSS:PAUSED");
         strategy.setReferralCode(referralCode);
     }
@@ -20,26 +20,27 @@ contract SkySetReferralCodeFailureTests is SkyTestBase {
     function test_setReferralCode_revert_reentrancy() external {
         strategy.__setLocked(2);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         vm.expectRevert("MSS:LOCKED");
         strategy.setReferralCode(referralCode);
     }
 
-    function test_setReferralCode_revert_notAdmin() external {
-        vm.expectRevert("MSS:NOT_ADMIN");
+    function test_setReferralCode_revert_notAuthorized() external {
+        vm.prank(governor);
+        vm.expectRevert("MSS:NOT_AUTHORIZED");
         strategy.setReferralCode(referralCode);
     }
 
     function test_setReferralCode_revert_lossRecognized() external {
         strategy.__setIsLossRecognized(true);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         vm.expectRevert("MSS:LOSS_RECOGNIZED");
         strategy.setReferralCode(referralCode);
     }
 
     function test_setReferralCode_revert_noChange() external {
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         vm.expectRevert("MSS:SRC:NO_CHANGE");
         strategy.setReferralCode(INITIAL_REFERRAL_CODE);
     }
@@ -50,7 +51,7 @@ contract SkySetReferralCodeSuccessTests is SkyTestBase {
 
     uint16 referralCode = 42;
 
-    function test_setReferralCode_success_governor() external {
+    function test_setReferralCode_success_strategyDelegate() external {
         assertEq(strategy.referralCode(), INITIAL_REFERRAL_CODE);
 
         assertSkyStrategy({
@@ -62,7 +63,7 @@ contract SkySetReferralCodeSuccessTests is SkyTestBase {
         vm.expectEmit();
         emit IMapleSkyStrategy.ReferralCodeSet(referralCode);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         strategy.setReferralCode(referralCode);
 
         assertEq(strategy.referralCode(), referralCode);
@@ -110,7 +111,7 @@ contract SkySetReferralCodeSuccessTests is SkyTestBase {
         vm.expectEmit();
         emit IMapleSkyStrategy.ReferralCodeSet(0);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         strategy.setReferralCode(0);
 
         assertEq(strategy.referralCode(), 0);
@@ -136,7 +137,7 @@ contract SkySetReferralCodeSuccessTests is SkyTestBase {
         vm.expectEmit();
         emit IMapleSkyStrategy.ReferralCodeSet(referralCode_);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         strategy.setReferralCode(referralCode_);
 
         assertEq(strategy.referralCode(), referralCode_);

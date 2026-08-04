@@ -12,7 +12,7 @@ contract SkySetFallbackToutFailureTests is SkyTestBase {
     function test_setFallbackTout_revert_functionPaused() external {
         globals.__setIsFunctionPaused(MapleSkyStrategy.setFallbackTout.selector, true);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         vm.expectRevert("MSS:PAUSED");
         strategy.setFallbackTout(0.25e18);
     }
@@ -20,20 +20,21 @@ contract SkySetFallbackToutFailureTests is SkyTestBase {
     function test_setFallbackTout_revert_reentrancy() external {
         strategy.__setLocked(2);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         vm.expectRevert("MSS:LOCKED");
         strategy.setFallbackTout(0.25e18);
     }
 
-    function test_setFallbackTout_revert_notAdmin() external {
-        vm.expectRevert("MSS:NOT_ADMIN");
+    function test_setFallbackTout_revert_notAuthorized() external {
+        vm.prank(governor);
+        vm.expectRevert("MSS:NOT_AUTHORIZED");
         strategy.setFallbackTout(0.25e18);
     }
 
     function test_setFallbackTout_revert_lossRecognized() external {
         strategy.__setIsLossRecognized(true);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         vm.expectRevert("MSS:LOSS_RECOGNIZED");
         strategy.setFallbackTout(0.25e18);
     }
@@ -41,13 +42,13 @@ contract SkySetFallbackToutFailureTests is SkyTestBase {
     function test_setFallbackTout_revert_noChange() external {
         strategy.__setFallbackTout(0.25e18);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         vm.expectRevert("MSS:SFT:NO_CHANGE");
         strategy.setFallbackTout(0.25e18);
     }
 
     function test_setFallbackTout_revert_invalidTout() external {
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         vm.expectRevert("MSS:SFT:INVALID_TOUT");
         strategy.setFallbackTout(type(uint256).max);
     }
@@ -56,7 +57,7 @@ contract SkySetFallbackToutFailureTests is SkyTestBase {
 
 contract SkySetFallbackToutSuccessTests is SkyTestBase {
 
-    function test_setFallbackTout_success_governor() external {
+    function test_setFallbackTout_success_strategyDelegate() external {
         uint256 fallbackTout_ = 0.25e18;
 
         assertEq(strategy.fallbackTout(), 0);
@@ -64,7 +65,7 @@ contract SkySetFallbackToutSuccessTests is SkyTestBase {
         vm.expectEmit();
         emit IMapleSkyStrategy.FallbackToutSet(fallbackTout_);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         strategy.setFallbackTout(fallbackTout_);
 
         assertEq(strategy.fallbackTout(), fallbackTout_);
@@ -94,7 +95,7 @@ contract SkySetFallbackToutSuccessTests is SkyTestBase {
         vm.expectEmit();
         emit IMapleSkyStrategy.FallbackToutSet(fallbackTout_);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         strategy.setFallbackTout(fallbackTout_);
 
         assertEq(strategy.fallbackTout(), fallbackTout_);
@@ -108,7 +109,7 @@ contract SkySetFallbackToutSuccessTests is SkyTestBase {
         vm.expectEmit();
         emit IMapleSkyStrategy.FallbackToutSet(0);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         strategy.setFallbackTout(0);
 
         assertEq(strategy.fallbackTout(), 0);
@@ -124,7 +125,7 @@ contract SkySetFallbackToutSuccessTests is SkyTestBase {
 
         psm.__setTout(tout);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         strategy.setFallbackTout(tout);
 
         assertEq(strategy.assetsUnderManagement(), aum);

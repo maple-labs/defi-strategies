@@ -12,7 +12,7 @@ contract SkyImpairFailureTests is SkyTestBase {
     function test_impair_revert_functionPaused() external {
         globals.__setIsFunctionPaused(MapleSkyStrategy.impair.selector, true);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         vm.expectRevert("MSS:PAUSED");
         strategy.impair(1);
     }
@@ -20,27 +20,27 @@ contract SkyImpairFailureTests is SkyTestBase {
     function test_impair_revert_reentrancy() external {
         strategy.__setLocked(2);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         vm.expectRevert("MSS:LOCKED");
         strategy.impair(1);
     }
 
-    function test_impair_revert_notAdmin() external {
-        vm.prank(strategyDelegate);
-        vm.expectRevert("MSS:NOT_ADMIN");
+    function test_impair_revert_notAuthorized() external {
+        vm.prank(governor);
+        vm.expectRevert("MSS:NOT_AUTHORIZED");
         strategy.impair(1);
     }
 
     function test_impair_revert_lossRecognized() external {
         strategy.__setIsLossRecognized(true);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         vm.expectRevert("MSS:LOSS_RECOGNIZED");
         strategy.impair(1);
     }
 
     function test_impair_revert_zeroUnrealizedLosses() external {
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         vm.expectRevert("MSS:I:ZERO");
         strategy.impair(0);
     }
@@ -58,7 +58,7 @@ contract SkyImpairSuccessTests is SkyTestBase {
         savingsUsds.__setSusdsRedeemExchangeRate(1e18);  // 1 sUSDS -> 1 USDS
     }
 
-    function test_impair_success_governor() external {
+    function test_impair_success_strategyDelegate() external {
         uint256 currentTotalAssets = 100e6;  // Strategy holds 100 sUSDS worth 100 assets.
         uint256 susdsBalance       = 100e18; // Strategy holds 100 sUSDS.
         uint256 unrealizedLosses   = 20e6;   // Admin records 20 assets of unrealized losses.
@@ -74,7 +74,7 @@ contract SkyImpairSuccessTests is SkyTestBase {
         vm.expectEmit();
         emit IMapleSkyStrategy.Impaired(unrealizedLosses);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         strategy.impair(unrealizedLosses);
 
         assertEq(strategy.impairedAssets(),   unrealizedLosses);
@@ -124,7 +124,7 @@ contract SkyImpairSuccessTests is SkyTestBase {
         vm.expectEmit();
         emit IMapleSkyStrategy.Impaired(additionalUnrealizedLosses);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         strategy.impair(additionalUnrealizedLosses);
 
         assertEq(strategy.impairedAssets(),   expectedUnrealizedLosses);
@@ -152,7 +152,7 @@ contract SkyImpairSuccessTests is SkyTestBase {
         vm.expectEmit();
         emit IMapleSkyStrategy.Impaired(additionalUnrealizedLosses);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         strategy.impair(additionalUnrealizedLosses);
 
         assertEq(strategy.impairedAssets(),   expectedUnrealizedLosses);
@@ -178,13 +178,13 @@ contract SkyImpairSuccessTests is SkyTestBase {
         vm.expectEmit();
         emit IMapleSkyStrategy.Impaired(unrealizedLosses);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         strategy.impair(unrealizedLosses);
 
         assertEq(strategy.impairedAssets(),   unrealizedLosses);
         assertEq(strategy.unrealizedLosses(), expectedUnrealizedLosses);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         strategy.removeImpairment(excessUnrealizedLosses);
 
         assertEq(strategy.impairedAssets(),   expectedUnrealizedLosses);
@@ -220,7 +220,7 @@ contract SkyImpairSuccessTests is SkyTestBase {
         vm.expectEmit();
         emit IMapleSkyStrategy.Impaired(unrealizedLosses);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         strategy.impair(unrealizedLosses);
 
         assertEq(strategy.impairedAssets(),      unrealizedLosses);
@@ -255,7 +255,7 @@ contract SkyImpairSuccessTests is SkyTestBase {
         assertEq(strategy.impairedAssets(),   0);
         assertEq(strategy.unrealizedLosses(), 0);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         strategy.impair(unrealizedLosses);
 
         assertEq(strategy.impairedAssets(),   unrealizedLosses);

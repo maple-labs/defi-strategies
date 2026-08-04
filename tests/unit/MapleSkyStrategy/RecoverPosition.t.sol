@@ -12,7 +12,7 @@ contract SkyRecoverPositionFailureTests is SkyTestBase {
     function test_recoverPosition_revert_functionPaused() external {
         globals.__setIsFunctionPaused(MapleSkyStrategy.recoverPosition.selector, true);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         vm.expectRevert("MSS:PAUSED");
         strategy.recoverPosition();
     }
@@ -20,19 +20,19 @@ contract SkyRecoverPositionFailureTests is SkyTestBase {
     function test_recoverPosition_revert_reentrancy() external {
         strategy.__setLocked(2);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         vm.expectRevert("MSS:LOCKED");
         strategy.recoverPosition();
     }
 
-    function test_recoverPosition_revert_notAdmin() external {
-        vm.prank(strategyDelegate);
-        vm.expectRevert("MSS:NOT_ADMIN");
+    function test_recoverPosition_revert_notAuthorized() external {
+        vm.prank(governor);
+        vm.expectRevert("MSS:NOT_AUTHORIZED");
         strategy.recoverPosition();
     }
 
     function test_recoverPosition_revert_lossNotRecognized() external {
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         vm.expectRevert("MSS:RP:LOSS_NOT_RECOGNIZED");
         strategy.recoverPosition();
     }
@@ -40,7 +40,7 @@ contract SkyRecoverPositionFailureTests is SkyTestBase {
     function test_recoverPosition_revert_zeroBalance() external {
         strategy.__setIsLossRecognized(true);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         vm.expectRevert("MSS:RP:ZERO_BALANCE");
         strategy.recoverPosition();
     }
@@ -52,7 +52,7 @@ contract SkyRecoverPositionFailureTests is SkyTestBase {
         savingsUsds.__setBalanceOf(address(strategy), susdsBalance);
         savingsUsds.__setTransferReverts(true);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         vm.expectRevert("MSS:RP:TRANSFER_FAILED");
         strategy.recoverPosition();
     }
@@ -61,12 +61,12 @@ contract SkyRecoverPositionFailureTests is SkyTestBase {
 
 contract SkyRecoverPositionSuccessTests is SkyTestBase {
 
-    function test_recoverPosition_success_governor() external {
+    function test_recoverPosition_success_strategyDelegate() external {
         uint256 susdsBalance = 100e18; // Strategy holds 100 sUSDS after final loss recognition.
 
         savingsUsds.__setBalanceOf(address(strategy), susdsBalance);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         strategy.recognizeLoss();
 
         assertEq(savingsUsds.balanceOf(mapleTreasury), 0);
@@ -74,7 +74,7 @@ contract SkyRecoverPositionSuccessTests is SkyTestBase {
         vm.expectEmit();
         emit IMapleSkyStrategy.PositionRecovered(susdsBalance);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         strategy.recoverPosition();
 
         assertEq(strategy.isLossRecognized(),          true);
