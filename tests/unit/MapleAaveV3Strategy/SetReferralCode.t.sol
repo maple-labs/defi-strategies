@@ -30,6 +30,14 @@ contract AaveV3SetReferralCodeFailureTests is AaveV3TestBase {
         strategy.setReferralCode(referralCode);
     }
 
+    function test_setReferralCode_revert_lossRecognized() external {
+        strategy.__setIsLossRecognized(true);
+
+        vm.prank(governor);
+        vm.expectRevert("MAV3S:LOSS_RECOGNIZED");
+        strategy.setReferralCode(referralCode);
+    }
+
     function test_setReferralCode_revert_noChange() external {
         vm.prank(governor);
         vm.expectRevert("MAV3S:SRC:NO_CHANGE");

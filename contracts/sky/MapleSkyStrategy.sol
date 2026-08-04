@@ -161,7 +161,7 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
         emit PositionRecovered(balance_);
     }
 
-    function setFallbackTout(uint256 fallbackTout_) external override whenNotPaused nonReentrant onlyProtocolAdmins {
+    function setFallbackTout(uint256 fallbackTout_) external override whenNotPaused nonReentrant onlyProtocolAdmins whenLossNotRecognized {
         require(fallbackTout_ != fallbackTout,      "MSS:SFT:NO_CHANGE");
         require(fallbackTout_ != type(uint256).max, "MSS:SFT:INVALID_TOUT");
 
@@ -170,7 +170,7 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
         emit FallbackToutSet(fallbackTout_);
     }
 
-    function setMetadata(string calldata metadata_) external override whenNotPaused nonReentrant onlyProtocolAdmins {
+    function setMetadata(string calldata metadata_) external override whenNotPaused nonReentrant onlyProtocolAdmins whenLossNotRecognized {
         require(keccak256(bytes(metadata_)) != keccak256(bytes(strategyMetadata)), "MSS:SM:NO_CHANGE");
 
         strategyMetadata = metadata_;
@@ -178,7 +178,7 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
         emit StrategyMetadataSet(metadata_);
     }
 
-    function setPsm(address newPsm_) external override whenNotPaused nonReentrant onlyProtocolAdmins {
+    function setPsm(address newPsm_) external override whenNotPaused nonReentrant onlyProtocolAdmins whenLossNotRecognized {
         require(newPsm_ != psm,                                       "MSS:SP:NO_CHANGE");
         require(IGlobalsLike(globals()).isInstanceOf("PSM", newPsm_), "MSS:SP:INVALID_PSM");
         require(IPSMLike(newPsm_).gem() == fundsAsset,                "MSS:SP:INVALID_GEM_PSM");
@@ -190,7 +190,7 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
         emit PsmSet(newPsm_);
     }
 
-    function setReferralCode(uint16 referralCode_) external override whenNotPaused nonReentrant onlyProtocolAdmins {
+    function setReferralCode(uint16 referralCode_) external override whenNotPaused nonReentrant onlyProtocolAdmins whenLossNotRecognized {
         require(referralCode_ != referralCode, "MSS:SRC:NO_CHANGE");
 
         referralCode = referralCode_;
@@ -198,7 +198,9 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
         emit ReferralCodeSet(referralCode_);
     }
 
-    function setStrategyDelegateFeeRate(uint32 strategyDelegateFeeRate_) external override whenNotPaused nonReentrant onlyStrategyDelegate {
+    function setStrategyDelegateFeeRate(uint32 strategyDelegateFeeRate_)
+        external override whenNotPaused nonReentrant onlyStrategyDelegate whenLossNotRecognized
+    {
         require(strategyDelegateFeeRate_ != strategyDelegateFeeRate,                   "MSS:SSDFR:NO_CHANGE");
         require(strategyDelegateFeeRate_ <= HUNDRED_PERCENT,                           "MSS:SSDFR:INVALID_FEE_RATE");
         require(strategyDelegateFeeRate_ + strategyProtocolFeeRate <= HUNDRED_PERCENT, "MSS:SSDFR:INVALID_SUM_FEE_RATE");
@@ -215,7 +217,9 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
         emit StrategyDelegateFeeRateSet(strategyDelegateFeeRate_);
     }
 
-    function setStrategyProtocolFeeRate(uint32 strategyProtocolFeeRate_) external override whenNotPaused nonReentrant onlyProtocolAdmins {
+    function setStrategyProtocolFeeRate(uint32 strategyProtocolFeeRate_)
+        external override whenNotPaused nonReentrant onlyProtocolAdmins whenLossNotRecognized
+    {
         require(strategyProtocolFeeRate_ != strategyProtocolFeeRate,                   "MSS:SSPFR:NO_CHANGE");
         require(strategyProtocolFeeRate_ <= HUNDRED_PERCENT,                           "MSS:SSPFR:INVALID_FEE_RATE");
         require(strategyDelegateFeeRate + strategyProtocolFeeRate_ <= HUNDRED_PERCENT, "MSS:SSPFR:INVALID_SUM_FEE_RATE");

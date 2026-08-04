@@ -28,6 +28,14 @@ contract AaveV3SetMetadataFailureTests is AaveV3TestBase {
         strategy.setMetadata("abc");
     }
 
+    function test_setMetadata_revert_lossRecognized() external {
+        strategy.__setIsLossRecognized(true);
+
+        vm.prank(governor);
+        vm.expectRevert("MAV3S:LOSS_RECOGNIZED");
+        strategy.setMetadata("abc");
+    }
+
     function test_setMetadata_revert_noChange() external {
         vm.prank(governor);
         vm.expectRevert("MAV3S:SM:NO_CHANGE");

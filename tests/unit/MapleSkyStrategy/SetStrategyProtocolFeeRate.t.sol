@@ -43,6 +43,16 @@ contract SkySetStrategyProtocolFeeRateFailureTests is SkyTestBase {
         strategy.setStrategyProtocolFeeRate(strategyProtocolFeeRate_);
     }
 
+    function test_setStrategyProtocolFeeRate_revert_lossRecognized() external {
+        uint32 strategyProtocolFeeRate_ = 0.04e6;  // 4% protocol fee
+
+        strategy.__setIsLossRecognized(true);
+
+        vm.prank(governor);
+        vm.expectRevert("MSS:LOSS_RECOGNIZED");
+        strategy.setStrategyProtocolFeeRate(strategyProtocolFeeRate_);
+    }
+
     function test_setStrategyProtocolFeeRate_revert_noChange() external {
         uint32 strategyDelegateFeeRate_ = 0.02e6;  // 2% delegate fee
         uint32 strategyProtocolFeeRate_ = 0.05e6;  // 5% protocol fee

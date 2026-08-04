@@ -55,6 +55,14 @@ contract SkySetPsmFailureTests is SkySetPsmTestsBase {
         strategy.setPsm(address(newPsm));
     }
 
+    function test_setPsm_revert_lossRecognized() external {
+        strategy.__setIsLossRecognized(true);
+
+        vm.prank(governor);
+        vm.expectRevert("MSS:LOSS_RECOGNIZED");
+        strategy.setPsm(address(newPsm));
+    }
+
     function test_setPsm_revert_noChange() external {
         vm.prank(governor);
         vm.expectRevert("MSS:SP:NO_CHANGE");

@@ -141,44 +141,4 @@ contract SkyRecognizeLossSuccessTests is SkyTestBase {
         assertEq(strategy.availableToWithdraw(), 0);
     }
 
-    function test_recognizeLoss_success_feeRateSetterDoesNotCollectFeesOrReviveAum() external {
-        uint32 strategyProtocolFeeRate = 0.04e6; // New 4% protocol fee.
-
-        uint256 currentTotalAssets = 100e6;  // Strategy holds 100 sUSDS worth 100 assets.
-        uint256 susdsBalance       = 100e18; // Strategy holds 100 sUSDS.
-
-        setSkyStrategyState({
-            lastRecordedTotalAssets_: currentTotalAssets,
-            susdsBalance_:            susdsBalance
-        });
-
-        vm.prank(governor);
-        strategy.recognizeLoss();
-
-        savingsUsds.__setSusdsRedeemExchangeRate(2e18); // Raw Sky position grows to 200 assets after final loss recognition.
-        setPsmPocketLiquidity(200e6);
-
-        vm.expectEmit();
-        emit IMapleSkyStrategy.StrategyFeesCollected(0, 0);
-
-        vm.expectEmit();
-        emit IMapleSkyStrategy.StrategyProtocolFeeRateSet(strategyProtocolFeeRate);
-
-        vm.prank(governor);
-        strategy.setStrategyProtocolFeeRate(strategyProtocolFeeRate);
-
-        assertEq(strategy.strategyProtocolFeeRate(), strategyProtocolFeeRate);
-
-        assertCollectedFees({
-            delegateFee: 0,
-            protocolFee: 0
-        });
-
-        assertSkyStrategy({
-            susdsBalance:            susdsBalance,
-            lastRecordedTotalAssets: 0,
-            assetsUnderManagement:   0
-        });
-    }
-
 }

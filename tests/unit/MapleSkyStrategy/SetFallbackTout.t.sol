@@ -30,6 +30,14 @@ contract SkySetFallbackToutFailureTests is SkyTestBase {
         strategy.setFallbackTout(0.25e18);
     }
 
+    function test_setFallbackTout_revert_lossRecognized() external {
+        strategy.__setIsLossRecognized(true);
+
+        vm.prank(governor);
+        vm.expectRevert("MSS:LOSS_RECOGNIZED");
+        strategy.setFallbackTout(0.25e18);
+    }
+
     function test_setFallbackTout_revert_noChange() external {
         strategy.__setFallbackTout(0.25e18);
 

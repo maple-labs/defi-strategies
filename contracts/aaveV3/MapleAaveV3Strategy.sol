@@ -175,7 +175,7 @@ contract MapleAaveV3Strategy is IMapleAaveV3Strategy, MapleAaveV3StrategyStorage
         emit PositionRecovered(balance_);
     }
 
-    function setMetadata(string calldata metadata_) external override whenNotPaused nonReentrant onlyProtocolAdmins {
+    function setMetadata(string calldata metadata_) external override whenNotPaused nonReentrant onlyProtocolAdmins whenLossNotRecognized {
         require(keccak256(bytes(metadata_)) != keccak256(bytes(strategyMetadata)), "MAV3S:SM:NO_CHANGE");
 
         strategyMetadata = metadata_;
@@ -183,7 +183,7 @@ contract MapleAaveV3Strategy is IMapleAaveV3Strategy, MapleAaveV3StrategyStorage
         emit StrategyMetadataSet(metadata_);
     }
 
-    function setReferralCode(uint16 referralCode_) external override whenNotPaused nonReentrant onlyProtocolAdmins {
+    function setReferralCode(uint16 referralCode_) external override whenNotPaused nonReentrant onlyProtocolAdmins whenLossNotRecognized {
         require(referralCode_ != referralCode, "MAV3S:SRC:NO_CHANGE");
 
         referralCode = referralCode_;
@@ -191,7 +191,9 @@ contract MapleAaveV3Strategy is IMapleAaveV3Strategy, MapleAaveV3StrategyStorage
         emit ReferralCodeSet(referralCode_);
     }
 
-    function setStrategyDelegateFeeRate(uint32 strategyDelegateFeeRate_) external override whenNotPaused nonReentrant onlyStrategyDelegate {
+    function setStrategyDelegateFeeRate(uint32 strategyDelegateFeeRate_)
+        external override whenNotPaused nonReentrant onlyStrategyDelegate whenLossNotRecognized
+    {
         require(strategyDelegateFeeRate_ != strategyDelegateFeeRate,                   "MAV3S:SSDFR:NO_CHANGE");
         require(strategyDelegateFeeRate_ <= HUNDRED_PERCENT,                           "MAV3S:SSDFR:INVALID_FEE_RATE");
         require(strategyDelegateFeeRate_ + strategyProtocolFeeRate <= HUNDRED_PERCENT, "MAV3S:SSDFR:INVALID_SUM_FEE_RATE");
@@ -205,7 +207,9 @@ contract MapleAaveV3Strategy is IMapleAaveV3Strategy, MapleAaveV3StrategyStorage
         emit StrategyDelegateFeeRateSet(strategyDelegateFeeRate_);
     }
 
-    function setStrategyProtocolFeeRate(uint32 strategyProtocolFeeRate_) external override whenNotPaused nonReentrant onlyProtocolAdmins {
+    function setStrategyProtocolFeeRate(uint32 strategyProtocolFeeRate_)
+        external override whenNotPaused nonReentrant onlyProtocolAdmins whenLossNotRecognized
+    {
         require(strategyProtocolFeeRate_ != strategyProtocolFeeRate,                   "MAV3S:SSPFR:NO_CHANGE");
         require(strategyProtocolFeeRate_ <= HUNDRED_PERCENT,                           "MAV3S:SSPFR:INVALID_FEE_RATE");
         require(strategyDelegateFeeRate + strategyProtocolFeeRate_ <= HUNDRED_PERCENT, "MAV3S:SSPFR:INVALID_SUM_FEE_RATE");
@@ -220,7 +224,7 @@ contract MapleAaveV3Strategy is IMapleAaveV3Strategy, MapleAaveV3StrategyStorage
     }
 
     function setUseVirtualUnderlyingBalance(bool useVirtualUnderlyingBalance_)
-        external override whenNotPaused nonReentrant onlyProtocolAdmins
+        external override whenNotPaused nonReentrant onlyProtocolAdmins whenLossNotRecognized
     {
         require(useVirtualUnderlyingBalance_ != useVirtualUnderlyingBalance, "MAV3S:SUVUB:NO_CHANGE");
 

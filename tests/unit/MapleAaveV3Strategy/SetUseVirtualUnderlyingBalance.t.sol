@@ -28,6 +28,14 @@ contract AaveV3SetUseVirtualUnderlyingBalanceFailureTests is AaveV3TestBase {
         strategy.setUseVirtualUnderlyingBalance(false);
     }
 
+    function test_setUseVirtualUnderlyingBalance_revert_lossRecognized() external {
+        strategy.__setIsLossRecognized(true);
+
+        vm.prank(governor);
+        vm.expectRevert("MAV3S:LOSS_RECOGNIZED");
+        strategy.setUseVirtualUnderlyingBalance(false);
+    }
+
     function test_setUseVirtualUnderlyingBalance_revert_noChange() external {
         vm.prank(governor);
         vm.expectRevert("MAV3S:SUVUB:NO_CHANGE");

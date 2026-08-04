@@ -30,6 +30,14 @@ contract SkySetReferralCodeFailureTests is SkyTestBase {
         strategy.setReferralCode(referralCode);
     }
 
+    function test_setReferralCode_revert_lossRecognized() external {
+        strategy.__setIsLossRecognized(true);
+
+        vm.prank(governor);
+        vm.expectRevert("MSS:LOSS_RECOGNIZED");
+        strategy.setReferralCode(referralCode);
+    }
+
     function test_setReferralCode_revert_noChange() external {
         vm.prank(governor);
         vm.expectRevert("MSS:SRC:NO_CHANGE");

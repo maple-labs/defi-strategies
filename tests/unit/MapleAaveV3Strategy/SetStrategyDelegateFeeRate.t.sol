@@ -44,6 +44,16 @@ contract AaveV3SetStrategyDelegateFeeRateFailureTests is AaveV3TestBase {
         strategy.setStrategyDelegateFeeRate(strategyDelegateFeeRate_);
     }
 
+    function test_setStrategyDelegateFeeRate_revert_lossRecognized() external {
+        uint32 strategyDelegateFeeRate_ = 0.04e6;  // 4% delegate fee
+
+        strategy.__setIsLossRecognized(true);
+
+        vm.prank(strategyDelegate);
+        vm.expectRevert("MAV3S:LOSS_RECOGNIZED");
+        strategy.setStrategyDelegateFeeRate(strategyDelegateFeeRate_);
+    }
+
     function test_setStrategyDelegateFeeRate_revert_noChange() external {
         uint32 strategyDelegateFeeRate_ = 0.04e6;  // 4% delegate fee
         uint32 strategyProtocolFeeRate_ = 0.03e6;  // 3% protocol fee

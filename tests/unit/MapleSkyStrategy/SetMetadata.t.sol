@@ -28,6 +28,14 @@ contract SkySetMetadataFailureTests is SkyTestBase {
         strategy.setMetadata("abc");
     }
 
+    function test_setMetadata_revert_lossRecognized() external {
+        strategy.__setIsLossRecognized(true);
+
+        vm.prank(governor);
+        vm.expectRevert("MSS:LOSS_RECOGNIZED");
+        strategy.setMetadata("abc");
+    }
+
     function test_setMetadata_revert_noChange() external {
         vm.prank(governor);
         vm.expectRevert("MSS:SM:NO_CHANGE");

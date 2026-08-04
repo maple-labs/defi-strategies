@@ -132,48 +132,4 @@ contract AaveV3RecognizeLossSuccessTests is AaveV3TestBase {
         assertEq(strategy.availableToWithdraw(), 0);
     }
 
-    function test_recognizeLoss_success_feeRateSetterDoesNotCollectFeesOrReviveAum() external {
-        uint32 strategyProtocolFeeRate = 0.04e6; // New 4% protocol fee.
-
-        uint256 currentTotalAssets = 100e6; // Strategy holds 100 aTokens worth 100 assets.
-        uint256 aaveTokenBalance   = 100e6; // Strategy holds 100 aTokens.
-
-        setAaveV3StrategyState({
-            lastRecordedTotalAssets_: currentTotalAssets,
-            aaveTokenBalance_:        aaveTokenBalance
-        });
-
-        vm.prank(governor);
-        strategy.recognizeLoss();
-
-        uint256 increasedATokenBalance = 200e6; // Raw Aave position grows after final loss recognition.
-
-        setStrategyATokenBalance(increasedATokenBalance);
-        setAaveV3Liquidity(increasedATokenBalance);
-
-        vm.expectEmit();
-        emit IMapleAaveV3Strategy.StrategyFeesCollected(0, 0);
-
-        vm.expectEmit();
-        emit IMapleAaveV3Strategy.StrategyProtocolFeeRateSet(strategyProtocolFeeRate);
-
-        vm.prank(governor);
-        strategy.setStrategyProtocolFeeRate(strategyProtocolFeeRate);
-
-        assertEq(strategy.strategyProtocolFeeRate(), strategyProtocolFeeRate);
-
-        assertCollectedFees({
-            delegateFee: 0,
-            protocolFee: 0
-        });
-
-        assertAaveV3Strategy({
-            aaveTokenBalance:        increasedATokenBalance,
-            lastRecordedTotalAssets: 0,
-            assetsUnderManagement:   0
-        });
-
-        assertEq(strategy.availableToWithdraw(), 0);
-    }
-
 }
