@@ -188,18 +188,6 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
         emit StrategyMetadataSet(metadata_);
     }
 
-    function setPsm(address newPsm_) external override whenNotPaused nonReentrant onlyAdmin whenLossNotRecognized {
-        require(newPsm_ != psm,                                       "MSS:SP:NO_CHANGE");
-        require(IGlobalsLike(globals()).isInstanceOf("PSM", newPsm_), "MSS:SP:INVALID_PSM");
-        require(IPSMLike(newPsm_).gem() == fundsAsset,                "MSS:SP:INVALID_GEM_PSM");
-        require(IPSMLike(newPsm_).usds() == usds,                     "MSS:SP:INVALID_USDS_PSM");
-        require(IPSMLike(newPsm_).pocket() != address(0),             "MSS:SP:INVALID_POCKET_PSM");
-
-        psm = newPsm_;
-
-        emit PsmSet(newPsm_);
-    }
-
     function setReferralCode(uint16 referralCode_) external override whenNotPaused nonReentrant onlyAdmin whenLossNotRecognized {
         require(referralCode_ != referralCode, "MSS:SRC:NO_CHANGE");
 

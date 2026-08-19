@@ -44,12 +44,6 @@ interface IMapleSkyStrategy is IMapleSkyStrategyStorage, IMapleProxied {
     event PositionRecovered(uint256 shares);
 
     /**
-     *  @dev   Emitted when the PSM used for Sky conversions and withdrawals is set.
-     *  @param psm Address of the PSM.
-     */
-    event PsmSet(address indexed psm);
-
-    /**
      *  @dev   Emitted when the referral code used for future deposits is set.
      *  @param referralCode Referral code used when depositing into Sky.
      */
@@ -162,13 +156,6 @@ interface IMapleSkyStrategy is IMapleSkyStrategyStorage, IMapleProxied {
      *  @param metadata Optional metadata associated with the strategy.
      */
     function setMetadata(string calldata metadata) external;
-
-    /**
-     *  @dev   Sets the PSM used for future Sky conversions and withdrawals.
-     *         Callable only by the strategy delegate or operational admin.
-     *  @param newPsm Address of the new PSM.
-     */
-    function setPsm(address newPsm) external;
 
     /**
      *  @dev   Sets the referral code used for future deposits into Sky.
