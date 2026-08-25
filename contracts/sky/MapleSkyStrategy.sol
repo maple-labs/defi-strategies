@@ -18,6 +18,31 @@ import {
 
 import { MapleSkyStrategyStorage } from "./MapleSkyStrategyStorage.sol";
 
+/*
+
+    ███╗   ███╗ █████╗ ██████╗ ██╗     ███████╗
+    ████╗ ████║██╔══██╗██╔══██╗██║     ██╔════╝
+    ██╔████╔██║███████║██████╔╝██║     █████╗
+    ██║╚██╔╝██║██╔══██║██╔═══╝ ██║     ██╔══╝
+    ██║ ╚═╝ ██║██║  ██║██║     ███████╗███████╗
+    ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝     ╚══════╝╚══════╝
+
+    ███████╗██╗  ██╗██╗   ██╗
+    ██╔════╝██║ ██╔╝╚██╗ ██╔╝
+    ███████╗█████╔╝  ╚████╔╝
+    ╚════██║██╔═██╗   ╚██╔╝
+    ███████║██║  ██╗   ██║
+    ╚══════╝╚═╝  ╚═╝   ╚═╝
+
+    ███████╗████████╗██████╗  █████╗ ████████╗███████╗ ██████╗██╗   ██╗
+    ██╔════╝╚══██╔══╝██╔══██╗██╔══██╗╚══██╔══╝██╔════╝██╔════╝╚██╗ ██╔╝
+    ███████╗   ██║   ██████╔╝███████║   ██║   █████╗  ██║  ███╗╚████╔╝
+    ╚════██║   ██║   ██╔══██╗██╔══██║   ██║   ██╔══╝  ██║   ██║ ╚██╔╝
+    ███████║   ██║   ██║  ██║██║  ██║   ██║   ███████╗╚██████╔╝  ██║
+    ╚══════╝   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝   ╚══════╝ ╚═════╝   ╚═╝
+
+*/
+
 contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MapleProxiedInternals {
 
     /**************************************************************************************************************************************/
@@ -72,12 +97,6 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
         _;
     }
 
-    modifier onlyStrategyDelegate() {
-        require(msg.sender == strategyDelegate(), "MSS:NOT_STRATEGY_DELEGATE");
-
-        _;
-    }
-
     modifier onlyStrategyManager() {
         require(msg.sender == strategyManager, "MSS:NOT_STRATEGY_MANAGER");
 
@@ -117,125 +136,7 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
     }
 
     /**************************************************************************************************************************************/
-    /*** Admin Functions                                                                                                                ***/
-    /**************************************************************************************************************************************/
-
-    function impair(uint256 assets_) external override whenNotPaused nonReentrant onlyAdmin whenLossNotRecognized {
-        require(assets_ > 0, "MSS:I:ZERO");
-
-        impairedAssets += assets_;
-
-        emit Impaired(assets_);
-    }
-
-    function multicall(bytes[] calldata data_) external override {
-        for (uint256 i = 0; i < data_.length; i++) {
-            ( bool success_, bytes memory returnData_ ) = address(this).delegatecall(data_[i]);
-
-            if (!success_) {
-                assembly ("memory-safe") {
-                    revert(add(32, returnData_), mload(returnData_))
-                }
-            }
-        }
-    }
-
-    function removeImpairment(uint256 assets_)
-        external override whenNotPaused nonReentrant onlyAdmin whenLossNotRecognized
-    {
-        require(assets_ > 0,               "MSS:RI:ZERO");
-        require(assets_ <= impairedAssets, "MSS:RI:EXCEEDS_IMPAIRMENT");
-
-        impairedAssets -= assets_;
-
-        emit ImpairmentRemoved(assets_);
-    }
-
-    function recognizeLoss() external override whenNotPaused nonReentrant onlyAdmin whenLossNotRecognized {
-        isLossRecognized        = true;
-        lastRecordedTotalAssets = 0;
-        impairedAssets          = 0;
-
-        emit LossRecognized();
-    }
-
-    function recoverPosition() external override whenNotPaused nonReentrant onlyAdmin {
-        require(isLossRecognized, "MSS:RP:LOSS_NOT_RECOGNIZED");
-
-        address savingsUsds_ = savingsUsds;
-        uint256 balance_     = IERC20Like(savingsUsds_).balanceOf(address(this));
-
-        require(balance_ > 0,                                                  "MSS:RP:ZERO_BALANCE");
-        require(ERC20Helper.transfer(savingsUsds_, mapleTreasury(), balance_), "MSS:RP:TRANSFER_FAILED");
-
-        emit PositionRecovered(balance_);
-    }
-
-    function setFallbackTout(uint256 fallbackTout_) external override whenNotPaused nonReentrant onlyAdmin whenLossNotRecognized {
-        require(fallbackTout_ != fallbackTout,      "MSS:SFT:NO_CHANGE");
-        require(fallbackTout_ != type(uint256).max, "MSS:SFT:INVALID_TOUT");
-
-        fallbackTout = fallbackTout_;
-
-        emit FallbackToutSet(fallbackTout_);
-    }
-
-    function setMetadata(string calldata metadata_) external override whenNotPaused nonReentrant onlyProtocolAdmins whenLossNotRecognized {
-        require(keccak256(bytes(metadata_)) != keccak256(bytes(strategyMetadata)), "MSS:SM:NO_CHANGE");
-
-        strategyMetadata = metadata_;
-
-        emit StrategyMetadataSet(metadata_);
-    }
-
-    function setReferralCode(uint16 referralCode_) external override whenNotPaused nonReentrant onlyAdmin whenLossNotRecognized {
-        require(referralCode_ != referralCode, "MSS:SRC:NO_CHANGE");
-
-        referralCode = referralCode_;
-
-        emit ReferralCodeSet(referralCode_);
-    }
-
-    function setStrategyDelegateFeeRate(uint32 strategyDelegateFeeRate_)
-        external override whenNotPaused nonReentrant onlyStrategyDelegate whenLossNotRecognized
-    {
-        require(strategyDelegateFeeRate_ != strategyDelegateFeeRate,                   "MSS:SSDFR:NO_CHANGE");
-        require(strategyDelegateFeeRate_ <= HUNDRED_PERCENT,                           "MSS:SSDFR:INVALID_FEE_RATE");
-        require(strategyDelegateFeeRate_ + strategyProtocolFeeRate <= HUNDRED_PERCENT, "MSS:SSDFR:INVALID_SUM_FEE_RATE");
-
-        address psm_         = psm;
-        address savingsUsds_ = savingsUsds;
-
-        _accrueFees(psm_, savingsUsds_);
-
-        lastRecordedTotalAssets = _currentTotalAssets(psm_, savingsUsds_);
-
-        strategyDelegateFeeRate = strategyDelegateFeeRate_;
-
-        emit StrategyDelegateFeeRateSet(strategyDelegateFeeRate_);
-    }
-
-    function setStrategyProtocolFeeRate(uint32 strategyProtocolFeeRate_)
-        external override whenNotPaused nonReentrant onlyProtocolAdmins whenLossNotRecognized
-    {
-        require(strategyProtocolFeeRate_ != strategyProtocolFeeRate,                   "MSS:SSPFR:NO_CHANGE");
-        require(strategyProtocolFeeRate_ <= HUNDRED_PERCENT,                           "MSS:SSPFR:INVALID_FEE_RATE");
-        require(strategyDelegateFeeRate + strategyProtocolFeeRate_ <= HUNDRED_PERCENT, "MSS:SSPFR:INVALID_SUM_FEE_RATE");
-
-        address psm_         = psm;
-        address savingsUsds_ = savingsUsds;
-
-        _accrueFees(psm_, savingsUsds_);
-
-        lastRecordedTotalAssets = _currentTotalAssets(psm_, savingsUsds_);
-
-        strategyProtocolFeeRate = strategyProtocolFeeRate_;
-
-        emit StrategyProtocolFeeRateSet(strategyProtocolFeeRate_);
-    }
-
-    /**************************************************************************************************************************************/
-    /*** Management Functions                                                                                                           ***/
+    /*** Liquidity Management Functions                                                                                                 ***/
     /**************************************************************************************************************************************/
 
     function fundUnderlyingStrategy(
@@ -296,6 +197,125 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
         emit StrategyWithdrawal(destination_, sharesBurned_, assets_);
     }
 
+    function impair(uint256 assets_) external override whenNotPaused nonReentrant onlyAdmin whenLossNotRecognized {
+        require(assets_ > 0, "MSS:I:ZERO");
+
+        impairedAssets += assets_;
+
+        emit Impaired(assets_);
+    }
+
+    function removeImpairment(uint256 assets_)
+        external override whenNotPaused nonReentrant onlyAdmin whenLossNotRecognized
+    {
+        require(assets_ > 0,               "MSS:RI:ZERO");
+        require(assets_ <= impairedAssets, "MSS:RI:EXCEEDS_IMPAIRMENT");
+
+        impairedAssets -= assets_;
+
+        emit ImpairmentRemoved(assets_);
+    }
+
+    function recognizeLoss() external override whenNotPaused nonReentrant onlyAdmin whenLossNotRecognized {
+        isLossRecognized        = true;
+        lastRecordedTotalAssets = 0;
+        impairedAssets          = 0;
+
+        emit LossRecognized();
+    }
+
+    function recoverPosition() external override whenNotPaused nonReentrant onlyAdmin {
+        require(isLossRecognized, "MSS:RP:LOSS_NOT_RECOGNIZED");
+
+        address savingsUsds_ = savingsUsds;
+        uint256 balance_     = IERC20Like(savingsUsds_).balanceOf(address(this));
+
+        require(balance_ > 0,                                                  "MSS:RP:ZERO_BALANCE");
+        require(ERC20Helper.transfer(savingsUsds_, mapleTreasury(), balance_), "MSS:RP:TRANSFER_FAILED");
+
+        emit PositionRecovered(balance_);
+    }
+
+    /**************************************************************************************************************************************/
+    /*** Admin Functions                                                                                                                ***/
+    /**************************************************************************************************************************************/
+
+    function setFallbackTout(uint256 fallbackTout_) external override whenNotPaused nonReentrant onlyAdmin whenLossNotRecognized {
+        require(fallbackTout_ != fallbackTout,      "MSS:SFT:NO_CHANGE");
+        require(fallbackTout_ != type(uint256).max, "MSS:SFT:INVALID_TOUT");
+
+        fallbackTout = fallbackTout_;
+
+        emit FallbackToutSet(fallbackTout_);
+    }
+
+    function setMetadata(string calldata metadata_) external override whenNotPaused nonReentrant onlyProtocolAdmins whenLossNotRecognized {
+        require(keccak256(bytes(metadata_)) != keccak256(bytes(strategyMetadata)), "MSS:SM:NO_CHANGE");
+
+        strategyMetadata = metadata_;
+
+        emit StrategyMetadataSet(metadata_);
+    }
+
+    function setReferralCode(uint16 referralCode_) external override whenNotPaused nonReentrant onlyAdmin whenLossNotRecognized {
+        require(referralCode_ != referralCode, "MSS:SRC:NO_CHANGE");
+
+        referralCode = referralCode_;
+
+        emit ReferralCodeSet(referralCode_);
+    }
+
+    function setStrategyDelegateFeeRate(uint32 strategyDelegateFeeRate_)
+        external override whenNotPaused nonReentrant whenLossNotRecognized
+    {
+        require(msg.sender == strategyDelegate(),                                      "MSS:SSDFR:NOT_STRATEGY_DELEGATE");
+        require(strategyDelegateFeeRate_ != strategyDelegateFeeRate,                   "MSS:SSDFR:NO_CHANGE");
+        require(strategyDelegateFeeRate_ <= HUNDRED_PERCENT,                           "MSS:SSDFR:INVALID_FEE_RATE");
+        require(strategyDelegateFeeRate_ + strategyProtocolFeeRate <= HUNDRED_PERCENT, "MSS:SSDFR:INVALID_SUM_FEE_RATE");
+
+        address psm_         = psm;
+        address savingsUsds_ = savingsUsds;
+
+        _accrueFees(psm_, savingsUsds_);
+
+        lastRecordedTotalAssets = _currentTotalAssets(psm_, savingsUsds_);
+
+        strategyDelegateFeeRate = strategyDelegateFeeRate_;
+
+        emit StrategyDelegateFeeRateSet(strategyDelegateFeeRate_);
+    }
+
+    function setStrategyProtocolFeeRate(uint32 strategyProtocolFeeRate_)
+        external override whenNotPaused nonReentrant onlyProtocolAdmins whenLossNotRecognized
+    {
+        require(strategyProtocolFeeRate_ != strategyProtocolFeeRate,                   "MSS:SSPFR:NO_CHANGE");
+        require(strategyProtocolFeeRate_ <= HUNDRED_PERCENT,                           "MSS:SSPFR:INVALID_FEE_RATE");
+        require(strategyDelegateFeeRate + strategyProtocolFeeRate_ <= HUNDRED_PERCENT, "MSS:SSPFR:INVALID_SUM_FEE_RATE");
+
+        address psm_         = psm;
+        address savingsUsds_ = savingsUsds;
+
+        _accrueFees(psm_, savingsUsds_);
+
+        lastRecordedTotalAssets = _currentTotalAssets(psm_, savingsUsds_);
+
+        strategyProtocolFeeRate = strategyProtocolFeeRate_;
+
+        emit StrategyProtocolFeeRateSet(strategyProtocolFeeRate_);
+    }
+
+    function multicall(bytes[] calldata data_) external override {
+        for (uint256 i = 0; i < data_.length; i++) {
+            ( bool success_, bytes memory returnData_ ) = address(this).delegatecall(data_[i]);
+
+            if (!success_) {
+                assembly ("memory-safe") {
+                    revert(add(32, returnData_), mload(returnData_))
+                }
+            }
+        }
+    }
+
     /**************************************************************************************************************************************/
     /*** View Functions                                                                                                                 ***/
     /**************************************************************************************************************************************/
@@ -309,7 +329,6 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
         if (IPSMLike(psm_).tout() == type(uint256).max) return 0;
 
         uint256 currentTotalAssets_ = _currentTotalAssets(psm_, savingsUsds_);
-        // TODO: revisit the pocket balance check before the audit.
         uint256 psmPocketLiquidity_ = IERC20Like(fundsAsset).balanceOf(IPSMLike(psm_).pocket());
 
         uint256 grossAvailable_ = _min(currentTotalAssets_, psmPocketLiquidity_);

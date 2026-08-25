@@ -99,17 +99,8 @@ interface IMapleAaveV3Strategy is IMapleAaveV3StrategyStorage, IMapleProxied {
     event UseVirtualUnderlyingBalanceSet(bool useVirtualUnderlyingBalance);
 
     /**************************************************************************************************************************************/
-    /*** State-Changing Functions                                                                                                       ***/
+    /*** Liquidity Management Functions                                                                                                 ***/
     /**************************************************************************************************************************************/
-
-    /**
-     *  @dev   Claims rewards from the Aave Incentives Controller to the Maple treasury.
-     *         Callable only by the strategy delegate or operational admin.
-     *  @param assets      The list of assets to check eligible distributions before claiming rewards.
-     *  @param amount      The amount of rewards to claim. Pass max uint256 to claim the full unclaimed reward balance.
-     *  @param rewardToken The address of the reward token.
-     */
-    function claimRewards(address[] calldata assets, uint256 amount, address rewardToken) external;
 
     /**
      *  @dev    Deploys funds asset already held by this contract into Aave.
@@ -123,17 +114,22 @@ interface IMapleAaveV3Strategy is IMapleAaveV3StrategyStorage, IMapleProxied {
     function fundUnderlyingStrategy(uint256 assetsIn, bytes calldata data) external returns (uint256 deployedAssets);
 
     /**
+     *  @dev   Redeems Aave aTokens back into funds asset and delivers the withdrawn assets to `destination`.
+     *         Callable only by the bound strategy manager. Accrues outstanding fees before withdrawing
+     *         and refreshes the fee-accrual baseline to the post-withdrawal position.
+     *         Reverts after final loss recognition.
+     *  @param destination  Address that receives the withdrawn funds asset.
+     *  @param assets       Amount of funds asset to withdraw from Aave.
+     *  @param data         Reserved for future strategy-specific calldata. Unused by the Aave strategy.
+     */
+    function withdrawFromUnderlyingStrategy(address destination, uint256 assets, bytes calldata data) external;
+
+    /**
      *  @dev   Increases the asset-denominated impairment recorded for the strategy.
      *         Callable only by the strategy delegate or operational admin. Does not affect reported AUM or withdrawable assets.
      *  @param assets Funds-asset amount of impairment to add to the strategy.
      */
     function impair(uint256 assets) external;
-
-    /**
-     *  @dev   Allows EOAs to batch admin calls.
-     *  @param data Array of calldata.
-     */
-    function multicall(bytes[] calldata data) external;
 
     /**
      *  @dev   Decreases the asset-denominated impairment recorded for the strategy.
@@ -154,6 +150,19 @@ interface IMapleAaveV3Strategy is IMapleAaveV3StrategyStorage, IMapleProxied {
      *         Callable only by the strategy delegate or operational admin.
      */
     function recoverPosition() external;
+
+    /**************************************************************************************************************************************/
+    /*** Admin Functions                                                                                                                ***/
+    /**************************************************************************************************************************************/
+
+    /**
+     *  @dev   Claims rewards from the Aave Incentives Controller to the Maple treasury.
+     *         Callable only by the strategy delegate or operational admin.
+     *  @param assets      The list of assets to check eligible distributions before claiming rewards.
+     *  @param amount      The amount of rewards to claim. Pass max uint256 to claim the full unclaimed reward balance.
+     *  @param rewardToken The address of the reward token.
+     */
+    function claimRewards(address[] calldata assets, uint256 amount, address rewardToken) external;
 
     /**
      *  @dev   Updates the metadata of the Aave V3 strategy.
@@ -197,15 +206,10 @@ interface IMapleAaveV3Strategy is IMapleAaveV3StrategyStorage, IMapleProxied {
     function setUseVirtualUnderlyingBalance(bool useVirtualUnderlyingBalance) external;
 
     /**
-     *  @dev   Redeems Aave aTokens back into funds asset and delivers the withdrawn assets to `destination`.
-     *         Callable only by the bound strategy manager. Accrues outstanding fees before withdrawing
-     *         and refreshes the fee-accrual baseline to the post-withdrawal position.
-     *         Reverts after final loss recognition.
-     *  @param destination  Address that receives the withdrawn funds asset.
-     *  @param assets       Amount of funds asset to withdraw from Aave.
-     *  @param data         Reserved for future strategy-specific calldata. Unused by the Aave strategy.
+     *  @dev   Allows EOAs to batch admin calls.
+     *  @param data Array of calldata.
      */
-    function withdrawFromUnderlyingStrategy(address destination, uint256 assets, bytes calldata data) external;
+    function multicall(bytes[] calldata data) external;
 
     /**************************************************************************************************************************************/
     /*** View Functions                                                                                                                 ***/

@@ -39,7 +39,7 @@ contract SkySetStrategyDelegateFeeRateFailureTests is SkyTestBase {
     function test_setStrategyDelegateFeeRate_revert_notStrategyDelegate() external {
         uint32 strategyDelegateFeeRate_ = 0.04e6;  // 4% delegate fee
 
-        vm.expectRevert("MSS:NOT_STRATEGY_DELEGATE");
+        vm.expectRevert("MSS:SSDFR:NOT_STRATEGY_DELEGATE");
         strategy.setStrategyDelegateFeeRate(strategyDelegateFeeRate_);
     }
 

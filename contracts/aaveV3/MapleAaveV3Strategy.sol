@@ -21,6 +21,31 @@ import {
 
 import { MapleAaveV3StrategyStorage } from "./MapleAaveV3StrategyStorage.sol";
 
+/*
+
+    ███╗   ███╗ █████╗ ██████╗ ██╗     ███████╗
+    ████╗ ████║██╔══██╗██╔══██╗██║     ██╔════╝
+    ██╔████╔██║███████║██████╔╝██║     █████╗
+    ██║╚██╔╝██║██╔══██║██╔═══╝ ██║     ██╔══╝
+    ██║ ╚═╝ ██║██║  ██║██║     ███████╗███████╗
+    ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝     ╚══════╝╚══════╝
+
+     █████╗  █████╗ ██╗   ██╗███████╗    ██╗   ██╗██████╗
+    ██╔══██╗██╔══██╗██║   ██║██╔════╝    ██║   ██║╚════██╗
+    ███████║███████║██║   ██║█████╗      ██║   ██║ █████╔╝
+    ██╔══██║██╔══██║╚██╗ ██╔╝██╔══╝      ╚██╗ ██╔╝ ╚═══██╗
+    ██║  ██║██║  ██║ ╚████╔╝ ███████╗     ╚████╔╝ ██████╔╝
+    ╚═╝  ╚═╝╚═╝  ╚═╝  ╚═══╝  ╚══════╝      ╚═══╝  ╚═════╝
+
+    ███████╗████████╗██████╗  █████╗ ████████╗███████╗ ██████╗██╗   ██╗
+    ██╔════╝╚══██╔══╝██╔══██╗██╔══██╗╚══██╔══╝██╔════╝██╔════╝╚██╗ ██╔╝
+    ███████╗   ██║   ██████╔╝███████║   ██║   █████╗  ██║  ███╗╚████╔╝
+    ╚════██║   ██║   ██╔══██╗██╔══██║   ██║   ██╔══╝  ██║   ██║ ╚██╔╝
+    ███████║   ██║   ██║  ██║██║  ██║   ██║   ███████╗╚██████╔╝  ██║
+    ╚══════╝   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝   ╚══════╝ ╚═════╝   ╚═╝
+
+*/
+
 contract MapleAaveV3Strategy is IMapleAaveV3Strategy, MapleAaveV3StrategyStorage, MapleProxiedInternals {
 
     /**************************************************************************************************************************************/
@@ -73,12 +98,6 @@ contract MapleAaveV3Strategy is IMapleAaveV3Strategy, MapleAaveV3StrategyStorage
         _;
     }
 
-    modifier onlyStrategyDelegate() {
-        require(msg.sender == strategyDelegate(), "MAV3S:NOT_STRATEGY_DELEGATE");
-
-        _;
-    }
-
     modifier onlyStrategyManager() {
         require(msg.sender == strategyManager, "MAV3S:NOT_STRATEGY_MANAGER");
 
@@ -118,133 +137,7 @@ contract MapleAaveV3Strategy is IMapleAaveV3Strategy, MapleAaveV3StrategyStorage
     }
 
     /**************************************************************************************************************************************/
-    /*** Admin Functions                                                                                                                ***/
-    /**************************************************************************************************************************************/
-
-    function claimRewards(address[] calldata assets_, uint256 amount_, address rewardToken_)
-        external override whenNotPaused nonReentrant onlyAdmin
-    {
-        address rewardsController_ = IAaveTokenLike(aaveToken).getIncentivesController();
-
-        uint256 rewardAmount_ = IAaveRewardsControllerLike(rewardsController_).claimRewards(
-            assets_,
-            amount_,
-            mapleTreasury(),
-            rewardToken_
-        );
-
-        emit RewardsClaimed(rewardToken_, rewardAmount_);
-    }
-
-    function impair(uint256 assets_) external override whenNotPaused nonReentrant onlyAdmin whenLossNotRecognized {
-        require(assets_ > 0, "MAV3S:I:ZERO");
-
-        impairedAssets += assets_;
-
-        emit Impaired(assets_);
-    }
-
-    function multicall(bytes[] calldata data_) external override {
-        for (uint256 i = 0; i < data_.length; i++) {
-            ( bool success_, bytes memory returnData_ ) = address(this).delegatecall(data_[i]);
-
-            if (!success_) {
-                assembly ("memory-safe") {
-                    revert(add(32, returnData_), mload(returnData_))
-                }
-            }
-        }
-    }
-
-    function removeImpairment(uint256 assets_) external override whenNotPaused nonReentrant onlyAdmin whenLossNotRecognized {
-        require(assets_ > 0,               "MAV3S:RI:ZERO");
-        require(assets_ <= impairedAssets, "MAV3S:RI:EXCEEDS_IMPAIRMENT");
-
-        impairedAssets -= assets_;
-
-        emit ImpairmentRemoved(assets_);
-    }
-
-    function recognizeLoss() external override whenNotPaused nonReentrant onlyAdmin whenLossNotRecognized {
-        isLossRecognized        = true;
-        lastRecordedTotalAssets = 0;
-        impairedAssets          = 0;
-
-        emit LossRecognized();
-    }
-
-    function recoverPosition() external override whenNotPaused nonReentrant onlyAdmin {
-        require(isLossRecognized, "MAV3S:RP:LOSS_NOT_RECOGNIZED");
-
-        address aaveToken_ = aaveToken;
-        uint256 balance_   = IAaveTokenLike(aaveToken_).balanceOf(address(this));
-
-        require(balance_ > 0,                                                "MAV3S:RP:ZERO_BALANCE");
-        require(ERC20Helper.transfer(aaveToken_, mapleTreasury(), balance_), "MAV3S:RP:TRANSFER_FAILED");
-
-        emit PositionRecovered(balance_);
-    }
-
-    function setMetadata(string calldata metadata_) external override whenNotPaused nonReentrant onlyProtocolAdmins whenLossNotRecognized {
-        require(keccak256(bytes(metadata_)) != keccak256(bytes(strategyMetadata)), "MAV3S:SM:NO_CHANGE");
-
-        strategyMetadata = metadata_;
-
-        emit StrategyMetadataSet(metadata_);
-    }
-
-    function setReferralCode(uint16 referralCode_) external override whenNotPaused nonReentrant onlyAdmin whenLossNotRecognized {
-        require(referralCode_ != referralCode, "MAV3S:SRC:NO_CHANGE");
-
-        referralCode = referralCode_;
-
-        emit ReferralCodeSet(referralCode_);
-    }
-
-    function setStrategyDelegateFeeRate(uint32 strategyDelegateFeeRate_)
-        external override whenNotPaused nonReentrant onlyStrategyDelegate whenLossNotRecognized
-    {
-        require(strategyDelegateFeeRate_ != strategyDelegateFeeRate,                   "MAV3S:SSDFR:NO_CHANGE");
-        require(strategyDelegateFeeRate_ <= HUNDRED_PERCENT,                           "MAV3S:SSDFR:INVALID_FEE_RATE");
-        require(strategyDelegateFeeRate_ + strategyProtocolFeeRate <= HUNDRED_PERCENT, "MAV3S:SSDFR:INVALID_SUM_FEE_RATE");
-
-        _harvestAndWithdraw(0, address(0));
-
-        lastRecordedTotalAssets = _currentTotalAssets(aaveToken);
-
-        strategyDelegateFeeRate = strategyDelegateFeeRate_;
-
-        emit StrategyDelegateFeeRateSet(strategyDelegateFeeRate_);
-    }
-
-    function setStrategyProtocolFeeRate(uint32 strategyProtocolFeeRate_)
-        external override whenNotPaused nonReentrant onlyProtocolAdmins whenLossNotRecognized
-    {
-        require(strategyProtocolFeeRate_ != strategyProtocolFeeRate,                   "MAV3S:SSPFR:NO_CHANGE");
-        require(strategyProtocolFeeRate_ <= HUNDRED_PERCENT,                           "MAV3S:SSPFR:INVALID_FEE_RATE");
-        require(strategyDelegateFeeRate + strategyProtocolFeeRate_ <= HUNDRED_PERCENT, "MAV3S:SSPFR:INVALID_SUM_FEE_RATE");
-
-        _harvestAndWithdraw(0, address(0));
-
-        lastRecordedTotalAssets = _currentTotalAssets(aaveToken);
-
-        strategyProtocolFeeRate = strategyProtocolFeeRate_;
-
-        emit StrategyProtocolFeeRateSet(strategyProtocolFeeRate_);
-    }
-
-    function setUseVirtualUnderlyingBalance(bool useVirtualUnderlyingBalance_)
-        external override whenNotPaused nonReentrant onlyProtocolAdmins whenLossNotRecognized
-    {
-        require(useVirtualUnderlyingBalance_ != useVirtualUnderlyingBalance, "MAV3S:SUVUB:NO_CHANGE");
-
-        useVirtualUnderlyingBalance = useVirtualUnderlyingBalance_;
-
-        emit UseVirtualUnderlyingBalanceSet(useVirtualUnderlyingBalance_);
-    }
-
-    /**************************************************************************************************************************************/
-    /*** Management Functions                                                                                                           ***/
+    /*** Liquidity Management Functions                                                                                                 ***/
     /**************************************************************************************************************************************/
 
     function fundUnderlyingStrategy(
@@ -292,6 +185,133 @@ contract MapleAaveV3Strategy is IMapleAaveV3Strategy, MapleAaveV3StrategyStorage
         lastRecordedTotalAssets = _currentTotalAssets(aaveToken);
 
         emit StrategyWithdrawal(destination_, assets_);
+    }
+
+    function impair(uint256 assets_) external override whenNotPaused nonReentrant onlyAdmin whenLossNotRecognized {
+        require(assets_ > 0, "MAV3S:I:ZERO");
+
+        impairedAssets += assets_;
+
+        emit Impaired(assets_);
+    }
+
+    function removeImpairment(uint256 assets_) external override whenNotPaused nonReentrant onlyAdmin whenLossNotRecognized {
+        require(assets_ > 0,               "MAV3S:RI:ZERO");
+        require(assets_ <= impairedAssets, "MAV3S:RI:EXCEEDS_IMPAIRMENT");
+
+        impairedAssets -= assets_;
+
+        emit ImpairmentRemoved(assets_);
+    }
+
+    function recognizeLoss() external override whenNotPaused nonReentrant onlyAdmin whenLossNotRecognized {
+        isLossRecognized        = true;
+        lastRecordedTotalAssets = 0;
+        impairedAssets          = 0;
+
+        emit LossRecognized();
+    }
+
+    function recoverPosition() external override whenNotPaused nonReentrant onlyAdmin {
+        require(isLossRecognized, "MAV3S:RP:LOSS_NOT_RECOGNIZED");
+
+        address aaveToken_ = aaveToken;
+        uint256 balance_   = IAaveTokenLike(aaveToken_).balanceOf(address(this));
+
+        require(balance_ > 0,                                                "MAV3S:RP:ZERO_BALANCE");
+        require(ERC20Helper.transfer(aaveToken_, mapleTreasury(), balance_), "MAV3S:RP:TRANSFER_FAILED");
+
+        emit PositionRecovered(balance_);
+    }
+
+    /**************************************************************************************************************************************/
+    /*** Admin Functions                                                                                                                ***/
+    /**************************************************************************************************************************************/
+
+    function claimRewards(address[] calldata assets_, uint256 amount_, address rewardToken_)
+        external override whenNotPaused nonReentrant onlyAdmin
+    {
+        address rewardsController_ = IAaveTokenLike(aaveToken).getIncentivesController();
+
+        uint256 rewardAmount_ = IAaveRewardsControllerLike(rewardsController_).claimRewards(
+            assets_,
+            amount_,
+            mapleTreasury(),
+            rewardToken_
+        );
+
+        emit RewardsClaimed(rewardToken_, rewardAmount_);
+    }
+
+    function setMetadata(string calldata metadata_) external override whenNotPaused nonReentrant onlyProtocolAdmins whenLossNotRecognized {
+        require(keccak256(bytes(metadata_)) != keccak256(bytes(strategyMetadata)), "MAV3S:SM:NO_CHANGE");
+
+        strategyMetadata = metadata_;
+
+        emit StrategyMetadataSet(metadata_);
+    }
+
+    function setReferralCode(uint16 referralCode_) external override whenNotPaused nonReentrant onlyAdmin whenLossNotRecognized {
+        require(referralCode_ != referralCode, "MAV3S:SRC:NO_CHANGE");
+
+        referralCode = referralCode_;
+
+        emit ReferralCodeSet(referralCode_);
+    }
+
+    function setStrategyDelegateFeeRate(uint32 strategyDelegateFeeRate_)
+        external override whenNotPaused nonReentrant whenLossNotRecognized
+    {
+        require(msg.sender == strategyDelegate(),                                      "MAV3S:SSDFR:NOT_STRATEGY_DELEGATE");
+        require(strategyDelegateFeeRate_ != strategyDelegateFeeRate,                   "MAV3S:SSDFR:NO_CHANGE");
+        require(strategyDelegateFeeRate_ <= HUNDRED_PERCENT,                           "MAV3S:SSDFR:INVALID_FEE_RATE");
+        require(strategyDelegateFeeRate_ + strategyProtocolFeeRate <= HUNDRED_PERCENT, "MAV3S:SSDFR:INVALID_SUM_FEE_RATE");
+
+        _harvestAndWithdraw(0, address(0));
+
+        lastRecordedTotalAssets = _currentTotalAssets(aaveToken);
+
+        strategyDelegateFeeRate = strategyDelegateFeeRate_;
+
+        emit StrategyDelegateFeeRateSet(strategyDelegateFeeRate_);
+    }
+
+    function setStrategyProtocolFeeRate(uint32 strategyProtocolFeeRate_)
+        external override whenNotPaused nonReentrant onlyProtocolAdmins whenLossNotRecognized
+    {
+        require(strategyProtocolFeeRate_ != strategyProtocolFeeRate,                   "MAV3S:SSPFR:NO_CHANGE");
+        require(strategyProtocolFeeRate_ <= HUNDRED_PERCENT,                           "MAV3S:SSPFR:INVALID_FEE_RATE");
+        require(strategyDelegateFeeRate + strategyProtocolFeeRate_ <= HUNDRED_PERCENT, "MAV3S:SSPFR:INVALID_SUM_FEE_RATE");
+
+        _harvestAndWithdraw(0, address(0));
+
+        lastRecordedTotalAssets = _currentTotalAssets(aaveToken);
+
+        strategyProtocolFeeRate = strategyProtocolFeeRate_;
+
+        emit StrategyProtocolFeeRateSet(strategyProtocolFeeRate_);
+    }
+
+    function setUseVirtualUnderlyingBalance(bool useVirtualUnderlyingBalance_)
+        external override whenNotPaused nonReentrant onlyProtocolAdmins whenLossNotRecognized
+    {
+        require(useVirtualUnderlyingBalance_ != useVirtualUnderlyingBalance, "MAV3S:SUVUB:NO_CHANGE");
+
+        useVirtualUnderlyingBalance = useVirtualUnderlyingBalance_;
+
+        emit UseVirtualUnderlyingBalanceSet(useVirtualUnderlyingBalance_);
+    }
+
+    function multicall(bytes[] calldata data_) external override {
+        for (uint256 i = 0; i < data_.length; i++) {
+            ( bool success_, bytes memory returnData_ ) = address(this).delegatecall(data_[i]);
+
+            if (!success_) {
+                assembly ("memory-safe") {
+                    revert(add(32, returnData_), mload(returnData_))
+                }
+            }
+        }
     }
 
     /**************************************************************************************************************************************/

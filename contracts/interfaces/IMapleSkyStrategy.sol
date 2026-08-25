@@ -94,7 +94,7 @@ interface IMapleSkyStrategy is IMapleSkyStrategyStorage, IMapleProxied {
     event StrategyWithdrawal(address indexed destination, uint256 sharesBurned, uint256 assetsOut);
 
     /**************************************************************************************************************************************/
-    /*** State-Changing Functions                                                                                                       ***/
+    /*** Liquidity  Management Functions                                                                                                ***/
     /**************************************************************************************************************************************/
 
     /**
@@ -110,17 +110,23 @@ interface IMapleSkyStrategy is IMapleSkyStrategyStorage, IMapleProxied {
     function fundUnderlyingStrategy(uint256 assetsIn, bytes calldata data) external returns (uint256 deployedAssets);
 
     /**
+     *  @dev   Redeems sUSDS shares back into funds asset via the PSM and delivers exactly `assets` to `destination`.
+     *         Callable only by the bound strategy manager. Accrues outstanding fees before withdrawing
+     *         and refreshes the fee-accrual baseline to the post-withdrawal position. The PSM `tout` fee
+     *         is absorbed by the strategy's remaining sUSDS balance and socialized across shareholders.
+     *         Reverts after final loss recognition.
+     *  @param destination  Address that receives the withdrawn funds asset.
+     *  @param assets       Amount of funds asset to deliver to the destination.
+     *  @param data         Reserved for future strategy-specific calldata. Unused by the Sky strategy.
+     */
+    function withdrawFromUnderlyingStrategy(address destination, uint256 assets, bytes calldata data) external;
+
+    /**
      *  @dev   Increases the asset-denominated impairment recorded for the strategy.
      *         Callable only by the strategy delegate or operational admin. Does not affect reported AUM or withdrawable assets.
      *  @param assets Funds-asset amount of impairment to add to the strategy.
      */
     function impair(uint256 assets) external;
-
-    /**
-     *  @dev   Allows EOAs to batch admin calls.
-     *  @param data Array of calldata.
-     */
-    function multicall(bytes[] calldata data) external;
 
     /**
      *  @dev   Decreases the asset-denominated impairment recorded for the strategy.
@@ -141,6 +147,10 @@ interface IMapleSkyStrategy is IMapleSkyStrategyStorage, IMapleProxied {
      *         Callable only by the strategy delegate or operational admin.
      */
     function recoverPosition() external;
+
+    /**************************************************************************************************************************************/
+    /*** Admin Functions                                                                                                                ***/
+    /**************************************************************************************************************************************/
 
     /**
      *  @dev   Sets the fallback PSM `tout` used to value the position while Sky halts the PSM `buyGem` path
@@ -185,16 +195,10 @@ interface IMapleSkyStrategy is IMapleSkyStrategyStorage, IMapleProxied {
     function setStrategyProtocolFeeRate(uint32 strategyProtocolFeeRate) external;
 
     /**
-     *  @dev   Redeems sUSDS shares back into funds asset via the PSM and delivers exactly `assets` to `destination`.
-     *         Callable only by the bound strategy manager. Accrues outstanding fees before withdrawing
-     *         and refreshes the fee-accrual baseline to the post-withdrawal position. The PSM `tout` fee
-     *         is absorbed by the strategy's remaining sUSDS balance and socialized across shareholders.
-     *         Reverts after final loss recognition.
-     *  @param destination  Address that receives the withdrawn funds asset.
-     *  @param assets       Amount of funds asset to deliver to the destination.
-     *  @param data         Reserved for future strategy-specific calldata. Unused by the Sky strategy.
+     *  @dev   Allows EOAs to batch admin calls.
+     *  @param data Array of calldata.
      */
-    function withdrawFromUnderlyingStrategy(address destination, uint256 assets, bytes calldata data) external;
+    function multicall(bytes[] calldata data) external;
 
     /**************************************************************************************************************************************/
     /*** View Functions                                                                                                                 ***/
