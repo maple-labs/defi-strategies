@@ -69,18 +69,18 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
         _locked = 1;
     }
 
-    modifier onlyAdmin() {
+    modifier onlyFactory() {
+        require(msg.sender == _factory(), "MSS:NOT_FACTORY");
+
+        _;
+    }
+
+    modifier onlyOpsAdminOrStrategyDelegate() {
         require(
             msg.sender == strategyDelegate() ||
             msg.sender == IGlobalsLike(globals()).operationalAdmin(),
             "MSS:NOT_AUTHORIZED"
         );
-
-        _;
-    }
-
-    modifier onlyFactory() {
-        require(msg.sender == _factory(), "MSS:NOT_FACTORY");
 
         _;
     }
@@ -197,7 +197,7 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
         emit StrategyWithdrawal(destination_, sharesBurned_, assets_);
     }
 
-    function impair(uint256 assets_) external override whenNotPaused nonReentrant onlyAdmin whenLossNotRecognized {
+    function impair(uint256 assets_) external override whenNotPaused nonReentrant onlyOpsAdminOrStrategyDelegate whenLossNotRecognized {
         require(assets_ > 0, "MSS:I:ZERO");
 
         impairedAssets += assets_;
@@ -206,7 +206,7 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
     }
 
     function removeImpairment(uint256 assets_)
-        external override whenNotPaused nonReentrant onlyAdmin whenLossNotRecognized
+        external override whenNotPaused nonReentrant onlyOpsAdminOrStrategyDelegate whenLossNotRecognized
     {
         require(assets_ > 0,               "MSS:RI:ZERO");
         require(assets_ <= impairedAssets, "MSS:RI:EXCEEDS_IMPAIRMENT");
@@ -216,7 +216,7 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
         emit ImpairmentRemoved(assets_);
     }
 
-    function recognizeLoss() external override whenNotPaused nonReentrant onlyAdmin whenLossNotRecognized {
+    function recognizeLoss() external override whenNotPaused nonReentrant onlyOpsAdminOrStrategyDelegate whenLossNotRecognized {
         isLossRecognized        = true;
         lastRecordedTotalAssets = 0;
         impairedAssets          = 0;
@@ -224,7 +224,7 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
         emit LossRecognized();
     }
 
-    function recoverPosition() external override whenNotPaused nonReentrant onlyAdmin {
+    function recoverPosition() external override whenNotPaused nonReentrant onlyOpsAdminOrStrategyDelegate {
         require(isLossRecognized, "MSS:RP:LOSS_NOT_RECOGNIZED");
 
         address savingsUsds_ = savingsUsds;
@@ -240,7 +240,9 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
     /*** Admin Functions                                                                                                                ***/
     /**************************************************************************************************************************************/
 
-    function setFallbackTout(uint256 fallbackTout_) external override whenNotPaused nonReentrant onlyAdmin whenLossNotRecognized {
+    function setFallbackTout(uint256 fallbackTout_)
+        external override whenNotPaused nonReentrant onlyOpsAdminOrStrategyDelegate whenLossNotRecognized
+    {
         require(fallbackTout_ != fallbackTout,      "MSS:SFT:NO_CHANGE");
         require(fallbackTout_ != type(uint256).max, "MSS:SFT:INVALID_TOUT");
 
@@ -257,7 +259,9 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
         emit StrategyMetadataSet(metadata_);
     }
 
-    function setReferralCode(uint16 referralCode_) external override whenNotPaused nonReentrant onlyAdmin whenLossNotRecognized {
+    function setReferralCode(uint16 referralCode_)
+        external override whenNotPaused nonReentrant onlyOpsAdminOrStrategyDelegate whenLossNotRecognized
+    {
         require(referralCode_ != referralCode, "MSS:SRC:NO_CHANGE");
 
         referralCode = referralCode_;
@@ -411,7 +415,7 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
     }
 
     /**************************************************************************************************************************************/
-    /*** Internal Helper Functions                                                                                                        ***/
+    /*** Internal Helper Functions                                                                                                      ***/
     /**************************************************************************************************************************************/
 
     function _currentAccruedFees(uint256 currentTotalAssets_) internal view returns (uint256 delegateFee_, uint256 protocolFee_) {
