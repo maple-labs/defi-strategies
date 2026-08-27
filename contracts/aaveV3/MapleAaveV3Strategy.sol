@@ -245,7 +245,9 @@ contract MapleAaveV3Strategy is IMapleAaveV3Strategy, MapleAaveV3StrategyStorage
         emit RewardsClaimed(rewardToken_, rewardAmount_);
     }
 
-    function setMetadata(string calldata metadata_) external override whenNotPaused nonReentrant onlyProtocolAdmins whenLossNotRecognized {
+    function setMetadata(string calldata metadata_)
+        external override whenNotPaused nonReentrant onlyOpsAdminOrStrategyDelegate whenLossNotRecognized
+    {
         require(keccak256(bytes(metadata_)) != keccak256(bytes(strategyMetadata)), "MAV3S:SM:NO_CHANGE");
 
         strategyMetadata = metadata_;

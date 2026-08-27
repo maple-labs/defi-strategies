@@ -251,7 +251,9 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
         emit FallbackToutSet(fallbackTout_);
     }
 
-    function setMetadata(string calldata metadata_) external override whenNotPaused nonReentrant onlyProtocolAdmins whenLossNotRecognized {
+    function setMetadata(string calldata metadata_)
+        external override whenNotPaused nonReentrant onlyOpsAdminOrStrategyDelegate whenLossNotRecognized
+    {
         require(keccak256(bytes(metadata_)) != keccak256(bytes(strategyMetadata)), "MSS:SM:NO_CHANGE");
 
         strategyMetadata = metadata_;

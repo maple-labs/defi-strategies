@@ -10,7 +10,7 @@ contract AaveV3SetMetadataFailureTests is AaveV3TestBase {
     function test_setMetadata_revert_functionPaused() external {
         globals.__setIsFunctionPaused(IMapleAaveV3Strategy.setMetadata.selector, true);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         vm.expectRevert("MAV3S:PAUSED");
         strategy.setMetadata("abc");
     }
@@ -18,26 +18,27 @@ contract AaveV3SetMetadataFailureTests is AaveV3TestBase {
     function test_setMetadata_revert_reentrancy() external {
         strategy.__setLocked(2);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         vm.expectRevert("MAV3S:LOCKED");
         strategy.setMetadata("abc");
     }
 
-    function test_setMetadata_revert_notAdmin() external {
-        vm.expectRevert("MAV3S:NOT_ADMIN");
+    function test_setMetadata_revert_notAuthorized() external {
+        vm.prank(governor);
+        vm.expectRevert("MAV3S:NOT_AUTHORIZED");
         strategy.setMetadata("abc");
     }
 
     function test_setMetadata_revert_lossRecognized() external {
         strategy.__setIsLossRecognized(true);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         vm.expectRevert("MAV3S:LOSS_RECOGNIZED");
         strategy.setMetadata("abc");
     }
 
     function test_setMetadata_revert_noChange() external {
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         vm.expectRevert("MAV3S:SM:NO_CHANGE");
         strategy.setMetadata(INITIAL_STRATEGY_METADATA);
     }
@@ -50,19 +51,19 @@ contract AaveV3SetMetadataSuccessTests is AaveV3TestBase {
         vm.expectEmit();
         emit IMapleAaveV3Strategy.StrategyMetadataSet("");
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         strategy.setMetadata("");
 
         assertEq(strategy.strategyMetadata(), "");
     }
 
-    function test_setMetadata_success_governor() external {
+    function test_setMetadata_success_strategyDelegate() external {
         string memory metadata = "abc";
 
         vm.expectEmit();
         emit IMapleAaveV3Strategy.StrategyMetadataSet(metadata);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         strategy.setMetadata(metadata);
 
         assertEq(strategy.strategyMetadata(), metadata);

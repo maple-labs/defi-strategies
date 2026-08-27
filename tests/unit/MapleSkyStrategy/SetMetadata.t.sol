@@ -10,7 +10,7 @@ contract SkySetMetadataFailureTests is SkyTestBase {
     function test_setMetadata_revert_functionPaused() external {
         globals.__setIsFunctionPaused(IMapleSkyStrategy.setMetadata.selector, true);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         vm.expectRevert("MSS:PAUSED");
         strategy.setMetadata("abc");
     }
@@ -18,26 +18,27 @@ contract SkySetMetadataFailureTests is SkyTestBase {
     function test_setMetadata_revert_reentrancy() external {
         strategy.__setLocked(2);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         vm.expectRevert("MSS:LOCKED");
         strategy.setMetadata("abc");
     }
 
-    function test_setMetadata_revert_notAdmin() external {
-        vm.expectRevert("MSS:NOT_ADMIN");
+    function test_setMetadata_revert_notAuthorized() external {
+        vm.prank(governor);
+        vm.expectRevert("MSS:NOT_AUTHORIZED");
         strategy.setMetadata("abc");
     }
 
     function test_setMetadata_revert_lossRecognized() external {
         strategy.__setIsLossRecognized(true);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         vm.expectRevert("MSS:LOSS_RECOGNIZED");
         strategy.setMetadata("abc");
     }
 
     function test_setMetadata_revert_noChange() external {
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         vm.expectRevert("MSS:SM:NO_CHANGE");
         strategy.setMetadata(INITIAL_STRATEGY_METADATA);
     }
@@ -50,19 +51,19 @@ contract SkySetMetadataSuccessTests is SkyTestBase {
         vm.expectEmit();
         emit IMapleSkyStrategy.StrategyMetadataSet("");
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         strategy.setMetadata("");
 
         assertEq(strategy.strategyMetadata(), "");
     }
 
-    function test_setMetadata_success_governor() external {
+    function test_setMetadata_success_strategyDelegate() external {
         string memory metadata = "abc";
 
         vm.expectEmit();
         emit IMapleSkyStrategy.StrategyMetadataSet(metadata);
 
-        vm.prank(governor);
+        vm.prank(strategyDelegate);
         strategy.setMetadata(metadata);
 
         assertEq(strategy.strategyMetadata(), metadata);
