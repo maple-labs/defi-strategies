@@ -162,7 +162,7 @@ interface IMapleSkyStrategy is IMapleSkyStrategyStorage, IMapleProxied {
 
     /**
      *  @dev   Updates the metadata of the Sky strategy.
-     *         Callable only by protocol admins.
+     *         Callable only by the strategy delegate or operational admin.
      *  @param metadata Optional metadata associated with the strategy.
      */
     function setMetadata(string calldata metadata) external;
