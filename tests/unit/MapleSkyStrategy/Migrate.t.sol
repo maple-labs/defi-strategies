@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 import { MapleSkyStrategy } from "../../../contracts/sky/MapleSkyStrategy.sol";
 
 import { MockMigrator } from "../../utils/Mocks.sol";
-import { SkyTestBase }  from "../../utils/SkyTestBase.sol";
+import { SkyTestBase } from "../../utils/SkyTestBase.sol";
 
 contract SkyMigrateTests is SkyTestBase {
 

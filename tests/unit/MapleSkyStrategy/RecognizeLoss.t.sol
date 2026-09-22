@@ -47,16 +47,16 @@ contract SkyRecognizeLossSuccessTests is SkyTestBase {
     function setUp() public override {
         super.setUp();
 
-        psm.__setUsdsDepositExchangeRate(1e18);          // 1 USDC  -> 1 USDS
-        psm.__setUsdsRedeemExchangeRate(1e18);           // 1 USDS  -> 1 USDC
+        psm.__setUsdsDepositExchangeRate(1e18); // 1 USDC  -> 1 USDS
+        psm.__setUsdsRedeemExchangeRate(1e18); // 1 USDS  -> 1 USDC
         savingsUsds.__setSusdsDepositExchangeRate(1e18); // 1 USDS  -> 1 sUSDS
-        savingsUsds.__setSusdsRedeemExchangeRate(1e18);  // 1 sUSDS -> 1 USDS
+        savingsUsds.__setSusdsRedeemExchangeRate(1e18); // 1 sUSDS -> 1 USDS
     }
 
     function test_recognizeLoss_success_strategyDelegate() external {
-        uint256 currentTotalAssets = 100e6;  // Strategy holds 100 sUSDS worth 100 assets.
+        uint256 currentTotalAssets = 100e6; // Strategy holds 100 sUSDS worth 100 assets.
         uint256 susdsBalance       = 100e18; // Strategy holds 100 sUSDS.
-        uint256 unrealizedLosses   = 20e6;   // Strategy has 20 assets of unrealized losses recorded.
+        uint256 unrealizedLosses   = 20e6; // Strategy has 20 assets of unrealized losses recorded.
 
         setSkyStrategyState({
             lastRecordedTotalAssets_: currentTotalAssets,
@@ -98,9 +98,9 @@ contract SkyRecognizeLossSuccessTests is SkyTestBase {
     }
 
     function test_recognizeLoss_success_operationalAdmin() external {
-        uint256 currentTotalAssets = 100e6;  // Strategy holds 100 sUSDS worth 100 assets.
+        uint256 currentTotalAssets = 100e6; // Strategy holds 100 sUSDS worth 100 assets.
         uint256 susdsBalance       = 100e18; // Strategy holds 100 sUSDS.
-        uint256 unrealizedLosses   = 20e6;   // Strategy has 20 assets of unrealized losses recorded.
+        uint256 unrealizedLosses   = 20e6; // Strategy has 20 assets of unrealized losses recorded.
 
         setSkyStrategyState({
             lastRecordedTotalAssets_: currentTotalAssets,

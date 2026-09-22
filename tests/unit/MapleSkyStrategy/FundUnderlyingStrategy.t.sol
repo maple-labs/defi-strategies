@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 import { MapleSkyStrategy } from "../../../contracts/sky/MapleSkyStrategy.sol";
 
 import { IMapleSkyStrategy } from "../../../contracts/interfaces/IMapleSkyStrategy.sol";
-import { IERC4626Like }      from "../../../contracts/interfaces/Interfaces.sol";
+import { IERC4626Like } from "../../../contracts/interfaces/Interfaces.sol";
 
 import { SkyTestBase } from "../../utils/SkyTestBase.sol";
 
@@ -111,10 +111,10 @@ contract SkyFundUnderlyingStrategySuccessTests is SkyTestBase {
         strategy.__setStrategyDelegateFeeRate(0);
         strategy.__setStrategyProtocolFeeRate(0);
 
-        psm.__setUsdsDepositExchangeRate(1e18);          // 1 USDC  -> 1 USDS
-        psm.__setUsdsRedeemExchangeRate(1e18);           // 1 USDS  -> 1 USDC
+        psm.__setUsdsDepositExchangeRate(1e18); // 1 USDC  -> 1 USDS
+        psm.__setUsdsRedeemExchangeRate(1e18); // 1 USDS  -> 1 USDC
         savingsUsds.__setSusdsDepositExchangeRate(1e18); // 1 USDS  -> 1 sUSDS
-        savingsUsds.__setSusdsRedeemExchangeRate(1e18);  // 1 sUSDS -> 1 USDS
+        savingsUsds.__setSusdsRedeemExchangeRate(1e18); // 1 sUSDS -> 1 USDS
 
         asset.mint(address(strategy), 1e30);
     }
@@ -125,10 +125,7 @@ contract SkyFundUnderlyingStrategySuccessTests is SkyTestBase {
         vm.prank(strategyDelegate);
         strategy.setReferralCode(referralCode);
 
-        vm.expectCall(
-            address(savingsUsds),
-            abi.encodeCall(IERC4626Like.deposit, (100e18, address(strategy), referralCode))
-        );
+        vm.expectCall(address(savingsUsds), abi.encodeCall(IERC4626Like.deposit, (100e18, address(strategy), referralCode)));
 
         vm.prank(address(strategyManager));
         strategy.fundUnderlyingStrategy(100e6, "");
@@ -170,7 +167,6 @@ contract SkyFundUnderlyingStrategySuccessTests is SkyTestBase {
     }
 
     function test_fundUnderlyingStrategy_success_secondDeposit_strategyHasYield_withProtocolFees() external {
-
         /**********************************************************************************************************************************/
         /*** Step 1: Set fee rates                                                                                                      ***/
         /**********************************************************************************************************************************/
@@ -185,13 +181,13 @@ contract SkyFundUnderlyingStrategySuccessTests is SkyTestBase {
         uint256 lastRecordedAfterFirstDeposit = 100e6;
 
         strategy.__setLastRecordedTotalAssets(lastRecordedAfterFirstDeposit); // First deposit of 100 USDC
-        savingsUsds.__setBalanceOf(address(strategy), 100e18);                // Strategy got 100 sUSDS after first deposit
-        savingsUsds.__setSusdsRedeemExchangeRate(2e18);                       // 1 sUSDS = 2 USDS (100% yield)
-        savingsUsds.__setSusdsDepositExchangeRate(0.5e18);                    // 1 USDS  = 0.5 sUSDS at current price
+        savingsUsds.__setBalanceOf(address(strategy), 100e18); // Strategy got 100 sUSDS after first deposit
+        savingsUsds.__setSusdsRedeemExchangeRate(2e18); // 1 sUSDS = 2 USDS (100% yield)
+        savingsUsds.__setSusdsDepositExchangeRate(0.5e18); // 1 USDS  = 0.5 sUSDS at current price
 
-        usds.mint(address(savingsUsds), 200e18);                              // sUSDS holds 200 USDS reserves to back 100 sUSDS at 2x
+        usds.mint(address(savingsUsds), 200e18); // sUSDS holds 200 USDS reserves to back 100 sUSDS at 2x
 
-        uint256 assetsUnderManagementAfterFirstDeposit = 195e6;  // 200 current assets minus 5 assets fees
+        uint256 assetsUnderManagementAfterFirstDeposit = 195e6; // 200 current assets minus 5 assets fees
 
         assertSkyStrategy({
             susdsBalance:            100e18,
@@ -220,7 +216,12 @@ contract SkyFundUnderlyingStrategySuccessTests is SkyTestBase {
         emit IMapleSkyStrategy.StrategyFeesCollected(expectedDelegateFee, expectedProtocolFee);
 
         vm.expectEmit();
-        emit IMapleSkyStrategy.StrategyFunded(address(strategyManager), secondDepositAssets, expectedSharesToReceive, expectedDeployedAssets);
+        emit IMapleSkyStrategy.StrategyFunded(
+            address(strategyManager),
+            secondDepositAssets,
+            expectedSharesToReceive,
+            expectedDeployedAssets
+        );
 
         vm.prank(address(strategyManager));
         uint256 deployedAssets = strategy.fundUnderlyingStrategy(secondDepositAssets, "");
@@ -240,7 +241,6 @@ contract SkyFundUnderlyingStrategySuccessTests is SkyTestBase {
     }
 
     function test_fundUnderlyingStrategy_success_secondDeposit_strategyHasLoss_withProtocolFees() external {
-
         /**********************************************************************************************************************************/
         /*** Step 1: Set fee rates                                                                                                      ***/
         /**********************************************************************************************************************************/
@@ -255,11 +255,11 @@ contract SkyFundUnderlyingStrategySuccessTests is SkyTestBase {
         uint256 lastRecordedAfterFirstDeposit = 100e6;
 
         strategy.__setLastRecordedTotalAssets(lastRecordedAfterFirstDeposit); // First deposit of 100 USDC
-        savingsUsds.__setBalanceOf(address(strategy), 100e18);                // Strategy holds 100 sUSDS from first deposit
-        savingsUsds.__setSusdsRedeemExchangeRate(0.5e18);                     // 1 sUSDS = 0.5 USDS (50% loss)
-        savingsUsds.__setSusdsDepositExchangeRate(2e18);                      // 1 USDS  = 2 sUSDS at current price
+        savingsUsds.__setBalanceOf(address(strategy), 100e18); // Strategy holds 100 sUSDS from first deposit
+        savingsUsds.__setSusdsRedeemExchangeRate(0.5e18); // 1 sUSDS = 0.5 USDS (50% loss)
+        savingsUsds.__setSusdsDepositExchangeRate(2e18); // 1 USDS  = 2 sUSDS at current price
 
-        uint256 assetsUnderManagementAfterFirstDeposit = 50e6;  // 100 initial assets minus 50 assets loss
+        uint256 assetsUnderManagementAfterFirstDeposit = 50e6; // 100 initial assets minus 50 assets loss
 
         assertSkyStrategy({
             susdsBalance:            100e18,
@@ -341,7 +341,7 @@ contract SkyFundUnderlyingStrategySuccessTests is SkyTestBase {
     }
 
     function test_fundUnderlyingStrategy_success_susdsRedemptionFeeStacksWithUsdsRedemptionFee() external {
-        psm.__setTout(0.25e18);                            // USDS redemption fee: 25%
+        psm.__setTout(0.25e18); // USDS redemption fee: 25%
         savingsUsds.__setSusdsRedeemExchangeRate(0.99e18); // sUSDS redemption fee: 1%
 
         assertSkyStrategy({
@@ -426,7 +426,7 @@ contract SkyFundUnderlyingStrategySuccessTests is SkyTestBase {
     }
 
     function test_fundUnderlyingStrategy_success_susdsDepositFeeStacksWithUsdsDepositFee() external {
-        psm.__setUsdsDepositExchangeRate(0.99e18);          // USDS deposit fee: 1%
+        psm.__setUsdsDepositExchangeRate(0.99e18); // USDS deposit fee: 1%
         savingsUsds.__setSusdsDepositExchangeRate(0.95e18); // sUSDS deposit fee: 5%
 
         assertSkyStrategy({
@@ -448,7 +448,6 @@ contract SkyFundUnderlyingStrategySuccessTests is SkyTestBase {
     }
 
     function test_fundUnderlyingStrategy_success_secondDeposit_usdsRedemptionFeeDecreased_phantomYield() external {
-
         /**********************************************************************************************************************************/
         /*** Step 1: Set fee rates                                                                                                      ***/
         /**********************************************************************************************************************************/
@@ -460,9 +459,9 @@ contract SkyFundUnderlyingStrategySuccessTests is SkyTestBase {
         /*** Step 2: Make first deposit with USDS redemption fee at 25%                                                                 ***/
         /**********************************************************************************************************************************/
 
-        uint256 firstDepositAssets             = 100e6;
-        uint256 lastRecordedAfterFirstDeposit  = 80e6;
-        uint256 expectedBalanceAfterFirstFund  = 100e18;
+        uint256 firstDepositAssets            = 100e6;
+        uint256 lastRecordedAfterFirstDeposit = 80e6;
+        uint256 expectedBalanceAfterFirstFund = 100e18;
 
         assertSkyStrategy({
             susdsBalance:            0,
@@ -526,7 +525,6 @@ contract SkyFundUnderlyingStrategySuccessTests is SkyTestBase {
     }
 
     function test_fundUnderlyingStrategy_success_secondDeposit_usdsRedemptionFeeIncreased() external {
-
         /**********************************************************************************************************************************/
         /*** Step 1: Set fee rates                                                                                                      ***/
         /**********************************************************************************************************************************/
@@ -541,7 +539,7 @@ contract SkyFundUnderlyingStrategySuccessTests is SkyTestBase {
         uint256 lastRecordedAfterFirstDeposit = 100e6;
 
         strategy.__setLastRecordedTotalAssets(lastRecordedAfterFirstDeposit); // baseline at 100 USDC
-        savingsUsds.__setBalanceOf(address(strategy), 100e18);                // strategy holds 100 sUSDS
+        savingsUsds.__setBalanceOf(address(strategy), 100e18); // strategy holds 100 sUSDS
 
         assertSkyStrategy({
             susdsBalance:            100e18,
@@ -565,7 +563,7 @@ contract SkyFundUnderlyingStrategySuccessTests is SkyTestBase {
         /**********************************************************************************************************************************/
 
         uint256 secondDepositAssets           = 100e6;
-        uint256 expectedDeployedAssets        = 80e6;  // _gemForUsds(100e18, tout=0.25e18)
+        uint256 expectedDeployedAssets        = 80e6; // _gemForUsds(100e18, tout=0.25e18)
         uint256 expectedLastRecordedAfterFund = 160e6; // _gemForUsds(200e18, tout=0.25e18)
         uint256 expectedBalanceAfterFund      = 200e18; // 100 (existing) + 100 (new deposit), no fees on loss
 
@@ -587,7 +585,6 @@ contract SkyFundUnderlyingStrategySuccessTests is SkyTestBase {
     }
 
     function test_fundUnderlyingStrategy_success_secondDeposit_susdsValueIncreased() external {
-
         /**********************************************************************************************************************************/
         /*** Step 1: Set fee rates                                                                                                      ***/
         /**********************************************************************************************************************************/
@@ -599,9 +596,9 @@ contract SkyFundUnderlyingStrategySuccessTests is SkyTestBase {
         /*** Step 2: Make first deposit when sUSDS shares are worth 0.99 USDS each                                                      ***/
         /**********************************************************************************************************************************/
 
-        uint256 firstDepositAssets             = 100e6;
-        uint256 lastRecordedAfterFirstDeposit  = 99e6;
-        uint256 expectedBalanceAfterFirstFund  = 100e18;
+        uint256 firstDepositAssets            = 100e6;
+        uint256 lastRecordedAfterFirstDeposit = 99e6;
+        uint256 expectedBalanceAfterFirstFund = 100e18;
 
         assertSkyStrategy({
             susdsBalance:            0,
@@ -642,8 +639,8 @@ contract SkyFundUnderlyingStrategySuccessTests is SkyTestBase {
 
         uint256 secondDepositAssets           = 100e6;
         uint256 expectedDeployedAssets        = 100e6;
-        uint256 expectedDelegateFee           = 0.02e6;    // 1e6 yield * 2%
-        uint256 expectedProtocolFee           = 0.03e6;    // 1e6 yield * 3%
+        uint256 expectedDelegateFee           = 0.02e6; // 1e6 yield * 2%
+        uint256 expectedProtocolFee           = 0.03e6; // 1e6 yield * 3%
         uint256 expectedLastRecordedAfterFund = 199.95e6;
         uint256 expectedBalanceAfterFund      = 199.95e18; // 100 (existing) - 0.05 (burnt for 0.05 USDC fees at rate 1.0) + 100 (new)
 
@@ -665,7 +662,6 @@ contract SkyFundUnderlyingStrategySuccessTests is SkyTestBase {
     }
 
     function test_fundUnderlyingStrategy_success_secondDeposit_susdsLostValue() external {
-
         /**********************************************************************************************************************************/
         /*** Step 1: Set fee rates                                                                                                      ***/
         /**********************************************************************************************************************************/
@@ -677,9 +673,9 @@ contract SkyFundUnderlyingStrategySuccessTests is SkyTestBase {
         /*** Step 2: Make first deposit when sUSDS shares are worth 1.0 USDS each                                                       ***/
         /**********************************************************************************************************************************/
 
-        uint256 firstDepositAssets             = 100e6;
-        uint256 lastRecordedAfterFirstDeposit  = 100e6;
-        uint256 expectedBalanceAfterFirstFund  = 100e18;
+        uint256 firstDepositAssets            = 100e6;
+        uint256 lastRecordedAfterFirstDeposit = 100e6;
+        uint256 expectedBalanceAfterFirstFund = 100e18;
 
         assertSkyStrategy({
             susdsBalance:            0,
@@ -717,7 +713,7 @@ contract SkyFundUnderlyingStrategySuccessTests is SkyTestBase {
         /**********************************************************************************************************************************/
 
         uint256 secondDepositAssets           = 100e6;
-        uint256 expectedDeployedAssets        = 99e6;   // new shares valued at the new (lower) share value
+        uint256 expectedDeployedAssets        = 99e6; // new shares valued at the new (lower) share value
         uint256 expectedLastRecordedAfterFund = 198e6;
         uint256 expectedBalanceAfterFund      = 200e18; // 100 (existing) + 100 (new), no fees on loss
 
@@ -739,7 +735,6 @@ contract SkyFundUnderlyingStrategySuccessTests is SkyTestBase {
     }
 
     function test_fundUnderlyingStrategy_success_secondDeposit_usdsDepositFeeDecreased() external {
-
         /**********************************************************************************************************************************/
         /*** Step 1: Set fee rates                                                                                                      ***/
         /**********************************************************************************************************************************/
@@ -751,9 +746,9 @@ contract SkyFundUnderlyingStrategySuccessTests is SkyTestBase {
         /*** Step 2: Make first deposit with USDS deposit fee at 1%                                                                     ***/
         /**********************************************************************************************************************************/
 
-        uint256 firstDepositAssets             = 100e6;
-        uint256 lastRecordedAfterFirstDeposit  = 99e6;
-        uint256 expectedBalanceAfterFirstFund  = 99e18;
+        uint256 firstDepositAssets            = 100e6;
+        uint256 lastRecordedAfterFirstDeposit = 99e6;
+        uint256 expectedBalanceAfterFirstFund = 99e18;
 
         assertSkyStrategy({
             susdsBalance:            0,
@@ -815,7 +810,6 @@ contract SkyFundUnderlyingStrategySuccessTests is SkyTestBase {
     }
 
     function test_fundUnderlyingStrategy_success_secondDeposit_usdsDepositFeeIncreased() external {
-
         /**********************************************************************************************************************************/
         /*** Step 1: Set fee rates                                                                                                      ***/
         /**********************************************************************************************************************************/
@@ -827,9 +821,9 @@ contract SkyFundUnderlyingStrategySuccessTests is SkyTestBase {
         /*** Step 2: Make first deposit with no USDS deposit fee                                                                        ***/
         /**********************************************************************************************************************************/
 
-        uint256 firstDepositAssets             = 100e6;
-        uint256 lastRecordedAfterFirstDeposit  = 100e6;
-        uint256 expectedBalanceAfterFirstFund  = 100e18;
+        uint256 firstDepositAssets            = 100e6;
+        uint256 lastRecordedAfterFirstDeposit = 100e6;
+        uint256 expectedBalanceAfterFirstFund = 100e18;
 
         assertEq(savingsUsds.balanceOf(address(strategy)), 0);
 
@@ -880,7 +874,6 @@ contract SkyFundUnderlyingStrategySuccessTests is SkyTestBase {
     }
 
     function test_fundUnderlyingStrategy_success_secondDeposit_susdsDepositFeeDecreased() external {
-
         /**********************************************************************************************************************************/
         /*** Step 1: Set fee rates                                                                                                      ***/
         /**********************************************************************************************************************************/
@@ -892,9 +885,9 @@ contract SkyFundUnderlyingStrategySuccessTests is SkyTestBase {
         /*** Step 2: Make first deposit with sUSDS deposit fee at 5%                                                                    ***/
         /**********************************************************************************************************************************/
 
-        uint256 firstDepositAssets             = 100e6;
-        uint256 lastRecordedAfterFirstDeposit  = 95e6;
-        uint256 expectedBalanceAfterFirstFund  = 95e18;
+        uint256 firstDepositAssets            = 100e6;
+        uint256 lastRecordedAfterFirstDeposit = 95e6;
+        uint256 expectedBalanceAfterFirstFund = 95e18;
 
         assertSkyStrategy({
             susdsBalance:            0,
@@ -956,7 +949,6 @@ contract SkyFundUnderlyingStrategySuccessTests is SkyTestBase {
     }
 
     function test_fundUnderlyingStrategy_success_secondDeposit_susdsDepositFeeIncreased() external {
-
         /**********************************************************************************************************************************/
         /*** Step 1: Set fee rates                                                                                                      ***/
         /**********************************************************************************************************************************/
@@ -968,9 +960,9 @@ contract SkyFundUnderlyingStrategySuccessTests is SkyTestBase {
         /*** Step 2: Make first deposit with no sUSDS deposit fee                                                                       ***/
         /**********************************************************************************************************************************/
 
-        uint256 firstDepositAssets             = 100e6;
-        uint256 lastRecordedAfterFirstDeposit  = 100e6;
-        uint256 expectedBalanceAfterFirstFund  = 100e18;
+        uint256 firstDepositAssets            = 100e6;
+        uint256 lastRecordedAfterFirstDeposit = 100e6;
+        uint256 expectedBalanceAfterFirstFund = 100e18;
 
         assertSkyStrategy({
             susdsBalance:            0,

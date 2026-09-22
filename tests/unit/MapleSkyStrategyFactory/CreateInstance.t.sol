@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 import { IMapleSkyStrategyInitializer } from "../../../contracts/interfaces/IMapleSkyStrategyInitializer.sol";
 
 import { MapleSkyStrategyHarness } from "../../utils/Harnesses.sol";
-import { SkyTestBase }             from "../../utils/SkyTestBase.sol";
+import { SkyTestBase } from "../../utils/SkyTestBase.sol";
 
 contract SkyCreateInstanceTests is SkyTestBase {
 
@@ -35,8 +35,8 @@ contract SkyCreateInstanceTests is SkyTestBase {
         vm.expectRevert("MPF:CI:FAILED");
         factory.createInstance(new bytes(0), "");
 
-        bytes memory validArguments      = initializationArguments();
-        bytes memory truncatedArguments  = new bytes(validArguments.length - 1);
+        bytes memory validArguments     = initializationArguments();
+        bytes memory truncatedArguments = new bytes(validArguments.length - 1);
 
         vm.prank(deployer);
         vm.expectRevert("MPF:CI:FAILED");

@@ -13,11 +13,11 @@ pragma solidity ^0.8.0;
  */
 struct AaveV3StrategyInitializerParams {
     address aaveToken;
-    uint32  strategyDelegateFeeRate;
-    uint32  strategyProtocolFeeRate;
-    uint16  referralCode;
-    bool    useVirtualUnderlyingBalance;
-    string  strategyMetadata;
+    uint32 strategyDelegateFeeRate;
+    uint32 strategyProtocolFeeRate;
+    uint16 referralCode;
+    bool useVirtualUnderlyingBalance;
+    string strategyMetadata;
 }
 
 /**

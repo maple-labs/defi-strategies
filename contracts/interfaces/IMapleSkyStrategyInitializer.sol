@@ -16,10 +16,10 @@ struct SkyStrategyInitializerParams {
     address fundsAsset;
     address psm;
     address savingsUsds;
-    uint32  strategyDelegateFeeRate;
-    uint32  strategyProtocolFeeRate;
-    uint16  referralCode;
-    string  strategyMetadata;
+    uint32 strategyDelegateFeeRate;
+    uint32 strategyProtocolFeeRate;
+    uint16 referralCode;
+    string strategyMetadata;
 }
 
 /**

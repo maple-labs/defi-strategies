@@ -4,10 +4,10 @@ pragma solidity ^0.8.0;
 import { MapleAaveV3Strategy } from "../../../contracts/aaveV3/MapleAaveV3Strategy.sol";
 
 import { IAaveRewardsControllerLike } from "../../../contracts/interfaces/Interfaces.sol";
-import { IMapleAaveV3Strategy }       from "../../../contracts/interfaces/IMapleAaveV3Strategy.sol";
+import { IMapleAaveV3Strategy } from "../../../contracts/interfaces/IMapleAaveV3Strategy.sol";
 
 import { AaveV3TestBase } from "../../utils/AaveV3TestBase.sol";
-import { MockAsset }      from "../../utils/Mocks.sol";
+import { MockAsset } from "../../utils/Mocks.sol";
 
 contract AaveV3ClaimRewardsFailureTests is AaveV3TestBase {
 
@@ -77,9 +77,9 @@ contract AaveV3ClaimRewardsSuccessTests is AaveV3TestBase {
             assetsUnderManagement:   100e6
         });
 
-        assertEq(rewardToken.balanceOf(mapleTreasury),      0);
-        assertEq(rewardToken.balanceOf(address(strategy)),  0);
-        assertEq(rewardToken.balanceOf(governor),           0);
+        assertEq(rewardToken.balanceOf(mapleTreasury),     0);
+        assertEq(rewardToken.balanceOf(address(strategy)), 0);
+        assertEq(rewardToken.balanceOf(governor),          0);
 
         vm.expectCall(
             address(rewardsController),
@@ -98,9 +98,9 @@ contract AaveV3ClaimRewardsSuccessTests is AaveV3TestBase {
             assetsUnderManagement:   100e6
         });
 
-        assertEq(rewardToken.balanceOf(mapleTreasury),      rewardAmount);
-        assertEq(rewardToken.balanceOf(address(strategy)),  0);
-        assertEq(rewardToken.balanceOf(governor),           0);
+        assertEq(rewardToken.balanceOf(mapleTreasury),     rewardAmount);
+        assertEq(rewardToken.balanceOf(address(strategy)), 0);
+        assertEq(rewardToken.balanceOf(governor),          0);
     }
 
     function test_claimRewards_success_operationalAdmin() external {
@@ -110,9 +110,9 @@ contract AaveV3ClaimRewardsSuccessTests is AaveV3TestBase {
             assetsUnderManagement:   100e6
         });
 
-        assertEq(rewardToken.balanceOf(mapleTreasury),      0);
-        assertEq(rewardToken.balanceOf(address(strategy)),  0);
-        assertEq(rewardToken.balanceOf(operationalAdmin),   0);
+        assertEq(rewardToken.balanceOf(mapleTreasury),     0);
+        assertEq(rewardToken.balanceOf(address(strategy)), 0);
+        assertEq(rewardToken.balanceOf(operationalAdmin),  0);
 
         vm.expectCall(
             address(rewardsController),
@@ -131,9 +131,9 @@ contract AaveV3ClaimRewardsSuccessTests is AaveV3TestBase {
             assetsUnderManagement:   100e6
         });
 
-        assertEq(rewardToken.balanceOf(mapleTreasury),      rewardAmount);
-        assertEq(rewardToken.balanceOf(address(strategy)),  0);
-        assertEq(rewardToken.balanceOf(operationalAdmin),   0);
+        assertEq(rewardToken.balanceOf(mapleTreasury),     rewardAmount);
+        assertEq(rewardToken.balanceOf(address(strategy)), 0);
+        assertEq(rewardToken.balanceOf(operationalAdmin),  0);
     }
 
 }

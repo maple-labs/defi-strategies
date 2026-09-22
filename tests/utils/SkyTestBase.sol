@@ -9,14 +9,7 @@ import { MapleSkyStrategyFactory } from "../../contracts/sky/MapleSkyStrategyFac
 
 import { MapleSkyStrategyHarness, MapleSkyStrategyInitializerHarness } from "./Harnesses.sol";
 
-import {
-    MockAsset,
-    MockFactory,
-    MockGlobals,
-    MockManager,
-    MockPsm,
-    MockSavingsUsds
-} from "./Mocks.sol";
+import { MockAsset, MockFactory, MockGlobals, MockManager, MockPsm, MockSavingsUsds } from "./Mocks.sol";
 
 contract SkyTestBase is Test {
 

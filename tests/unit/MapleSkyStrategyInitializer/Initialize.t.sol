@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 import { IMapleSkyStrategyInitializer } from "../../../contracts/interfaces/IMapleSkyStrategyInitializer.sol";
 
 import { MapleSkyStrategyInitializerHarness } from "../../utils/Harnesses.sol";
-import { SkyTestBase }                        from "../../utils/SkyTestBase.sol";
+import { SkyTestBase } from "../../utils/SkyTestBase.sol";
 
 contract SkyInitializeTests is SkyTestBase {
 

@@ -65,9 +65,9 @@ contract AaveV3RemoveImpairmentSuccessTests is AaveV3TestBase {
     function test_removeImpairment_success_strategyDelegate() external {
         uint256 currentTotalAssets       = 100e6; // Strategy holds 100 aTokens worth 100 assets.
         uint256 aaveTokenBalance         = 100e6; // Strategy holds 100 aTokens.
-        uint256 initialUnrealizedLosses  = 20e6;  // Existing unrealized losses are 20 assets.
-        uint256 impairmentRemoved        = 5e6;   // Admin removes 5 assets of unrealized losses.
-        uint256 expectedUnrealizedLosses = 15e6;  // 20 assets of losses - 5 assets removed.
+        uint256 initialUnrealizedLosses  = 20e6; // Existing unrealized losses are 20 assets.
+        uint256 impairmentRemoved        = 5e6; // Admin removes 5 assets of unrealized losses.
+        uint256 expectedUnrealizedLosses = 15e6; // 20 assets of losses - 5 assets removed.
 
         setAaveV3StrategyState({
             lastRecordedTotalAssets_: currentTotalAssets,
@@ -92,9 +92,9 @@ contract AaveV3RemoveImpairmentSuccessTests is AaveV3TestBase {
     function test_removeImpairment_success_operationalAdmin() external {
         uint256 currentTotalAssets       = 100e6; // Strategy holds 100 aTokens worth 100 assets.
         uint256 aaveTokenBalance         = 100e6; // Strategy holds 100 aTokens.
-        uint256 initialUnrealizedLosses  = 20e6;  // Existing unrealized losses are 20 assets.
-        uint256 impairmentRemoved        = 5e6;   // Admin removes 5 assets of unrealized losses.
-        uint256 expectedUnrealizedLosses = 15e6;  // 20 assets of losses - 5 assets removed.
+        uint256 initialUnrealizedLosses  = 20e6; // Existing unrealized losses are 20 assets.
+        uint256 impairmentRemoved        = 5e6; // Admin removes 5 assets of unrealized losses.
+        uint256 expectedUnrealizedLosses = 15e6; // 20 assets of losses - 5 assets removed.
 
         setAaveV3StrategyState({
             lastRecordedTotalAssets_: currentTotalAssets,
@@ -119,7 +119,7 @@ contract AaveV3RemoveImpairmentSuccessTests is AaveV3TestBase {
     function test_removeImpairment_success_clearsExistingValue() external {
         uint256 currentTotalAssets = 100e6; // Strategy holds 100 aTokens worth 100 assets.
         uint256 aaveTokenBalance   = 100e6; // Strategy holds 100 aTokens.
-        uint256 unrealizedLosses   = 20e6;  // Existing unrealized losses are 20 assets.
+        uint256 unrealizedLosses   = 20e6; // Existing unrealized losses are 20 assets.
 
         setAaveV3StrategyState({
             lastRecordedTotalAssets_: currentTotalAssets,
@@ -146,9 +146,9 @@ contract AaveV3RemoveImpairmentSuccessTests is AaveV3TestBase {
         uint256 aaveTokenBalance         = 200e6;
         uint256 aaveLiquidity            = 300e6; // Aave liquidity is above the 200e6 strategy position.
         uint256 expectedAum              = 195e6; // 200e6 current assets - 2e6 delegate fee - 3e6 protocol fee.
-        uint256 initialUnrealizedLosses  = 20e6;  // Existing unrealized losses are 20 assets.
-        uint256 impairmentRemoved        = 5e6;   // Admin removes 5 assets of unrealized losses.
-        uint256 expectedUnrealizedLosses = 15e6;  // 20 assets of losses - 5 assets removed.
+        uint256 initialUnrealizedLosses  = 20e6; // Existing unrealized losses are 20 assets.
+        uint256 impairmentRemoved        = 5e6; // Admin removes 5 assets of unrealized losses.
+        uint256 expectedUnrealizedLosses = 15e6; // 20 assets of losses - 5 assets removed.
 
         setAaveV3StrategyState({
             lastRecordedTotalAssets_: lastRecordedTotalAssets,

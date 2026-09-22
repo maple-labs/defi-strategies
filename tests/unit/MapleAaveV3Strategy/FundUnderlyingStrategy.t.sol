@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 import { MapleAaveV3Strategy } from "../../../contracts/aaveV3/MapleAaveV3Strategy.sol";
 
-import { IAavePoolLike }        from "../../../contracts/interfaces/Interfaces.sol";
+import { IAavePoolLike } from "../../../contracts/interfaces/Interfaces.sol";
 import { IMapleAaveV3Strategy } from "../../../contracts/interfaces/IMapleAaveV3Strategy.sol";
 
 import { AaveV3TestBase } from "../../utils/AaveV3TestBase.sol";
@@ -81,16 +81,13 @@ contract AaveV3FundUnderlyingStrategySuccessTests is AaveV3TestBase {
             assetsUnderManagement:   0
         });
 
-        uint16 referralCode = 42;
-        uint256 assets      = 100e6;
+        uint16  referralCode = 42;
+        uint256 assets       = 100e6;
 
         vm.prank(strategyDelegate);
         strategy.setReferralCode(referralCode);
 
-        vm.expectCall(
-            aavePool,
-            abi.encodeCall(IAavePoolLike.supply, (address(asset), assets, address(strategy), referralCode))
-        );
+        vm.expectCall(aavePool, abi.encodeCall(IAavePoolLike.supply, (address(asset), assets, address(strategy), referralCode)));
 
         vm.prank(address(strategyManager));
         strategy.fundUnderlyingStrategy(assets, "");
@@ -149,17 +146,17 @@ contract AaveV3FundUnderlyingStrategySuccessTests is AaveV3TestBase {
         /**********************************************************************************************************************************/
 
         uint256 firstDepositAssets                  = 100e6;
-        uint256 expectedFirstDeployedAssets         = 100e6;  // First deposit deploys all assets.
-        uint256 expectedTotalAfterFirstFund         = 100e6;  // First deposit has no prior yield to collect fees on.
-        uint256 yieldToAdd                          = 40e6;   // Simulate Aave balance increasing by 40 USDC.
-        uint256 assetsUnderManagementAfterFirstFund = 138e6;  // 140e6 Aave balance - 0.8e6 delegate fee - 1.2e6 protocol fee.
+        uint256 expectedFirstDeployedAssets         = 100e6; // First deposit deploys all assets.
+        uint256 expectedTotalAfterFirstFund         = 100e6; // First deposit has no prior yield to collect fees on.
+        uint256 yieldToAdd                          = 40e6; // Simulate Aave balance increasing by 40 USDC.
+        uint256 assetsUnderManagementAfterFirstFund = 138e6; // 140e6 Aave balance - 0.8e6 delegate fee - 1.2e6 protocol fee.
 
         vm.prank(address(strategyManager));
         uint256 firstDeployedAssets = strategy.fundUnderlyingStrategy(firstDepositAssets, "");
 
         assertEq(firstDeployedAssets, expectedFirstDeployedAssets);
 
-        setStrategyATokenBalance(firstDepositAssets + yieldToAdd);  // Strategy position has 40 USDC of yield
+        setStrategyATokenBalance(firstDepositAssets + yieldToAdd); // Strategy position has 40 USDC of yield
 
         assertAaveV3Strategy({
             aaveTokenBalance:        firstDepositAssets + yieldToAdd,
@@ -176,12 +173,12 @@ contract AaveV3FundUnderlyingStrategySuccessTests is AaveV3TestBase {
         /*** Step 3: Make second deposit and assert                                                                                     ***/
         /**********************************************************************************************************************************/
 
-        uint256 secondDepositAssets           = 100e6;
-        uint256 expectedDeployedAssets        = 100e6;  // Second deposit deploys all assets.
+        uint256 secondDepositAssets    = 100e6;
+        uint256 expectedDeployedAssets = 100e6; // Second deposit deploys all assets.
 
-        uint256 expectedDelegateFee           = 0.8e6;  // 40e6 yield * 2% delegate fee.
-        uint256 expectedProtocolFee           = 1.2e6;  // 40e6 yield * 3% protocol fee.
-        uint256 expectedLastRecordedAfterFund = 238e6;  // 140e6 Aave balance - 2e6 fees + 100e6 second deposit.
+        uint256 expectedDelegateFee           = 0.8e6; // 40e6 yield * 2% delegate fee.
+        uint256 expectedProtocolFee           = 1.2e6; // 40e6 yield * 3% protocol fee.
+        uint256 expectedLastRecordedAfterFund = 238e6; // 140e6 Aave balance - 2e6 fees + 100e6 second deposit.
 
         vm.expectCall(
             aavePool,
@@ -193,11 +190,7 @@ contract AaveV3FundUnderlyingStrategySuccessTests is AaveV3TestBase {
         emit IMapleAaveV3Strategy.StrategyFeesCollected(expectedDelegateFee, expectedProtocolFee);
 
         vm.expectEmit();
-        emit IMapleAaveV3Strategy.StrategyFunded(
-            address(strategyManager),
-            secondDepositAssets,
-            expectedDeployedAssets
-        );
+        emit IMapleAaveV3Strategy.StrategyFunded(address(strategyManager), secondDepositAssets, expectedDeployedAssets);
 
         vm.prank(address(strategyManager));
         uint256 deployedAssets = strategy.fundUnderlyingStrategy(secondDepositAssets, "");
@@ -228,24 +221,24 @@ contract AaveV3FundUnderlyingStrategySuccessTests is AaveV3TestBase {
         /**********************************************************************************************************************************/
 
         strategy.__setStrategyDelegateFeeRate(0.02e6); // 2% delegate fee
-        strategy.__setStrategyProtocolFeeRate(0);      // 0% protocol fee
+        strategy.__setStrategyProtocolFeeRate(0); // 0% protocol fee
 
         /**********************************************************************************************************************************/
         /*** Step 2: Make first deposit and simulate yield                                                                              ***/
         /**********************************************************************************************************************************/
 
         uint256 firstDepositAssets                  = 100e6;
-        uint256 expectedFirstDeployedAssets         = 100e6;    // First deposit deploys all assets.
-        uint256 expectedTotalAfterFirstFund         = 100e6;    // First deposit has no prior yield to collect fees on.
-        uint256 yieldToAdd                          = 40e6;     // Simulate Aave balance increasing by 40 USDC.
-        uint256 assetsUnderManagementAfterFirstFund = 139.2e6;  // 140e6 Aave balance - 0.8e6 delegate fee.
+        uint256 expectedFirstDeployedAssets         = 100e6; // First deposit deploys all assets.
+        uint256 expectedTotalAfterFirstFund         = 100e6; // First deposit has no prior yield to collect fees on.
+        uint256 yieldToAdd                          = 40e6; // Simulate Aave balance increasing by 40 USDC.
+        uint256 assetsUnderManagementAfterFirstFund = 139.2e6; // 140e6 Aave balance - 0.8e6 delegate fee.
 
         vm.prank(address(strategyManager));
         uint256 firstDeployedAssets = strategy.fundUnderlyingStrategy(firstDepositAssets, "");
 
         assertEq(firstDeployedAssets, expectedFirstDeployedAssets);
 
-        setStrategyATokenBalance(firstDepositAssets + yieldToAdd);  // Strategy position has 40 USDC of yield
+        setStrategyATokenBalance(firstDepositAssets + yieldToAdd); // Strategy position has 40 USDC of yield
 
         assertAaveV3Strategy({
             aaveTokenBalance:        firstDepositAssets + yieldToAdd,
@@ -262,22 +255,18 @@ contract AaveV3FundUnderlyingStrategySuccessTests is AaveV3TestBase {
         /*** Step 3: Make second deposit and assert                                                                                     ***/
         /**********************************************************************************************************************************/
 
-        uint256 secondDepositAssets           = 100e6;
-        uint256 expectedDeployedAssets        = 100e6;   // Second deposit deploys all assets.
+        uint256 secondDepositAssets    = 100e6;
+        uint256 expectedDeployedAssets = 100e6; // Second deposit deploys all assets.
 
-        uint256 expectedDelegateFee           = 0.8e6;   // 40e6 yield * 2% delegate fee.
-        uint256 expectedProtocolFee           = 0;       // 40e6 yield * 0% protocol fee.
+        uint256 expectedDelegateFee           = 0.8e6; // 40e6 yield * 2% delegate fee.
+        uint256 expectedProtocolFee           = 0; // 40e6 yield * 0% protocol fee.
         uint256 expectedLastRecordedAfterFund = 239.2e6; // 140e6 Aave balance - 0.8e6 fees + 100e6 second deposit.
 
         vm.expectEmit();
         emit IMapleAaveV3Strategy.StrategyFeesCollected(expectedDelegateFee, expectedProtocolFee);
 
         vm.expectEmit();
-        emit IMapleAaveV3Strategy.StrategyFunded(
-            address(strategyManager),
-            secondDepositAssets,
-            expectedDeployedAssets
-        );
+        emit IMapleAaveV3Strategy.StrategyFunded(address(strategyManager), secondDepositAssets, expectedDeployedAssets);
 
         vm.prank(address(strategyManager));
         uint256 deployedAssets = strategy.fundUnderlyingStrategy(secondDepositAssets, "");
@@ -307,7 +296,7 @@ contract AaveV3FundUnderlyingStrategySuccessTests is AaveV3TestBase {
         /*** Step 1: Set fee rates                                                                                                      ***/
         /**********************************************************************************************************************************/
 
-        strategy.__setStrategyDelegateFeeRate(0);      // 0% delegate fee
+        strategy.__setStrategyDelegateFeeRate(0); // 0% delegate fee
         strategy.__setStrategyProtocolFeeRate(0.03e6); // 3% protocol fee
 
         /**********************************************************************************************************************************/
@@ -315,17 +304,17 @@ contract AaveV3FundUnderlyingStrategySuccessTests is AaveV3TestBase {
         /**********************************************************************************************************************************/
 
         uint256 firstDepositAssets                  = 100e6;
-        uint256 expectedFirstDeployedAssets         = 100e6;    // First deposit deploys all assets.
-        uint256 expectedTotalAfterFirstFund         = 100e6;    // First deposit has no prior yield to collect fees on.
-        uint256 yieldToAdd                          = 40e6;     // Simulate Aave balance increasing by 40 USDC.
-        uint256 assetsUnderManagementAfterFirstFund = 138.8e6;  // 140e6 Aave balance - 1.2e6 protocol fee.
+        uint256 expectedFirstDeployedAssets         = 100e6; // First deposit deploys all assets.
+        uint256 expectedTotalAfterFirstFund         = 100e6; // First deposit has no prior yield to collect fees on.
+        uint256 yieldToAdd                          = 40e6; // Simulate Aave balance increasing by 40 USDC.
+        uint256 assetsUnderManagementAfterFirstFund = 138.8e6; // 140e6 Aave balance - 1.2e6 protocol fee.
 
         vm.prank(address(strategyManager));
         uint256 firstDeployedAssets = strategy.fundUnderlyingStrategy(firstDepositAssets, "");
 
         assertEq(firstDeployedAssets, expectedFirstDeployedAssets);
 
-        setStrategyATokenBalance(firstDepositAssets + yieldToAdd);  // Strategy position has 40 USDC of yield
+        setStrategyATokenBalance(firstDepositAssets + yieldToAdd); // Strategy position has 40 USDC of yield
 
         assertAaveV3Strategy({
             aaveTokenBalance:        firstDepositAssets + yieldToAdd,
@@ -342,22 +331,18 @@ contract AaveV3FundUnderlyingStrategySuccessTests is AaveV3TestBase {
         /*** Step 3: Make second deposit and assert                                                                                     ***/
         /**********************************************************************************************************************************/
 
-        uint256 secondDepositAssets           = 100e6;
-        uint256 expectedDeployedAssets        = 100e6;  // Second deposit deploys all assets.
+        uint256 secondDepositAssets    = 100e6;
+        uint256 expectedDeployedAssets = 100e6; // Second deposit deploys all assets.
 
-        uint256 expectedDelegateFee           = 0;      // 40e6 yield * 0% delegate fee.
-        uint256 expectedProtocolFee           = 1.2e6;  // 40e6 yield * 3% protocol fee.
-        uint256 expectedLastRecordedAfterFund = 238.8e6;  // 140e6 Aave balance - 1.2e6 fees + 100e6 second deposit.
+        uint256 expectedDelegateFee           = 0; // 40e6 yield * 0% delegate fee.
+        uint256 expectedProtocolFee           = 1.2e6; // 40e6 yield * 3% protocol fee.
+        uint256 expectedLastRecordedAfterFund = 238.8e6; // 140e6 Aave balance - 1.2e6 fees + 100e6 second deposit.
 
         vm.expectEmit();
         emit IMapleAaveV3Strategy.StrategyFeesCollected(expectedDelegateFee, expectedProtocolFee);
 
         vm.expectEmit();
-        emit IMapleAaveV3Strategy.StrategyFunded(
-            address(strategyManager),
-            secondDepositAssets,
-            expectedDeployedAssets
-        );
+        emit IMapleAaveV3Strategy.StrategyFunded(address(strategyManager), secondDepositAssets, expectedDeployedAssets);
 
         vm.prank(address(strategyManager));
         uint256 deployedAssets = strategy.fundUnderlyingStrategy(secondDepositAssets, "");
@@ -405,7 +390,7 @@ contract AaveV3FundUnderlyingStrategySuccessTests is AaveV3TestBase {
 
         assertEq(firstDeployedAssets, expectedFirstDeployedAssets);
 
-        setStrategyATokenBalance(aaveAmountOutBeforeFund);  // Strategy position has positive yield that rounds fees to zero
+        setStrategyATokenBalance(aaveAmountOutBeforeFund); // Strategy position has positive yield that rounds fees to zero
 
         assertAaveV3Strategy({
             aaveTokenBalance:        aaveAmountOutBeforeFund,
@@ -430,11 +415,7 @@ contract AaveV3FundUnderlyingStrategySuccessTests is AaveV3TestBase {
         emit IMapleAaveV3Strategy.StrategyFeesCollected(0, 0);
 
         vm.expectEmit();
-        emit IMapleAaveV3Strategy.StrategyFunded(
-            address(strategyManager),
-            secondDepositAssets,
-            expectedDeployedAssets
-        );
+        emit IMapleAaveV3Strategy.StrategyFunded(address(strategyManager), secondDepositAssets, expectedDeployedAssets);
 
         vm.prank(address(strategyManager));
         uint256 deployedAssets = strategy.fundUnderlyingStrategy(secondDepositAssets, "");
@@ -471,9 +452,9 @@ contract AaveV3FundUnderlyingStrategySuccessTests is AaveV3TestBase {
         /*** Step 2: Make first deposit with zero yield/loss                                                                            ***/
         /**********************************************************************************************************************************/
 
-        uint256 firstDepositAssets            = 100e6;
-        uint256 expectedFirstDeployedAssets   = 100e6;
-        uint256 expectedTotalAfterFirstFund   = 100e6;
+        uint256 firstDepositAssets          = 100e6;
+        uint256 expectedFirstDeployedAssets = 100e6;
+        uint256 expectedTotalAfterFirstFund = 100e6;
 
         vm.prank(address(strategyManager));
         uint256 firstDeployedAssets = strategy.fundUnderlyingStrategy(firstDepositAssets, "");
@@ -503,11 +484,7 @@ contract AaveV3FundUnderlyingStrategySuccessTests is AaveV3TestBase {
         emit IMapleAaveV3Strategy.StrategyFeesCollected(0, 0);
 
         vm.expectEmit();
-        emit IMapleAaveV3Strategy.StrategyFunded(
-            address(strategyManager),
-            secondDepositAssets,
-            expectedDeployedAssets
-        );
+        emit IMapleAaveV3Strategy.StrategyFunded(address(strategyManager), secondDepositAssets, expectedDeployedAssets);
 
         vm.prank(address(strategyManager));
         uint256 deployedAssets = strategy.fundUnderlyingStrategy(secondDepositAssets, "");
@@ -554,7 +531,7 @@ contract AaveV3FundUnderlyingStrategySuccessTests is AaveV3TestBase {
 
         assertEq(firstDeployedAssets, expectedFirstDeployedAssets);
 
-        setStrategyATokenBalance(aaveAmountOutBeforeFund);  // Strategy position has a 20 USDC loss
+        setStrategyATokenBalance(aaveAmountOutBeforeFund); // Strategy position has a 20 USDC loss
 
         assertAaveV3Strategy({
             aaveTokenBalance:        aaveAmountOutBeforeFund,
@@ -579,11 +556,7 @@ contract AaveV3FundUnderlyingStrategySuccessTests is AaveV3TestBase {
         emit IMapleAaveV3Strategy.StrategyFeesCollected(0, 0);
 
         vm.expectEmit();
-        emit IMapleAaveV3Strategy.StrategyFunded(
-            address(strategyManager),
-            secondDepositAssets,
-            expectedDeployedAssets
-        );
+        emit IMapleAaveV3Strategy.StrategyFunded(address(strategyManager), secondDepositAssets, expectedDeployedAssets);
 
         vm.prank(address(strategyManager));
         uint256 deployedAssets = strategy.fundUnderlyingStrategy(secondDepositAssets, "");

@@ -3,19 +3,14 @@ pragma solidity ^0.8.34;
 
 import { AaveV3StrategyInitializerParams, IMapleAaveV3StrategyInitializer } from "../interfaces/IMapleAaveV3StrategyInitializer.sol";
 
-import {
-    IAaveTokenLike,
-    IGlobalsLike,
-    IProxyFactoryLike,
-    IStrategyManagerLike
-} from "../interfaces/Interfaces.sol";
+import { IAaveTokenLike, IGlobalsLike, IProxyFactoryLike, IStrategyManagerLike } from "../interfaces/Interfaces.sol";
 
 import { MapleAaveV3StrategyStorage } from "./MapleAaveV3StrategyStorage.sol";
 
 contract MapleAaveV3StrategyInitializer is IMapleAaveV3StrategyInitializer, MapleAaveV3StrategyStorage {
 
     function _initialize(address strategyManager_, AaveV3StrategyInitializerParams memory params_) internal {
-        require(strategyManager_  != address(0), "MAV3SI:I:ZERO_STRATEGY_MANAGER");
+        require(strategyManager_ != address(0),  "MAV3SI:I:ZERO_STRATEGY_MANAGER");
         require(params_.aaveToken != address(0), "MAV3SI:I:ZERO_AAVE_TOKEN");
 
         require(params_.strategyDelegateFeeRate + params_.strategyProtocolFeeRate <= 1e6, "MAV3SI:I:INVALID_SUM_FEE_RATE");

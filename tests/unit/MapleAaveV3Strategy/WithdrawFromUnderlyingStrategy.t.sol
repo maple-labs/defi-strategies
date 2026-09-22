@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 import { MapleAaveV3Strategy } from "../../../contracts/aaveV3/MapleAaveV3Strategy.sol";
 
-import { IAavePoolLike }        from "../../../contracts/interfaces/Interfaces.sol";
+import { IAavePoolLike } from "../../../contracts/interfaces/Interfaces.sol";
 import { IMapleAaveV3Strategy } from "../../../contracts/interfaces/IMapleAaveV3Strategy.sol";
 
 import { AaveV3TestBase } from "../../utils/AaveV3TestBase.sol";
@@ -102,8 +102,8 @@ contract AaveV3WithdrawFromUnderlyingStrategyFailureTests is AaveV3TestBase {
     function test_withdrawFromUnderlyingStrategy_revert_fullWithdrawal_strategyHasYield_withProtocolFees_overWithdrawal() external {
         address destination = makeAddr("destination");
 
-        strategy.__setStrategyDelegateFeeRate(0.02e6);  // 2% delegate fee
-        strategy.__setStrategyProtocolFeeRate(0.03e6);  // 3% protocol fee
+        strategy.__setStrategyDelegateFeeRate(0.02e6); // 2% delegate fee
+        strategy.__setStrategyProtocolFeeRate(0.03e6); // 3% protocol fee
 
         uint256 aaveTokenBalanceBeforeWithdraw = 200e6;
         uint256 lastRecordedBeforeWithdraw     = 100e6;
@@ -146,7 +146,6 @@ contract AaveV3WithdrawFromUnderlyingStrategySuccessTests is AaveV3TestBase {
     }
 
     function test_withdrawFromUnderlyingStrategy_success_partialWithdrawal_noYield() external {
-
         /**********************************************************************************************************************************/
         /*** Step 1: Pre-seed strategy state                                                                                            ***/
         /**********************************************************************************************************************************/
@@ -201,7 +200,6 @@ contract AaveV3WithdrawFromUnderlyingStrategySuccessTests is AaveV3TestBase {
     }
 
     function test_withdrawFromUnderlyingStrategy_success_fullWithdrawal_noYield() external {
-
         /**********************************************************************************************************************************/
         /*** Step 1: Pre-seed strategy state                                                                                            ***/
         /**********************************************************************************************************************************/
@@ -254,13 +252,12 @@ contract AaveV3WithdrawFromUnderlyingStrategySuccessTests is AaveV3TestBase {
     }
 
     function test_withdrawFromUnderlyingStrategy_success_partialWithdrawal_strategyHasLoss_withProtocolFees() external {
-
         /**********************************************************************************************************************************/
         /*** Step 1: Pre-seed strategy state                                                                                            ***/
         /**********************************************************************************************************************************/
 
-        strategy.__setStrategyDelegateFeeRate(0.02e6);  // 2% delegate fee
-        strategy.__setStrategyProtocolFeeRate(0.03e6);  // 3% protocol fee
+        strategy.__setStrategyDelegateFeeRate(0.02e6); // 2% delegate fee
+        strategy.__setStrategyProtocolFeeRate(0.03e6); // 3% protocol fee
 
         uint256 aaveTokenBalanceBeforeWithdraw = 80e6;
         uint256 lastRecordedBeforeWithdraw     = 100e6;
@@ -315,13 +312,12 @@ contract AaveV3WithdrawFromUnderlyingStrategySuccessTests is AaveV3TestBase {
     }
 
     function test_withdrawFromUnderlyingStrategy_success_partialWithdrawal_strategyHasYield_feesRoundedDownToZero() external {
-
         /**********************************************************************************************************************************/
         /*** Step 1: Pre-seed strategy state                                                                                            ***/
         /**********************************************************************************************************************************/
 
-        strategy.__setStrategyDelegateFeeRate(0.02e6);  // 2% delegate fee
-        strategy.__setStrategyProtocolFeeRate(0.03e6);  // 3% protocol fee
+        strategy.__setStrategyDelegateFeeRate(0.02e6); // 2% delegate fee
+        strategy.__setStrategyProtocolFeeRate(0.03e6); // 3% protocol fee
 
         uint256 lastRecordedBeforeWithdraw     = 100e6;
         uint256 yieldThatRoundsFeesToZero      = 20;
@@ -378,13 +374,12 @@ contract AaveV3WithdrawFromUnderlyingStrategySuccessTests is AaveV3TestBase {
     }
 
     function test_withdrawFromUnderlyingStrategy_success_partialWithdrawal_strategyHasYield_withProtocolFees() external {
-
         /**********************************************************************************************************************************/
         /*** Step 1: Pre-seed strategy state                                                                                            ***/
         /**********************************************************************************************************************************/
 
-        strategy.__setStrategyDelegateFeeRate(0.02e6);  // 2% delegate fee
-        strategy.__setStrategyProtocolFeeRate(0.03e6);  // 3% protocol fee
+        strategy.__setStrategyDelegateFeeRate(0.02e6); // 2% delegate fee
+        strategy.__setStrategyProtocolFeeRate(0.03e6); // 3% protocol fee
 
         uint256 aaveTokenBalanceBeforeWithdraw = 200e6;
         uint256 lastRecordedBeforeWithdraw     = 100e6;
@@ -419,11 +414,7 @@ contract AaveV3WithdrawFromUnderlyingStrategySuccessTests is AaveV3TestBase {
         uint256 expectedAaveTokenBalanceAfterWithdraw = 145e6;
         uint256 expectedLastRecordedAfterWithdraw     = 145e6;
 
-        vm.expectCall(
-            aavePool,
-            abi.encodeCall(IAavePoolLike.withdraw, (address(asset), expectedTotalToWithdraw, address(strategy))),
-            1
-        );
+        vm.expectCall(aavePool, abi.encodeCall(IAavePoolLike.withdraw, (address(asset), expectedTotalToWithdraw, address(strategy))), 1);
 
         vm.expectEmit();
         emit IMapleAaveV3Strategy.StrategyFeesCollected(expectedDelegateFee, expectedProtocolFee);
@@ -449,13 +440,12 @@ contract AaveV3WithdrawFromUnderlyingStrategySuccessTests is AaveV3TestBase {
     }
 
     function test_withdrawFromUnderlyingStrategy_success_fullWithdrawal_strategyHasYield_withProtocolFees() external {
-
         /**********************************************************************************************************************************/
         /*** Step 1: Pre-seed strategy state                                                                                            ***/
         /**********************************************************************************************************************************/
 
-        strategy.__setStrategyDelegateFeeRate(0.02e6);  // 2% delegate fee
-        strategy.__setStrategyProtocolFeeRate(0.03e6);  // 3% protocol fee
+        strategy.__setStrategyDelegateFeeRate(0.02e6); // 2% delegate fee
+        strategy.__setStrategyProtocolFeeRate(0.03e6); // 3% protocol fee
 
         uint256 aaveTokenBalanceBeforeWithdraw = 200e6;
         uint256 lastRecordedBeforeWithdraw     = 100e6;
@@ -488,11 +478,7 @@ contract AaveV3WithdrawFromUnderlyingStrategySuccessTests is AaveV3TestBase {
         uint256 expectedProtocolFee     = 3e6;
         uint256 expectedTotalToWithdraw = 200e6;
 
-        vm.expectCall(
-            aavePool,
-            abi.encodeCall(IAavePoolLike.withdraw, (address(asset), expectedTotalToWithdraw, address(strategy))),
-            1
-        );
+        vm.expectCall(aavePool, abi.encodeCall(IAavePoolLike.withdraw, (address(asset), expectedTotalToWithdraw, address(strategy))), 1);
 
         vm.expectEmit();
         emit IMapleAaveV3Strategy.StrategyFeesCollected(expectedDelegateFee, expectedProtocolFee);
@@ -518,7 +504,6 @@ contract AaveV3WithdrawFromUnderlyingStrategySuccessTests is AaveV3TestBase {
     }
 
     function test_withdrawFromUnderlyingStrategy_success_multipleSequentialWithdrawals() external {
-
         /**********************************************************************************************************************************/
         /*** Step 1: Pre-seed strategy state                                                                                            ***/
         /**********************************************************************************************************************************/
@@ -548,9 +533,9 @@ contract AaveV3WithdrawFromUnderlyingStrategySuccessTests is AaveV3TestBase {
         /*** Step 2: Execute first withdrawal                                                                                           ***/
         /**********************************************************************************************************************************/
 
-        uint256 firstWithdrawAssets                 = 40e6;
-        uint256 aaveTokenBalanceAfterFirstWithdraw  = 60e6;
-        uint256 lastRecordedAfterFirstWithdraw      = 60e6;
+        uint256 firstWithdrawAssets                = 40e6;
+        uint256 aaveTokenBalanceAfterFirstWithdraw = 60e6;
+        uint256 lastRecordedAfterFirstWithdraw     = 60e6;
 
         vm.expectEmit();
         emit IMapleAaveV3Strategy.StrategyWithdrawal(destination, firstWithdrawAssets);

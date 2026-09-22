@@ -8,12 +8,12 @@ contract SkyAssetsUnderManagementTests is SkyTestBase {
     function setUp() public override {
         super.setUp();
 
-        psm.__setUsdsDepositExchangeRate(1e18);          // 1 USDC  -> 1 USDS
-        psm.__setUsdsRedeemExchangeRate(1e18);           // 1 USDS  -> 1 USDC
+        psm.__setUsdsDepositExchangeRate(1e18); // 1 USDC  -> 1 USDS
+        psm.__setUsdsRedeemExchangeRate(1e18); // 1 USDS  -> 1 USDC
         savingsUsds.__setSusdsDepositExchangeRate(1e18); // 1 USDS  -> 1 sUSDS
-        savingsUsds.__setSusdsRedeemExchangeRate(1e18);  // 1 sUSDS -> 1 USDS
-        strategy.__setStrategyDelegateFeeRate(0);        // 0% delegate fee
-        strategy.__setStrategyProtocolFeeRate(0);        // 0% protocol fee
+        savingsUsds.__setSusdsRedeemExchangeRate(1e18); // 1 sUSDS -> 1 USDS
+        strategy.__setStrategyDelegateFeeRate(0); // 0% delegate fee
+        strategy.__setStrategyProtocolFeeRate(0); // 0% protocol fee
 
         // the strategy has no AUM
         assertEq(strategy.assetsUnderManagement(), 0);
@@ -152,7 +152,7 @@ contract SkyAssetsUnderManagementTests is SkyTestBase {
     }
 
     function test_assetsUnderManagement_success_lossRecognizedReturnsZeroAfterRawPositionGrows() external {
-        uint256 currentTotalAssets = 100e6;  // Strategy holds 100 sUSDS worth 100 assets.
+        uint256 currentTotalAssets = 100e6; // Strategy holds 100 sUSDS worth 100 assets.
         uint256 susdsBalance       = 100e18; // Strategy holds 100 sUSDS.
 
         setSkyStrategyState({

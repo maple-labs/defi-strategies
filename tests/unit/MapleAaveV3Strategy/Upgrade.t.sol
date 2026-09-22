@@ -5,7 +5,7 @@ import { IMapleProxied } from "../../../modules/proxy-factory/contracts/interfac
 
 import { MapleAaveV3Strategy } from "../../../contracts/aaveV3/MapleAaveV3Strategy.sol";
 
-import { AaveV3TestBase }     from "../../utils/AaveV3TestBase.sol";
+import { AaveV3TestBase } from "../../utils/AaveV3TestBase.sol";
 import { MockAaveV3Migrator } from "../../utils/Mocks.sol";
 
 contract AaveV3UpgradeTests is AaveV3TestBase {

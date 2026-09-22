@@ -7,14 +7,7 @@ import { MapleProxiedInternals } from "../../modules/proxy-factory/contracts/Map
 
 import { IMapleSkyStrategy } from "../interfaces/IMapleSkyStrategy.sol";
 
-import {
-    IERC20Like,
-    IERC4626Like,
-    IGlobalsLike,
-    IPSMLike,
-    IProxyFactoryLike,
-    IStrategyManagerLike
-} from "../interfaces/Interfaces.sol";
+import { IERC20Like, IERC4626Like, IGlobalsLike, IPSMLike, IProxyFactoryLike, IStrategyManagerLike } from "../interfaces/Interfaces.sol";
 
 import { MapleSkyStrategyStorage } from "./MapleSkyStrategyStorage.sol";
 
@@ -76,11 +69,7 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
     }
 
     modifier onlyOpsAdminOrStrategyDelegate() {
-        require(
-            msg.sender == strategyDelegate() ||
-            msg.sender == IGlobalsLike(globals()).operationalAdmin(),
-            "MSS:NOT_AUTHORIZED"
-        );
+        require(msg.sender == strategyDelegate() || msg.sender == IGlobalsLike(globals()).operationalAdmin(), "MSS:NOT_AUTHORIZED");
 
         _;
     }
@@ -88,11 +77,7 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
     modifier onlyProtocolAdmins() {
         address globals_ = globals();
 
-        require(
-            msg.sender == IGlobalsLike(globals_).governor() ||
-            msg.sender == IGlobalsLike(globals_).operationalAdmin(),
-            "MSS:NOT_ADMIN"
-        );
+        require(msg.sender == IGlobalsLike(globals_).governor() || msg.sender == IGlobalsLike(globals_).operationalAdmin(), "MSS:NOT_ADMIN");
 
         _;
     }
@@ -143,7 +128,13 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
         uint256 assetsIn_,
         bytes calldata /* data_ */
     )
-        external override whenNotPaused nonReentrant onlyStrategyManager whenLossNotRecognized returns (uint256 deployedAssets_)
+        external
+        override
+        whenNotPaused
+        nonReentrant
+        onlyStrategyManager
+        whenLossNotRecognized
+        returns (uint256 deployedAssets_)
     {
         require(assetsIn_ > 0, "MSS:FUS:ZERO_ASSETS");
 
@@ -152,7 +143,7 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
         address savingsUsds_ = savingsUsds;
 
         require(IGlobalsLike(globals_).isInstanceOf("STRATEGY_VAULT", savingsUsds_), "MSS:FUS:INVALID_STRATEGY_VAULT");
-        require(IGlobalsLike(globals_).isInstanceOf("PSM",            psm_),         "MSS:FUS:INVALID_PSM");
+        require(IGlobalsLike(globals_).isInstanceOf("PSM", psm_),                    "MSS:FUS:INVALID_PSM");
 
         require(IPSMLike(psm_).tout() != type(uint256).max, "MSS:FUS:PSM_HALTED");
 
@@ -180,10 +171,15 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
         uint256 assets_,
         bytes calldata /* data_ */
     )
-        external override whenNotPaused nonReentrant onlyStrategyManager whenLossNotRecognized
+        external
+        override
+        whenNotPaused
+        nonReentrant
+        onlyStrategyManager
+        whenLossNotRecognized
     {
         require(destination_ != address(0), "MSS:WFUS:ZERO_DESTINATION");
-        require(assets_       > 0,          "MSS:WFUS:ZERO_ASSETS");
+        require(assets_ > 0,                "MSS:WFUS:ZERO_ASSETS");
 
         address psm_         = psm;
         address savingsUsds_ = savingsUsds;
@@ -206,7 +202,12 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
     }
 
     function removeImpairment(uint256 assets_)
-        external override whenNotPaused nonReentrant onlyOpsAdminOrStrategyDelegate whenLossNotRecognized
+        external
+        override
+        whenNotPaused
+        nonReentrant
+        onlyOpsAdminOrStrategyDelegate
+        whenLossNotRecognized
     {
         require(assets_ > 0,               "MSS:RI:ZERO");
         require(assets_ <= impairedAssets, "MSS:RI:EXCEEDS_IMPAIRMENT");
@@ -241,7 +242,12 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
     /**************************************************************************************************************************************/
 
     function setFallbackTout(uint256 fallbackTout_)
-        external override whenNotPaused nonReentrant onlyOpsAdminOrStrategyDelegate whenLossNotRecognized
+        external
+        override
+        whenNotPaused
+        nonReentrant
+        onlyOpsAdminOrStrategyDelegate
+        whenLossNotRecognized
     {
         require(fallbackTout_ != fallbackTout,      "MSS:SFT:NO_CHANGE");
         require(fallbackTout_ != type(uint256).max, "MSS:SFT:INVALID_TOUT");
@@ -252,7 +258,12 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
     }
 
     function setMetadata(string calldata metadata_)
-        external override whenNotPaused nonReentrant onlyOpsAdminOrStrategyDelegate whenLossNotRecognized
+        external
+        override
+        whenNotPaused
+        nonReentrant
+        onlyOpsAdminOrStrategyDelegate
+        whenLossNotRecognized
     {
         require(keccak256(bytes(metadata_)) != keccak256(bytes(strategyMetadata)), "MSS:SM:NO_CHANGE");
 
@@ -262,7 +273,12 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
     }
 
     function setReferralCode(uint16 referralCode_)
-        external override whenNotPaused nonReentrant onlyOpsAdminOrStrategyDelegate whenLossNotRecognized
+        external
+        override
+        whenNotPaused
+        nonReentrant
+        onlyOpsAdminOrStrategyDelegate
+        whenLossNotRecognized
     {
         require(referralCode_ != referralCode, "MSS:SRC:NO_CHANGE");
 
@@ -272,7 +288,11 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
     }
 
     function setStrategyDelegateFeeRate(uint32 strategyDelegateFeeRate_)
-        external override whenNotPaused nonReentrant whenLossNotRecognized
+        external
+        override
+        whenNotPaused
+        nonReentrant
+        whenLossNotRecognized
     {
         require(msg.sender == strategyDelegate(),                                      "MSS:SSDFR:NOT_STRATEGY_DELEGATE");
         require(strategyDelegateFeeRate_ != strategyDelegateFeeRate,                   "MSS:SSDFR:NO_CHANGE");
@@ -292,7 +312,12 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
     }
 
     function setStrategyProtocolFeeRate(uint32 strategyProtocolFeeRate_)
-        external override whenNotPaused nonReentrant onlyProtocolAdmins whenLossNotRecognized
+        external
+        override
+        whenNotPaused
+        nonReentrant
+        onlyProtocolAdmins
+        whenLossNotRecognized
     {
         require(strategyProtocolFeeRate_ != strategyProtocolFeeRate,                   "MSS:SSPFR:NO_CHANGE");
         require(strategyProtocolFeeRate_ <= HUNDRED_PERCENT,                           "MSS:SSPFR:INVALID_FEE_RATE");
@@ -312,7 +337,7 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
 
     function multicall(bytes[] calldata data_) external override {
         for (uint256 i = 0; i < data_.length; i++) {
-            ( bool success_, bytes memory returnData_ ) = address(this).delegatecall(data_[i]);
+            (bool success_, bytes memory returnData_) = address(this).delegatecall(data_[i]);
 
             if (!success_) {
                 assembly ("memory-safe") {
@@ -339,7 +364,7 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
 
         uint256 grossAvailable_ = _min(currentTotalAssets_, psmPocketLiquidity_);
 
-        ( uint256 delegateFee_, uint256 protocolFee_ ) = _currentAccruedFees(currentTotalAssets_);
+        (uint256 delegateFee_, uint256 protocolFee_) = _currentAccruedFees(currentTotalAssets_);
 
         uint256 totalFees_ = delegateFee_ + protocolFee_;
 
@@ -351,7 +376,7 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
 
         uint256 currentTotalAssets_ = _currentTotalAssets(psm, savingsUsds);
 
-        ( uint256 delegateFee_, uint256 protocolFee_ ) = _currentAccruedFees(currentTotalAssets_);
+        (uint256 delegateFee_, uint256 protocolFee_) = _currentAccruedFees(currentTotalAssets_);
 
         assetsUnderManagement_ = currentTotalAssets_ - delegateFee_ - protocolFee_;
     }
@@ -391,7 +416,7 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
     function _accrueFees(address psm_, address savingsUsds_) internal {
         uint256 currentTotalAssets_ = _currentTotalAssets(psm_, savingsUsds_);
 
-        ( uint256 delegateFee_, uint256 protocolFee_ ) = _currentAccruedFees(currentTotalAssets_);
+        (uint256 delegateFee_, uint256 protocolFee_) = _currentAccruedFees(currentTotalAssets_);
 
         if (delegateFee_ != 0) _withdraw(psm_, savingsUsds_, delegateFee_, strategyDelegate());
         if (protocolFee_ != 0) _withdraw(psm_, savingsUsds_, protocolFee_, mapleTreasury());
@@ -399,14 +424,7 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
         emit StrategyFeesCollected(delegateFee_, protocolFee_);
     }
 
-    function _withdraw(
-        address psm_,
-        address savingsUsds_,
-        uint256 assets_,
-        address destination_
-    )
-        internal returns (uint256 sharesBurned_)
-    {
+    function _withdraw(address psm_, address savingsUsds_, uint256 assets_, address destination_) internal returns (uint256 sharesBurned_) {
         uint256 requiredUsds_ = _usdsForGem(psm_, assets_);
 
         sharesBurned_ = IERC4626Like(savingsUsds_).withdraw(requiredUsds_, address(this), address(this));
@@ -431,15 +449,11 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
         protocolFee_ = yieldAccrued_ * strategyProtocolFeeRate / HUNDRED_PERCENT;
     }
 
-    function _currentTotalAssets(address psm_, address savingsUsds_)
-        internal view returns (uint256 currentTotalAssets_)
-    {
+    function _currentTotalAssets(address psm_, address savingsUsds_) internal view returns (uint256 currentTotalAssets_) {
         if (isLossRecognized) return 0;
 
-        currentTotalAssets_ = _gemForUsds(
-            psm_,
-            IERC4626Like(savingsUsds_).previewRedeem(IERC4626Like(savingsUsds_).balanceOf(address(this)))
-        );
+        currentTotalAssets_ =
+            _gemForUsds(psm_, IERC4626Like(savingsUsds_).previewRedeem(IERC4626Like(savingsUsds_).balanceOf(address(this))));
     }
 
     function _gemForUsds(address psm_, uint256 usdsAmount_) internal view returns (uint256 gemAmount_) {

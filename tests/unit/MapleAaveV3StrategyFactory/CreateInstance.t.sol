@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 import { IMapleAaveV3StrategyInitializer } from "../../../contracts/interfaces/IMapleAaveV3StrategyInitializer.sol";
 
 import { MapleAaveV3StrategyHarness } from "../../utils/Harnesses.sol";
-import { AaveV3TestBase }             from "../../utils/AaveV3TestBase.sol";
+import { AaveV3TestBase } from "../../utils/AaveV3TestBase.sol";
 
 contract AaveV3CreateInstanceTests is AaveV3TestBase {
 

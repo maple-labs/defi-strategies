@@ -6,7 +6,7 @@ import { IMapleProxied } from "../../../modules/proxy-factory/contracts/interfac
 import { MapleSkyStrategy } from "../../../contracts/sky/MapleSkyStrategy.sol";
 
 import { MockMigrator } from "../../utils/Mocks.sol";
-import { SkyTestBase }  from "../../utils/SkyTestBase.sol";
+import { SkyTestBase } from "../../utils/SkyTestBase.sol";
 
 contract SkyUpgradeTests is SkyTestBase {
 

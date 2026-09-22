@@ -52,7 +52,7 @@ contract AaveV3ImpairSuccessTests is AaveV3TestBase {
     function test_impair_success_strategyDelegate() external {
         uint256 currentTotalAssets = 100e6; // Strategy holds 100 aTokens worth 100 assets.
         uint256 aaveTokenBalance   = 100e6; // Strategy holds 100 aTokens.
-        uint256 unrealizedLosses   = 20e6;  // Admin records 20 assets of unrealized losses.
+        uint256 unrealizedLosses   = 20e6; // Admin records 20 assets of unrealized losses.
 
         setAaveV3StrategyState({
             lastRecordedTotalAssets_: currentTotalAssets,
@@ -75,7 +75,7 @@ contract AaveV3ImpairSuccessTests is AaveV3TestBase {
     function test_impair_success_operationalAdmin() external {
         uint256 currentTotalAssets = 100e6; // Strategy holds 100 aTokens worth 100 assets.
         uint256 aaveTokenBalance   = 100e6; // Strategy holds 100 aTokens.
-        uint256 unrealizedLosses   = 20e6;  // Admin records 20 assets of unrealized losses.
+        uint256 unrealizedLosses   = 20e6; // Admin records 20 assets of unrealized losses.
 
         setAaveV3StrategyState({
             lastRecordedTotalAssets_: currentTotalAssets,
@@ -98,9 +98,9 @@ contract AaveV3ImpairSuccessTests is AaveV3TestBase {
     function test_impair_success_increasesExistingValue() external {
         uint256 currentTotalAssets         = 100e6; // Strategy holds 100 aTokens worth 100 assets.
         uint256 aaveTokenBalance           = 100e6; // Strategy holds 100 aTokens.
-        uint256 initialUnrealizedLosses    = 20e6;  // Existing unrealized losses are 20 assets.
-        uint256 additionalUnrealizedLosses = 10e6;  // Admin adds 10 assets of unrealized losses.
-        uint256 expectedUnrealizedLosses   = 30e6;  // 20 assets of losses + 10 additional assets.
+        uint256 initialUnrealizedLosses    = 20e6; // Existing unrealized losses are 20 assets.
+        uint256 additionalUnrealizedLosses = 10e6; // Admin adds 10 assets of unrealized losses.
+        uint256 expectedUnrealizedLosses   = 30e6; // 20 assets of losses + 10 additional assets.
 
         setAaveV3StrategyState({
             lastRecordedTotalAssets_: currentTotalAssets,
@@ -125,8 +125,8 @@ contract AaveV3ImpairSuccessTests is AaveV3TestBase {
     function test_impair_success_allowsExactAssetsUnderManagementWithExistingValue() external {
         uint256 currentTotalAssets         = 100e6; // Strategy holds 100 aTokens worth 100 assets.
         uint256 aaveTokenBalance           = 100e6; // Strategy holds 100 aTokens.
-        uint256 initialUnrealizedLosses    = 80e6;  // Existing unrealized losses are 80 assets.
-        uint256 additionalUnrealizedLosses = 20e6;  // Admin adds 20 assets of unrealized losses.
+        uint256 initialUnrealizedLosses    = 80e6; // Existing unrealized losses are 80 assets.
+        uint256 additionalUnrealizedLosses = 20e6; // Admin adds 20 assets of unrealized losses.
         uint256 expectedUnrealizedLosses   = 100e6; // Total unrealized losses equals 100 assets of AUM.
 
         setAaveV3StrategyState({
@@ -154,7 +154,7 @@ contract AaveV3ImpairSuccessTests is AaveV3TestBase {
         uint256 currentTotalAssets       = 100e6; // Strategy holds 100 aTokens worth 100 assets.
         uint256 aaveTokenBalance         = 100e6; // Strategy holds 100 aTokens.
         uint256 unrealizedLosses         = 101e6; // Admin records 101 assets of unrealized losses.
-        uint256 excessUnrealizedLosses   = 1e6;   // Unrealized losses exceed current AUM by 1 asset.
+        uint256 excessUnrealizedLosses   = 1e6; // Unrealized losses exceed current AUM by 1 asset.
         uint256 expectedUnrealizedLosses = 100e6; // Reported losses are capped by current AUM.
 
         setAaveV3StrategyState({
@@ -187,7 +187,7 @@ contract AaveV3ImpairSuccessTests is AaveV3TestBase {
         uint256 aaveTokenBalance        = 200e6;
         uint256 aaveLiquidity           = 300e6; // Aave liquidity is above the 200e6 strategy position.
         uint256 expectedAum             = 195e6; // 200e6 current assets - 2e6 delegate fee - 3e6 protocol fee.
-        uint256 unrealizedLosses        = 20e6;  // Admin records 20 assets of unrealized losses.
+        uint256 unrealizedLosses        = 20e6; // Admin records 20 assets of unrealized losses.
 
         setAaveV3StrategyState({
             lastRecordedTotalAssets_: lastRecordedTotalAssets,
@@ -231,9 +231,9 @@ contract AaveV3ImpairSuccessTests is AaveV3TestBase {
     function test_impair_success_clampsToAssetsUnderManagementWhenAumDrops() external {
         uint256 currentTotalAssets       = 100e6; // Strategy holds 100 aTokens worth 100 assets.
         uint256 aaveTokenBalance         = 100e6; // Strategy holds 100 aTokens.
-        uint256 unrealizedLosses         = 80e6;  // Admin records 80 assets of unrealized losses.
-        uint256 expectedAum              = 50e6;  // Strategy position drops to 50 assets.
-        uint256 expectedUnrealizedLosses = 50e6;  // 80 assets of losses capped by 50 assets of AUM.
+        uint256 unrealizedLosses         = 80e6; // Admin records 80 assets of unrealized losses.
+        uint256 expectedAum              = 50e6; // Strategy position drops to 50 assets.
+        uint256 expectedUnrealizedLosses = 50e6; // 80 assets of losses capped by 50 assets of AUM.
 
         setAaveV3StrategyState({
             lastRecordedTotalAssets_: currentTotalAssets,

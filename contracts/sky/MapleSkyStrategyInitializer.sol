@@ -3,22 +3,16 @@ pragma solidity ^0.8.34;
 
 import { IMapleSkyStrategyInitializer, SkyStrategyInitializerParams } from "../interfaces/IMapleSkyStrategyInitializer.sol";
 
-import {
-    IERC4626Like,
-    IGlobalsLike,
-    IPSMLike,
-    IProxyFactoryLike,
-    IStrategyManagerLike
-} from "../interfaces/Interfaces.sol";
+import { IERC4626Like, IGlobalsLike, IPSMLike, IProxyFactoryLike, IStrategyManagerLike } from "../interfaces/Interfaces.sol";
 
 import { MapleSkyStrategyStorage } from "./MapleSkyStrategyStorage.sol";
 
 contract MapleSkyStrategyInitializer is IMapleSkyStrategyInitializer, MapleSkyStrategyStorage {
 
     function _initialize(address strategyManager_, SkyStrategyInitializerParams memory params_) internal {
-        require(strategyManager_    != address(0), "MSSI:I:ZERO_STRATEGY_MANAGER");
+        require(strategyManager_ != address(0),    "MSSI:I:ZERO_STRATEGY_MANAGER");
         require(params_.savingsUsds != address(0), "MSSI:I:ZERO_SAVINGS_USDS");
-        require(params_.psm         != address(0), "MSSI:I:ZERO_PSM");
+        require(params_.psm != address(0),         "MSSI:I:ZERO_PSM");
 
         require(params_.strategyDelegateFeeRate + params_.strategyProtocolFeeRate <= 1e6, "MSSI:I:INVALID_SUM_FEE_RATE");
 

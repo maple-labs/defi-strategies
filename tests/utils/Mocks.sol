@@ -149,8 +149,9 @@ contract MockAaveDataProvider {
     }
 
     function getReserveConfigurationData(address asset_)
-        external view
-        returns ( uint256, uint256, uint256, uint256, uint256, bool, bool, bool, bool, bool )
+        external
+        view
+        returns (uint256, uint256, uint256, uint256, uint256, bool, bool, bool, bool, bool)
     {
         bool isActive_ = isActive[asset_];
 
@@ -399,7 +400,7 @@ contract MockSavingsUsds {
     }
 
     function deposit(uint256 assets_, address receiver_, uint16) external returns (uint256 shares_) {
-        shares_ = assets_ * susdsDepositExchangeRate / 1e18;
+        shares_               = assets_ * susdsDepositExchangeRate / 1e18;
         balanceOf[receiver_] += shares_;
 
         MockERC20(asset).transferFrom(msg.sender, address(this), assets_);
@@ -410,7 +411,7 @@ contract MockSavingsUsds {
     }
 
     function withdraw(uint256 assets_, address receiver_, address owner_) external returns (uint256 shares_) {
-        shares_ = assets_ * 1e18 / susdsRedeemExchangeRate;
+        shares_            = assets_ * 1e18 / susdsRedeemExchangeRate;
         balanceOf[owner_] -= shares_;
 
         MockERC20(asset).transfer(receiver_, assets_);

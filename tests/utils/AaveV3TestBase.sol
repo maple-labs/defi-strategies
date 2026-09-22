@@ -101,13 +101,7 @@ contract AaveV3TestBase is Test {
         strategy = MapleAaveV3StrategyHarness(factory.createInstance(arguments, "DEFAULT"));
     }
 
-    function assertAaveV3Strategy(
-        uint256 aaveTokenBalance,
-        uint256 lastRecordedTotalAssets,
-        uint256 assetsUnderManagement
-    )
-        internal view
-    {
+    function assertAaveV3Strategy(uint256 aaveTokenBalance, uint256 lastRecordedTotalAssets, uint256 assetsUnderManagement) internal view {
         assertEq(aaveToken.balanceOf(address(strategy)), aaveTokenBalance);
         assertEq(strategy.lastRecordedTotalAssets(),     lastRecordedTotalAssets);
         assertEq(strategy.assetsUnderManagement(),       assetsUnderManagement);

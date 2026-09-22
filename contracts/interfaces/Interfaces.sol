@@ -40,7 +40,9 @@ interface IAaveRewardsControllerLike {
         uint256 amount,
         address to,
         address rewardToken
-    ) external returns (uint256 rewardAmount);
+    )
+        external
+        returns (uint256 rewardAmount);
 
 }
 
@@ -55,17 +57,19 @@ interface IAavePoolDataProviderLike {
     function getPaused(address asset) external view returns (bool isPaused);
 
     function getReserveConfigurationData(address asset)
-        external view returns (
+        external
+        view
+        returns (
             uint256 decimals,
             uint256 ltv,
             uint256 liquidationThreshold,
             uint256 liquidationBonus,
             uint256 reserveFactor,
-            bool    usageAsCollateralEnabled,
-            bool    borrowingEnabled,
-            bool    stableBorrowRateEnabled,
-            bool    isActive,
-            bool    isFrozen
+            bool usageAsCollateralEnabled,
+            bool borrowingEnabled,
+            bool stableBorrowRateEnabled,
+            bool isActive,
+            bool isFrozen
         );
 
 }

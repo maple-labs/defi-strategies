@@ -47,7 +47,7 @@ contract AaveV3RecognizeLossSuccessTests is AaveV3TestBase {
     function test_recognizeLoss_success_strategyDelegate() external {
         uint256 currentTotalAssets = 100e6; // Strategy holds 100 aTokens worth 100 assets.
         uint256 aaveTokenBalance   = 100e6; // Strategy holds 100 aTokens.
-        uint256 unrealizedLosses   = 20e6;  // Strategy has 20 assets of unrealized losses recorded.
+        uint256 unrealizedLosses   = 20e6; // Strategy has 20 assets of unrealized losses recorded.
 
         setAaveV3StrategyState({
             lastRecordedTotalAssets_: currentTotalAssets,
@@ -91,7 +91,7 @@ contract AaveV3RecognizeLossSuccessTests is AaveV3TestBase {
     function test_recognizeLoss_success_operationalAdmin() external {
         uint256 currentTotalAssets = 100e6; // Strategy holds 100 aTokens worth 100 assets.
         uint256 aaveTokenBalance   = 100e6; // Strategy holds 100 aTokens.
-        uint256 unrealizedLosses   = 20e6;  // Strategy has 20 assets of unrealized losses recorded.
+        uint256 unrealizedLosses   = 20e6; // Strategy has 20 assets of unrealized losses recorded.
 
         setAaveV3StrategyState({
             lastRecordedTotalAssets_: currentTotalAssets,

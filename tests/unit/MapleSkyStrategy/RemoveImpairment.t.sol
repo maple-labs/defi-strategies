@@ -65,18 +65,18 @@ contract SkyRemoveImpairmentSuccessTests is SkyTestBase {
     function setUp() public override {
         super.setUp();
 
-        psm.__setUsdsDepositExchangeRate(1e18);          // 1 USDC  -> 1 USDS
-        psm.__setUsdsRedeemExchangeRate(1e18);           // 1 USDS  -> 1 USDC
+        psm.__setUsdsDepositExchangeRate(1e18); // 1 USDC  -> 1 USDS
+        psm.__setUsdsRedeemExchangeRate(1e18); // 1 USDS  -> 1 USDC
         savingsUsds.__setSusdsDepositExchangeRate(1e18); // 1 USDS  -> 1 sUSDS
-        savingsUsds.__setSusdsRedeemExchangeRate(1e18);  // 1 sUSDS -> 1 USDS
+        savingsUsds.__setSusdsRedeemExchangeRate(1e18); // 1 sUSDS -> 1 USDS
     }
 
     function test_removeImpairment_success_strategyDelegate() external {
-        uint256 currentTotalAssets       = 100e6;  // Strategy holds 100 sUSDS worth 100 assets.
+        uint256 currentTotalAssets       = 100e6; // Strategy holds 100 sUSDS worth 100 assets.
         uint256 susdsBalance             = 100e18; // Strategy holds 100 sUSDS.
-        uint256 initialUnrealizedLosses  = 20e6;   // Existing unrealized losses are 20 assets.
-        uint256 impairmentRemoved        = 5e6;    // Admin removes 5 assets of unrealized losses.
-        uint256 expectedUnrealizedLosses = 15e6;   // 20 assets of losses - 5 assets removed.
+        uint256 initialUnrealizedLosses  = 20e6; // Existing unrealized losses are 20 assets.
+        uint256 impairmentRemoved        = 5e6; // Admin removes 5 assets of unrealized losses.
+        uint256 expectedUnrealizedLosses = 15e6; // 20 assets of losses - 5 assets removed.
 
         setSkyStrategyState({
             lastRecordedTotalAssets_: currentTotalAssets,
@@ -99,11 +99,11 @@ contract SkyRemoveImpairmentSuccessTests is SkyTestBase {
     }
 
     function test_removeImpairment_success_operationalAdmin() external {
-        uint256 currentTotalAssets       = 100e6;  // Strategy holds 100 sUSDS worth 100 assets.
+        uint256 currentTotalAssets       = 100e6; // Strategy holds 100 sUSDS worth 100 assets.
         uint256 susdsBalance             = 100e18; // Strategy holds 100 sUSDS.
-        uint256 initialUnrealizedLosses  = 20e6;   // Existing unrealized losses are 20 assets.
-        uint256 impairmentRemoved        = 5e6;    // Admin removes 5 assets of unrealized losses.
-        uint256 expectedUnrealizedLosses = 15e6;   // 20 assets of losses - 5 assets removed.
+        uint256 initialUnrealizedLosses  = 20e6; // Existing unrealized losses are 20 assets.
+        uint256 impairmentRemoved        = 5e6; // Admin removes 5 assets of unrealized losses.
+        uint256 expectedUnrealizedLosses = 15e6; // 20 assets of losses - 5 assets removed.
 
         setSkyStrategyState({
             lastRecordedTotalAssets_: currentTotalAssets,
@@ -126,9 +126,9 @@ contract SkyRemoveImpairmentSuccessTests is SkyTestBase {
     }
 
     function test_removeImpairment_success_clearsExistingValue() external {
-        uint256 currentTotalAssets = 100e6;  // Strategy holds 100 sUSDS worth 100 assets.
+        uint256 currentTotalAssets = 100e6; // Strategy holds 100 sUSDS worth 100 assets.
         uint256 susdsBalance       = 100e18; // Strategy holds 100 sUSDS.
-        uint256 unrealizedLosses   = 20e6;   // Existing unrealized losses are 20 assets.
+        uint256 unrealizedLosses   = 20e6; // Existing unrealized losses are 20 assets.
 
         setSkyStrategyState({
             lastRecordedTotalAssets_: currentTotalAssets,
@@ -157,9 +157,9 @@ contract SkyRemoveImpairmentSuccessTests is SkyTestBase {
         uint256 susdsBalance             = 100e18;
         uint256 psmPocketLiquidity       = 300e6; // PSM pocket liquidity is above the 200e6 strategy position.
         uint256 expectedAum              = 195e6; // 200e6 current assets - 2e6 delegate fee - 3e6 protocol fee.
-        uint256 initialUnrealizedLosses  = 20e6;  // Existing unrealized losses are 20 assets.
-        uint256 impairmentRemoved        = 5e6;   // Admin removes 5 assets of unrealized losses.
-        uint256 expectedUnrealizedLosses = 15e6;  // 20 assets of losses - 5 assets removed.
+        uint256 initialUnrealizedLosses  = 20e6; // Existing unrealized losses are 20 assets.
+        uint256 impairmentRemoved        = 5e6; // Admin removes 5 assets of unrealized losses.
+        uint256 expectedUnrealizedLosses = 15e6; // 20 assets of losses - 5 assets removed.
 
         setSkyStrategyState({
             lastRecordedTotalAssets_: lastRecordedTotalAssets,

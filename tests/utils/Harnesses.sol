@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.0;
 
-import { MapleAaveV3Strategy }            from "../../contracts/aaveV3/MapleAaveV3Strategy.sol";
+import { MapleAaveV3Strategy } from "../../contracts/aaveV3/MapleAaveV3Strategy.sol";
 import { MapleAaveV3StrategyInitializer } from "../../contracts/aaveV3/MapleAaveV3StrategyInitializer.sol";
 
 import { AaveV3StrategyInitializerParams } from "../../contracts/interfaces/IMapleAaveV3StrategyInitializer.sol";
-import { SkyStrategyInitializerParams }    from "../../contracts/interfaces/IMapleSkyStrategyInitializer.sol";
+import { SkyStrategyInitializerParams } from "../../contracts/interfaces/IMapleSkyStrategyInitializer.sol";
 
-import { MapleSkyStrategy }            from "../../contracts/sky/MapleSkyStrategy.sol";
+import { MapleSkyStrategy } from "../../contracts/sky/MapleSkyStrategy.sol";
 import { MapleSkyStrategyInitializer } from "../../contracts/sky/MapleSkyStrategyInitializer.sol";
 
 contract MapleAaveV3StrategyHarness is MapleAaveV3Strategy {

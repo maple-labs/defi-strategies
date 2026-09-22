@@ -52,16 +52,16 @@ contract SkyImpairSuccessTests is SkyTestBase {
     function setUp() public override {
         super.setUp();
 
-        psm.__setUsdsDepositExchangeRate(1e18);          // 1 USDC  -> 1 USDS
-        psm.__setUsdsRedeemExchangeRate(1e18);           // 1 USDS  -> 1 USDC
+        psm.__setUsdsDepositExchangeRate(1e18); // 1 USDC  -> 1 USDS
+        psm.__setUsdsRedeemExchangeRate(1e18); // 1 USDS  -> 1 USDC
         savingsUsds.__setSusdsDepositExchangeRate(1e18); // 1 USDS  -> 1 sUSDS
-        savingsUsds.__setSusdsRedeemExchangeRate(1e18);  // 1 sUSDS -> 1 USDS
+        savingsUsds.__setSusdsRedeemExchangeRate(1e18); // 1 sUSDS -> 1 USDS
     }
 
     function test_impair_success_strategyDelegate() external {
-        uint256 currentTotalAssets = 100e6;  // Strategy holds 100 sUSDS worth 100 assets.
+        uint256 currentTotalAssets = 100e6; // Strategy holds 100 sUSDS worth 100 assets.
         uint256 susdsBalance       = 100e18; // Strategy holds 100 sUSDS.
-        uint256 unrealizedLosses   = 20e6;   // Admin records 20 assets of unrealized losses.
+        uint256 unrealizedLosses   = 20e6; // Admin records 20 assets of unrealized losses.
 
         setSkyStrategyState({
             lastRecordedTotalAssets_: currentTotalAssets,
@@ -82,9 +82,9 @@ contract SkyImpairSuccessTests is SkyTestBase {
     }
 
     function test_impair_success_operationalAdmin() external {
-        uint256 currentTotalAssets = 100e6;  // Strategy holds 100 sUSDS worth 100 assets.
+        uint256 currentTotalAssets = 100e6; // Strategy holds 100 sUSDS worth 100 assets.
         uint256 susdsBalance       = 100e18; // Strategy holds 100 sUSDS.
-        uint256 unrealizedLosses   = 20e6;   // Admin records 20 assets of unrealized losses.
+        uint256 unrealizedLosses   = 20e6; // Admin records 20 assets of unrealized losses.
 
         setSkyStrategyState({
             lastRecordedTotalAssets_: currentTotalAssets,
@@ -105,11 +105,11 @@ contract SkyImpairSuccessTests is SkyTestBase {
     }
 
     function test_impair_success_increasesExistingValue() external {
-        uint256 currentTotalAssets         = 100e6;  // Strategy holds 100 sUSDS worth 100 assets.
+        uint256 currentTotalAssets         = 100e6; // Strategy holds 100 sUSDS worth 100 assets.
         uint256 susdsBalance               = 100e18; // Strategy holds 100 sUSDS.
-        uint256 initialUnrealizedLosses    = 20e6;   // Existing unrealized losses are 20 assets.
-        uint256 additionalUnrealizedLosses = 10e6;   // Admin adds 10 assets of unrealized losses.
-        uint256 expectedUnrealizedLosses   = 30e6;   // 20 assets of losses + 10 additional assets.
+        uint256 initialUnrealizedLosses    = 20e6; // Existing unrealized losses are 20 assets.
+        uint256 additionalUnrealizedLosses = 10e6; // Admin adds 10 assets of unrealized losses.
+        uint256 expectedUnrealizedLosses   = 30e6; // 20 assets of losses + 10 additional assets.
 
         setSkyStrategyState({
             lastRecordedTotalAssets_: currentTotalAssets,
@@ -132,11 +132,11 @@ contract SkyImpairSuccessTests is SkyTestBase {
     }
 
     function test_impair_success_allowsExactAssetsUnderManagementWithExistingValue() external {
-        uint256 currentTotalAssets         = 100e6;  // Strategy holds 100 sUSDS worth 100 assets.
+        uint256 currentTotalAssets         = 100e6; // Strategy holds 100 sUSDS worth 100 assets.
         uint256 susdsBalance               = 100e18; // Strategy holds 100 sUSDS.
-        uint256 initialUnrealizedLosses    = 80e6;   // Existing unrealized losses are 80 assets.
-        uint256 additionalUnrealizedLosses = 20e6;   // Admin adds 20 assets of unrealized losses.
-        uint256 expectedUnrealizedLosses   = 100e6;  // Total unrealized losses equals 100 assets of AUM.
+        uint256 initialUnrealizedLosses    = 80e6; // Existing unrealized losses are 80 assets.
+        uint256 additionalUnrealizedLosses = 20e6; // Admin adds 20 assets of unrealized losses.
+        uint256 expectedUnrealizedLosses   = 100e6; // Total unrealized losses equals 100 assets of AUM.
 
         setSkyStrategyState({
             lastRecordedTotalAssets_: currentTotalAssets,
@@ -160,11 +160,11 @@ contract SkyImpairSuccessTests is SkyTestBase {
     }
 
     function test_impair_success_capsToAssetsUnderManagement() external {
-        uint256 currentTotalAssets       = 100e6;  // Strategy holds 100 sUSDS worth 100 assets.
+        uint256 currentTotalAssets       = 100e6; // Strategy holds 100 sUSDS worth 100 assets.
         uint256 susdsBalance             = 100e18; // Strategy holds 100 sUSDS.
-        uint256 unrealizedLosses         = 101e6;  // Admin records 101 assets of unrealized losses.
-        uint256 excessUnrealizedLosses   = 1e6;    // Unrealized losses exceed current AUM by 1 asset.
-        uint256 expectedUnrealizedLosses = 100e6;  // Reported losses are capped by current AUM.
+        uint256 unrealizedLosses         = 101e6; // Admin records 101 assets of unrealized losses.
+        uint256 excessUnrealizedLosses   = 1e6; // Unrealized losses exceed current AUM by 1 asset.
+        uint256 expectedUnrealizedLosses = 100e6; // Reported losses are capped by current AUM.
 
         setSkyStrategyState({
             lastRecordedTotalAssets_: currentTotalAssets,
@@ -198,7 +198,7 @@ contract SkyImpairSuccessTests is SkyTestBase {
         uint256 susdsBalance            = 100e18;
         uint256 psmPocketLiquidity      = 300e6; // PSM pocket liquidity is above the 200e6 strategy position.
         uint256 expectedAum             = 195e6; // 200e6 current assets - 2e6 delegate fee - 3e6 protocol fee.
-        uint256 unrealizedLosses        = 20e6;  // Admin records 20 assets of unrealized losses.
+        uint256 unrealizedLosses        = 20e6; // Admin records 20 assets of unrealized losses.
 
         setSkyStrategyState({
             lastRecordedTotalAssets_: lastRecordedTotalAssets,
@@ -240,12 +240,12 @@ contract SkyImpairSuccessTests is SkyTestBase {
     }
 
     function test_impair_success_clampsToAssetsUnderManagementWhenAumDrops() external {
-        uint256 currentTotalAssets       = 100e6;  // Strategy holds 100 sUSDS worth 100 assets.
+        uint256 currentTotalAssets       = 100e6; // Strategy holds 100 sUSDS worth 100 assets.
         uint256 susdsBalance             = 100e18; // Strategy holds 100 sUSDS.
-        uint256 unrealizedLosses         = 80e6;   // Admin records 80 assets of unrealized losses.
+        uint256 unrealizedLosses         = 80e6; // Admin records 80 assets of unrealized losses.
         uint256 newRate                  = 0.5e18; // 1 sUSDS = 0.5 USDS (50% loss).
-        uint256 expectedAum              = 50e6;   // 100 sUSDS * 0.5 USDS/sUSDS = 50 assets.
-        uint256 expectedUnrealizedLosses = 50e6;   // 80 assets of losses capped by 50 assets of AUM.
+        uint256 expectedAum              = 50e6; // 100 sUSDS * 0.5 USDS/sUSDS = 50 assets.
+        uint256 expectedUnrealizedLosses = 50e6; // 80 assets of losses capped by 50 assets of AUM.
 
         setSkyStrategyState({
             lastRecordedTotalAssets_: currentTotalAssets,
