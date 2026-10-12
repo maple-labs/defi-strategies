@@ -178,6 +178,7 @@ interface IMapleSkyStrategy is IMapleSkyStrategyStorage, IMapleProxied {
      *  @dev   Sets the percentage of yield collected by the strategy delegate.
      *         Callable only by the strategy delegate.
      *         Accrues outstanding fees before updating the rate.
+     *         Reverts while Sky halts the PSM `buyGem` path by setting the live `tout` to type(uint256).max.
      *         The combined strategy delegate and protocol fee rates cannot exceed 1e6.
      *  @param strategyDelegateFeeRate Percentage of yield collected by the strategy delegate, defined with 6 decimals
      *                                 of precision (1e6 == 100%).
@@ -188,6 +189,7 @@ interface IMapleSkyStrategy is IMapleSkyStrategyStorage, IMapleProxied {
      *  @dev   Sets the percentage of yield collected by the Maple treasury.
      *         Callable only by protocol admins.
      *         Accrues outstanding fees before updating the rate.
+     *         Reverts while Sky halts the PSM `buyGem` path by setting the live `tout` to type(uint256).max.
      *         The combined strategy delegate and protocol fee rates cannot exceed 1e6.
      *  @param strategyProtocolFeeRate Percentage of yield collected by the Maple treasury, defined with 6 decimals
      *                                 of precision (1e6 == 100%).

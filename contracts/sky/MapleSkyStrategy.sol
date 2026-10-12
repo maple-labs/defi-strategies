@@ -302,6 +302,8 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
         address psm_         = psm;
         address savingsUsds_ = savingsUsds;
 
+        require(IPSMLike(psm_).tout() != type(uint256).max, "MSS:SSDFR:PSM_HALTED");
+
         _accrueFees(psm_, savingsUsds_);
 
         lastRecordedTotalAssets = _currentTotalAssets(psm_, savingsUsds_);
@@ -325,6 +327,8 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
 
         address psm_         = psm;
         address savingsUsds_ = savingsUsds;
+
+        require(IPSMLike(psm_).tout() != type(uint256).max, "MSS:SSPFR:PSM_HALTED");
 
         _accrueFees(psm_, savingsUsds_);
 

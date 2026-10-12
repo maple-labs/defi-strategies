@@ -84,6 +84,16 @@ contract SkySetStrategyProtocolFeeRateFailureTests is SkyTestBase {
         strategy.setStrategyProtocolFeeRate(strategyProtocolFeeRate_);
     }
 
+    function test_setStrategyProtocolFeeRate_revert_psmHalted() external {
+        uint32 strategyProtocolFeeRate_ = 0.04e6; // 4% protocol fee
+
+        psm.__setTout(type(uint256).max); // Sky halts `buyGem` with a max tout
+
+        vm.prank(governor);
+        vm.expectRevert("MSS:SSPFR:PSM_HALTED");
+        strategy.setStrategyProtocolFeeRate(strategyProtocolFeeRate_);
+    }
+
 }
 
 contract SkySetStrategyProtocolFeeRateSuccessTests is SkyTestBase {

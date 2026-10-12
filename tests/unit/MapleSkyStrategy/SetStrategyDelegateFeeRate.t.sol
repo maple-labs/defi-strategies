@@ -84,6 +84,16 @@ contract SkySetStrategyDelegateFeeRateFailureTests is SkyTestBase {
         strategy.setStrategyDelegateFeeRate(strategyDelegateFeeRate_);
     }
 
+    function test_setStrategyDelegateFeeRate_revert_psmHalted() external {
+        uint32 strategyDelegateFeeRate_ = 0.04e6; // 4% delegate fee
+
+        psm.__setTout(type(uint256).max); // Sky halts `buyGem` with a max tout
+
+        vm.prank(strategyDelegate);
+        vm.expectRevert("MSS:SSDFR:PSM_HALTED");
+        strategy.setStrategyDelegateFeeRate(strategyDelegateFeeRate_);
+    }
+
 }
 
 contract SkySetStrategyDelegateFeeRateSuccessTests is SkyTestBase {
