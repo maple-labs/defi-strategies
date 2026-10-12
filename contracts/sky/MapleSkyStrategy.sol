@@ -249,8 +249,8 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
         onlyOpsAdminOrStrategyDelegate
         whenLossNotRecognized
     {
-        require(fallbackTout_ != fallbackTout,      "MSS:SFT:NO_CHANGE");
-        require(fallbackTout_ != type(uint256).max, "MSS:SFT:INVALID_TOUT");
+        require(fallbackTout_ != fallbackTout, "MSS:SFT:NO_CHANGE");
+        require(fallbackTout_ <= WAD,          "MSS:SFT:INVALID_TOUT");
 
         fallbackTout = fallbackTout_;
 

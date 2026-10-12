@@ -47,10 +47,16 @@ contract SkySetFallbackToutFailureTests is SkyTestBase {
         strategy.setFallbackTout(0.25e18);
     }
 
-    function test_setFallbackTout_revert_invalidTout() external {
+    function test_setFallbackTout_revert_invalidTout_max() external {
         vm.prank(strategyDelegate);
         vm.expectRevert("MSS:SFT:INVALID_TOUT");
         strategy.setFallbackTout(type(uint256).max);
+    }
+
+    function test_setFallbackTout_revert_invalidTout_aboveWad() external {
+        vm.prank(strategyDelegate);
+        vm.expectRevert("MSS:SFT:INVALID_TOUT");
+        strategy.setFallbackTout(1e18 + 1);
     }
 
 }
@@ -91,6 +97,20 @@ contract SkySetFallbackToutSuccessTests is SkyTestBase {
         uint256 fallbackTout_ = 0.25e18;
 
         assertEq(strategy.fallbackTout(), 0.1e18);
+
+        vm.expectEmit();
+        emit IMapleSkyStrategy.FallbackToutSet(fallbackTout_);
+
+        vm.prank(strategyDelegate);
+        strategy.setFallbackTout(fallbackTout_);
+
+        assertEq(strategy.fallbackTout(), fallbackTout_);
+    }
+
+    function test_setFallbackTout_success_wadBoundary() external {
+        uint256 fallbackTout_ = 1e18;
+
+        assertEq(strategy.fallbackTout(), 0);
 
         vm.expectEmit();
         emit IMapleSkyStrategy.FallbackToutSet(fallbackTout_);

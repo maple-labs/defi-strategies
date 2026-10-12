@@ -155,7 +155,7 @@ interface IMapleSkyStrategy is IMapleSkyStrategyStorage, IMapleProxied {
     /**
      *  @dev   Sets the fallback PSM `tout` used to value the position while Sky halts the PSM `buyGem` path
      *         by setting the live `tout` to type(uint256).max. Callable only by the strategy delegate or operational
-     *         admin. Operationally managed to mirror the PSM `tout` prior to any halt; cannot itself be type(uint256).max.
+     *         admin. Operationally managed to mirror the PSM `tout` prior to any halt; cannot exceed 1e18 (a 100% fee).
      *  @param fallbackTout PSM `tout` value used for valuation while the live `tout` is type(uint256).max.
      */
     function setFallbackTout(uint256 fallbackTout) external;
