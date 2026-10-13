@@ -157,7 +157,7 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
         require(IPSMLike(psm_).tout() != type(uint256).max,                             "MSS:FUS:PSM_HALTED");
         require(IDaiJoinLike(ILitePSMLike(IPSMLike(psm_).psm()).daiJoin()).live() == 1, "MSS:FUS:DAI_JOIN_CAGED");
 
-        _accrueFees(psm_, savingsUsds_);
+        _harvestAndWithdraw(psm_, savingsUsds_, 0, address(0));
 
         uint256 aumBefore_ = _currentTotalAssets(psm_, savingsUsds_);
 
@@ -194,9 +194,7 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
         address psm_         = psm;
         address savingsUsds_ = savingsUsds;
 
-        _accrueFees(psm_, savingsUsds_);
-
-        uint256 sharesBurned_ = _withdraw(psm_, savingsUsds_, assets_, destination_);
+        uint256 sharesBurned_ = _harvestAndWithdraw(psm_, savingsUsds_, assets_, destination_);
 
         lastRecordedTotalAssets = _currentTotalAssets(psm_, savingsUsds_);
 
@@ -314,7 +312,7 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
 
         require(IPSMLike(psm_).tout() != type(uint256).max, "MSS:SSDFR:PSM_HALTED");
 
-        _accrueFees(psm_, savingsUsds_);
+        _harvestAndWithdraw(psm_, savingsUsds_, 0, address(0));
 
         lastRecordedTotalAssets = _currentTotalAssets(psm_, savingsUsds_);
 
@@ -340,7 +338,7 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
 
         require(IPSMLike(psm_).tout() != type(uint256).max, "MSS:SSPFR:PSM_HALTED");
 
-        _accrueFees(psm_, savingsUsds_);
+        _harvestAndWithdraw(psm_, savingsUsds_, 0, address(0));
 
         lastRecordedTotalAssets = _currentTotalAssets(psm_, savingsUsds_);
 
@@ -429,25 +427,46 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
     /*** Internal Functions                                                                                                             ***/
     /**************************************************************************************************************************************/
 
-    function _accrueFees(address psm_, address savingsUsds_) internal {
+    function _harvestAndWithdraw(
+        address psm_,
+        address savingsUsds_,
+        uint256 assets_,
+        address destination_
+    )
+        internal
+        returns (uint256 sharesBurned_)
+    {
+        address fundsAsset_ = fundsAsset;
+
         uint256 currentTotalAssets_ = _currentTotalAssets(psm_, savingsUsds_);
 
         (uint256 delegateFee_, uint256 protocolFee_) = _currentAccruedFees(currentTotalAssets_);
 
-        if (delegateFee_ != 0) _withdraw(psm_, savingsUsds_, delegateFee_, strategyDelegate());
-        if (protocolFee_ != 0) _withdraw(psm_, savingsUsds_, protocolFee_, mapleTreasury());
+        uint256 totalToWithdraw_ = assets_ + delegateFee_ + protocolFee_;
+
+        if (totalToWithdraw_ != 0) {
+            uint256 requiredUsds_ = _usdsForGem(psm_, totalToWithdraw_);
+
+            sharesBurned_ = IERC4626Like(savingsUsds_).withdraw(requiredUsds_, address(this), address(this));
+
+            require(ERC20Helper.approve(usds, psm_, requiredUsds_), "MSS:HAW:USDS_APPROVE_FAIL");
+
+            IPSMLike(psm_).buyGem(address(this), totalToWithdraw_);
+        }
+
+        if (delegateFee_ != 0) {
+            require(ERC20Helper.transfer(fundsAsset_, strategyDelegate(), delegateFee_), "MSS:HAW:DELEGATE_TRANSFER_FAIL");
+        }
+
+        if (protocolFee_ != 0) {
+            require(ERC20Helper.transfer(fundsAsset_, mapleTreasury(), protocolFee_), "MSS:HAW:PROTOCOL_TRANSFER_FAIL");
+        }
 
         emit StrategyFeesCollected(delegateFee_, protocolFee_);
-    }
 
-    function _withdraw(address psm_, address savingsUsds_, uint256 assets_, address destination_) internal returns (uint256 sharesBurned_) {
-        uint256 requiredUsds_ = _usdsForGem(psm_, assets_);
-
-        sharesBurned_ = IERC4626Like(savingsUsds_).withdraw(requiredUsds_, address(this), address(this));
-
-        require(ERC20Helper.approve(usds, psm_, requiredUsds_), "MSS:W:USDS_APPROVE_FAIL");
-
-        IPSMLike(psm_).buyGem(destination_, assets_);
+        if (assets_ != 0 && destination_ != address(0)) {
+            require(ERC20Helper.transfer(fundsAsset_, destination_, assets_), "MSS:HAW:ASSET_TRANSFER_FAIL");
+        }
     }
 
     /**************************************************************************************************************************************/

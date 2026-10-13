@@ -88,8 +88,8 @@ interface IMapleSkyStrategy is IMapleSkyStrategyStorage, IMapleProxied {
     /**
      *  @dev   Emitted when funds asset is withdrawn from the underlying Sky strategy to a destination.
      *  @param destination  Address that received the funds asset.
-     *  @param sharesBurned Amount of sUSDS shares burned to satisfy the redemption.
-     *  @param assetsOut    Amount of funds asset delivered to the destination.
+     *  @param sharesBurned Amount of sUSDS shares burned, including those burned to cover the accrued delegate and protocol fees.
+     *  @param assetsOut    Amount of funds asset delivered to the destination, excluding the fees reported by `StrategyFeesCollected`.
      */
     event StrategyWithdrawal(address indexed destination, uint256 sharesBurned, uint256 assetsOut);
 

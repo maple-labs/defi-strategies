@@ -58,8 +58,65 @@ contract WithdrawFromUnderlyingStrategyFailureTests is SkyTestBase {
         usds.__setApproveReverts(address(psm), true);
 
         vm.prank(address(strategyManager));
-        vm.expectRevert("MSS:W:USDS_APPROVE_FAIL");
+        vm.expectRevert("MSS:HAW:USDS_APPROVE_FAIL");
         strategy.withdrawFromUnderlyingStrategy(makeAddr("destination"), 1, "");
+    }
+
+    function test_withdrawFromUnderlyingStrategy_revert_delegateTransferFailure() external {
+        strategy.__setStrategyDelegateFeeRate(0.02e6);
+        strategy.__setStrategyProtocolFeeRate(0);
+
+        savingsUsds.__setSusdsRedeemExchangeRate(1e18);
+        psm.__setUsdsRedeemExchangeRate(1e18);
+
+        setSkyStrategyState({
+            lastRecordedTotalAssets_: 100e6,
+            susdsBalance_:            200e18
+        });
+
+        asset.__setTransferReverts(true);
+
+        vm.prank(address(strategyManager));
+        vm.expectRevert("MSS:HAW:DELEGATE_TRANSFER_FAIL");
+        strategy.withdrawFromUnderlyingStrategy(makeAddr("destination"), 50e6, "");
+    }
+
+    function test_withdrawFromUnderlyingStrategy_revert_protocolTransferFailure() external {
+        strategy.__setStrategyDelegateFeeRate(0);
+        strategy.__setStrategyProtocolFeeRate(0.03e6);
+
+        savingsUsds.__setSusdsRedeemExchangeRate(1e18);
+        psm.__setUsdsRedeemExchangeRate(1e18);
+
+        setSkyStrategyState({
+            lastRecordedTotalAssets_: 100e6,
+            susdsBalance_:            200e18
+        });
+
+        asset.__setTransferReverts(true);
+
+        vm.prank(address(strategyManager));
+        vm.expectRevert("MSS:HAW:PROTOCOL_TRANSFER_FAIL");
+        strategy.withdrawFromUnderlyingStrategy(makeAddr("destination"), 50e6, "");
+    }
+
+    function test_withdrawFromUnderlyingStrategy_revert_assetTransferFailure() external {
+        strategy.__setStrategyDelegateFeeRate(0);
+        strategy.__setStrategyProtocolFeeRate(0);
+
+        savingsUsds.__setSusdsRedeemExchangeRate(1e18);
+        psm.__setUsdsRedeemExchangeRate(1e18);
+
+        setSkyStrategyState({
+            lastRecordedTotalAssets_: 100e6,
+            susdsBalance_:            200e18
+        });
+
+        asset.__setTransferReverts(true);
+
+        vm.prank(address(strategyManager));
+        vm.expectRevert("MSS:HAW:ASSET_TRANSFER_FAIL");
+        strategy.withdrawFromUnderlyingStrategy(makeAddr("destination"), 50e6, "");
     }
 
 }
@@ -455,10 +512,10 @@ contract WithdrawFromUnderlyingStrategySuccessTests is SkyTestBase {
         /*** Step 2: Execute and assert                                                                                                 ***/
         /**********************************************************************************************************************************/
 
-        uint256 withdrawAssets = 50e6;
-        uint256 expectedDelegateFee = 2e6; // 100 yield × 2%
-        uint256 expectedProtocolFee = 3e6; // 100 yield × 3%
-        uint256 expectedSharesBurned = 25e18; // 50 USDS / 2.0 sUSDS rate (user-withdraw shares only, excludes fee-accrual burns)
+        uint256 withdrawAssets                    = 50e6;
+        uint256 expectedDelegateFee               = 2e6; // 100 yield × 2%
+        uint256 expectedProtocolFee               = 3e6; // 100 yield × 3%
+        uint256 expectedSharesBurned              = 27.5e18; // (50 withdrawn + 5 fees) USDS / 2.0 sUSDS rate
         uint256 expectedSusdsBalanceAfterWithdraw = 72.5e18; // 100 (existing) - 2.5 (burnt for 5 USDC fees) - 25 (burnt for 50 USDC)
         uint256 expectedLastRecordedAfterWithdraw = 145e6; // 72.5 sUSDS × 2.0 = 145 USDS = 145 USDC
 
@@ -522,7 +579,7 @@ contract WithdrawFromUnderlyingStrategySuccessTests is SkyTestBase {
         uint256 withdrawAssets                    = 200e6;
         uint256 expectedDelegateFee               = 4e6; // 200 phantom yield × 2%
         uint256 expectedProtocolFee               = 6e6; // 200 phantom yield × 3%
-        uint256 expectedSharesBurned              = 200e18; // 200 USDS / 1.0 sUSDS rate (user-withdraw shares only)
+        uint256 expectedSharesBurned              = 210e18; // (200 withdrawn + 10 fees) USDS / 1.0 sUSDS rate
         uint256 expectedSusdsBalanceAfterWithdraw = 790e18; // 1000 (existing) - 10 (burnt for fees) - 200 (burnt for user withdraw)
         uint256 expectedLastRecordedAfterWithdraw = 790e6; // 790 sUSDS × 1.0 = 790 USDS = 790 USDC
 
@@ -673,7 +730,7 @@ contract WithdrawFromUnderlyingStrategySuccessTests is SkyTestBase {
         uint256 withdrawAssets       = 390e6;
         uint256 expectedDelegateFee  = 4e6; // 200 yield × 2%
         uint256 expectedProtocolFee  = 6e6; // 200 yield × 3%
-        uint256 expectedSharesBurned = 243.75e18; // 390 USDC × 1.25 tout multiplier = 487.5 USDS / 2.0 sUSDS rate (user-withdraw only)
+        uint256 expectedSharesBurned = 250e18; // (390 withdrawn + 10 fees) USDC × 1.25 tout multiplier = 500 USDS / 2.0 sUSDS rate
 
         vm.expectEmit();
         emit IMapleSkyStrategy.StrategyFeesCollected(expectedDelegateFee, expectedProtocolFee);

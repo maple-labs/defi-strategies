@@ -105,7 +105,7 @@ contract SkyFundUnderlyingStrategyFailureTests is SkyTestBase {
         usds.__setApproveReverts(address(psm), true);
 
         vm.prank(address(strategyManager));
-        vm.expectRevert("MSS:W:USDS_APPROVE_FAIL");
+        vm.expectRevert("MSS:HAW:USDS_APPROVE_FAIL");
         strategy.fundUnderlyingStrategy(1, "");
     }
 
