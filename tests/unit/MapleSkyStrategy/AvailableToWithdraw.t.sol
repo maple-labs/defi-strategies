@@ -31,6 +31,19 @@ contract SkyAvailableToWithdrawTests is SkyTestBase {
         assertEq(strategy.availableToWithdraw(), 0);
     }
 
+    function test_availableToWithdraw_success_daiJoinCaged() external {
+        daiJoin.__setLive(0);
+
+        setSkyStrategyState({
+            lastRecordedTotalAssets_: 0,
+            susdsBalance_:            100e18
+        });
+
+        setPsmPocketLiquidity(100e6);
+
+        assertEq(strategy.availableToWithdraw(), 0);
+    }
+
     function test_availableToWithdraw_success_zeroPosition() external {
         setPsmPocketLiquidity(100e6);
 

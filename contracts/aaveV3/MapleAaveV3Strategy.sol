@@ -370,7 +370,6 @@ contract MapleAaveV3Strategy is IMapleAaveV3Strategy, MapleAaveV3StrategyStorage
 
         if (!_isAaveReserveWithdrawable(aavePool_, fundsAsset_)) return 0;
 
-        // @AUDIT: To confirm preferred way to query AaveV3 liquidity
         uint256 aaveLiquidity_ = useVirtualUnderlyingBalance
             ? IAavePoolLike(aavePool_).getVirtualUnderlyingBalance(fundsAsset_)
             : IERC20Like(fundsAsset_).balanceOf(aaveToken_);
@@ -472,7 +471,6 @@ contract MapleAaveV3Strategy is IMapleAaveV3Strategy, MapleAaveV3StrategyStorage
         currentTotalAssets_ = IAaveTokenLike(aaveToken_).balanceOf(address(this));
     }
 
-    // @AUDIT: To confirm Aave V3 and Spark validateWithdraw logic is the same
     function _isAaveReserveWithdrawable(address aavePool_, address fundsAsset_) internal view returns (bool isWithdrawable_) {
         address addressesProvider_ = IAavePoolLike(aavePool_).ADDRESSES_PROVIDER();
         address poolDataProvider_  = IAavePoolAddressesProviderLike(addressesProvider_).getPoolDataProvider();

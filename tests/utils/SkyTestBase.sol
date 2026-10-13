@@ -9,7 +9,7 @@ import { MapleSkyStrategyFactory } from "../../contracts/sky/MapleSkyStrategyFac
 
 import { MapleSkyStrategyHarness, MapleSkyStrategyInitializerHarness } from "./Harnesses.sol";
 
-import { MockAsset, MockFactory, MockGlobals, MockManager, MockPsm, MockSavingsUsds } from "./Mocks.sol";
+import { MockAsset, MockDaiJoin, MockFactory, MockGlobals, MockManager, MockPsm, MockSavingsUsds } from "./Mocks.sol";
 
 contract SkyTestBase is Test {
 
@@ -32,6 +32,7 @@ contract SkyTestBase is Test {
 
     MockAsset       asset           = new MockAsset();
     MockAsset       usds            = new MockAsset();
+    MockDaiJoin     daiJoin         = new MockDaiJoin();
     MockFactory     managerFactory  = new MockFactory();
     MockGlobals     globals         = new MockGlobals();
     MockManager     strategyManager = new MockManager();
@@ -42,6 +43,7 @@ contract SkyTestBase is Test {
     MapleSkyStrategyHarness strategy;
 
     function setUp() public virtual {
+        psm.__setDaiJoin(address(daiJoin));
         psm.__setGem(address(asset));
         psm.__setPocket(psmPocket);
         psm.__setTo18ConversionFactor(1e12);

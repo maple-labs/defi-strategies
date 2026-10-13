@@ -303,8 +303,19 @@ contract MockManager {
 
 }
 
+contract MockDaiJoin {
+
+    uint256 public live = 1;
+
+    function __setLive(uint256 live_) external {
+        live = live_;
+    }
+
+}
+
 contract MockPsm {
 
+    address public daiJoin;
     address public gem;
     address public pocket;
     address public usds;
@@ -314,6 +325,10 @@ contract MockPsm {
 
     uint256 public usdsDepositExchangeRate;
     uint256 public usdsRedeemExchangeRate;
+
+    function __setDaiJoin(address daiJoin_) external {
+        daiJoin = daiJoin_;
+    }
 
     function __setGem(address gem_) external {
         gem = gem_;
@@ -341,6 +356,10 @@ contract MockPsm {
 
     function __setUsdsRedeemExchangeRate(uint256 rate_) external {
         usdsRedeemExchangeRate = rate_;
+    }
+
+    function psm() external view returns (address psm_) {
+        psm_ = address(this);
     }
 
     function buyGem(address usr_, uint256 gemAmount_) external returns (uint256 usdsIn_) {

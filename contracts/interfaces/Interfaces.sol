@@ -106,14 +106,27 @@ interface IERC4626Like {
 
 }
 
+interface IDaiJoinLike {
+
+    function live() external view returns (uint256);
+
+}
+
+interface ILitePSMLike {
+
+    function daiJoin() external view returns (address);
+
+}
+
 interface IPSMLike {
 
     function buyGem(address usr, uint256 gemAmount) external returns (uint256 usdsInWad);
 
     function gem() external view returns (address);
 
-    // LitePSM-compatible PSMs hold gem liquidity in a separate pocket address.
     function pocket() external view returns (address);
+
+    function psm() external view returns (address);
 
     function sellGem(address usr, uint256 gemAmount) external returns (uint256 usdsOutWad);
 

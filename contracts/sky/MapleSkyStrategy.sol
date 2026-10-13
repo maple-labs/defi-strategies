@@ -7,7 +7,16 @@ import { MapleProxiedInternals } from "../../modules/proxy-factory/contracts/Map
 
 import { IMapleSkyStrategy } from "../interfaces/IMapleSkyStrategy.sol";
 
-import { IERC20Like, IERC4626Like, IGlobalsLike, IPSMLike, IProxyFactoryLike, IStrategyManagerLike } from "../interfaces/Interfaces.sol";
+import {
+    IDaiJoinLike,
+    IERC20Like,
+    IERC4626Like,
+    IGlobalsLike,
+    ILitePSMLike,
+    IPSMLike,
+    IProxyFactoryLike,
+    IStrategyManagerLike
+} from "../interfaces/Interfaces.sol";
 
 import { MapleSkyStrategyStorage } from "./MapleSkyStrategyStorage.sol";
 
@@ -145,7 +154,8 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
         require(IGlobalsLike(globals_).isInstanceOf("STRATEGY_VAULT", savingsUsds_), "MSS:FUS:INVALID_STRATEGY_VAULT");
         require(IGlobalsLike(globals_).isInstanceOf("PSM", psm_),                    "MSS:FUS:INVALID_PSM");
 
-        require(IPSMLike(psm_).tout() != type(uint256).max, "MSS:FUS:PSM_HALTED");
+        require(IPSMLike(psm_).tout() != type(uint256).max,                             "MSS:FUS:PSM_HALTED");
+        require(IDaiJoinLike(ILitePSMLike(IPSMLike(psm_).psm()).daiJoin()).live() == 1, "MSS:FUS:DAI_JOIN_CAGED");
 
         _accrueFees(psm_, savingsUsds_);
 
@@ -362,6 +372,8 @@ contract MapleSkyStrategy is IMapleSkyStrategy, MapleSkyStrategyStorage, MaplePr
         address savingsUsds_ = savingsUsds;
 
         if (IPSMLike(psm_).tout() == type(uint256).max) return 0;
+
+        if (IDaiJoinLike(ILitePSMLike(IPSMLike(psm_).psm()).daiJoin()).live() != 1) return 0;
 
         uint256 currentTotalAssets_ = _currentTotalAssets(psm_, savingsUsds_);
         uint256 psmPocketLiquidity_ = IERC20Like(fundsAsset).balanceOf(IPSMLike(psm_).pocket());

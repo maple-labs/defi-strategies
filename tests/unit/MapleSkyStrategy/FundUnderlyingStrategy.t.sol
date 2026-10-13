@@ -69,6 +69,14 @@ contract SkyFundUnderlyingStrategyFailureTests is SkyTestBase {
         strategy.fundUnderlyingStrategy(1, "");
     }
 
+    function test_fundUnderlyingStrategy_revert_daiJoinCaged() external {
+        daiJoin.__setLive(0);
+
+        vm.prank(address(strategyManager));
+        vm.expectRevert("MSS:FUS:DAI_JOIN_CAGED");
+        strategy.fundUnderlyingStrategy(1, "");
+    }
+
     function test_fundUnderlyingStrategy_revert_gemApproveFail() external {
         asset.__setApproveReverts(address(psm), true);
 
